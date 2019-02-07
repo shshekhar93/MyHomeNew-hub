@@ -1,0 +1,54 @@
+{
+  "name": "react-boiler-plate",
+  "version": "1.0.0",
+  "description": "boiler plate code required for starting react library project",
+  "main": "dist/bundle.js",
+  "scripts": {
+    "test": "gurnt test",
+    "webpack": "webpack"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-react"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/shashi20008/react-boiler-plate.git"
+  },
+  "keywords": [
+    "React",
+    "boiler",
+    "plate",
+    "react",
+    "boiler",
+    "plate"
+  ],
+  "author": "Shashi Shekhar (shashi20008@gmail.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/shashi20008/react-boiler-plate/issues"
+  },
+  "homepage": "https://github.com/shashi20008/react-boiler-plate#readme",
+  "dependencies": {
+    "bluebird": "^3.5.3",
+    "lodash": "^4.17.11",
+    "react": "^16.8.1",
+    "react-dom": "^16.8.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.3.1",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.5",
+    "css-loader": "^2.1.0",
+    "less": "^3.9.0",
+    "less-loader": "^4.1.0",
+    "promise-polyfill": "^8.1.0",
+    "style-loader": "^0.23.1",
+    "webpack": "^4.29.3",
+    "webpack-cli": "^3.2.3",
+    "whatwg-fetch": "^3.0.0"
+  }
+}

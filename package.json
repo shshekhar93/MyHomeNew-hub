@@ -2,7 +2,7 @@
   "name": "react-boiler-plate",
   "version": "1.0.0",
   "description": "boiler plate code required for starting react library project",
-  "main": "dist/bundle.js",
+  "main": "index.js",
   "scripts": {
     "test": "gurnt test",
     "webpack": "webpack"
@@ -33,7 +33,14 @@
   "homepage": "https://github.com/shashi20008/react-boiler-plate#readme",
   "dependencies": {
     "bluebird": "^3.5.3",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "express-session": "^1.15.6",
     "lodash": "^4.17.11",
+    "mdns": "^2.4.0",
+    "morgan": "^1.9.1",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0",
     "react": "^16.8.1",
     "react-dom": "^16.8.1"
   },
@@ -42,10 +49,14 @@
     "@babel/preset-env": "^7.3.1",
     "@babel/preset-react": "^7.0.0",
     "babel-loader": "^8.0.5",
+    "bootstrap": "^4.2.1",
     "css-loader": "^2.1.0",
     "less": "^3.9.0",
     "less-loader": "^4.1.0",
+    "node-sass": "^4.11.0",
     "promise-polyfill": "^8.1.0",
+    "react-bootstrap": "^1.0.0-beta.5",
+    "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
     "webpack": "^4.29.3",
     "webpack-cli": "^3.2.3",

@@ -3,7 +3,7 @@ const webpack = require('webpack');
 
 module.exports = {
   entry: './src/index.js',
-  watch: false,
+  watch: true,
   module: {
     rules: [
       {
@@ -14,6 +14,10 @@ module.exports = {
       {
         test: /\.less$/,
         use: ['style-loader', 'css-loader', 'less-loader']
+      },
+      {
+        test: /\.scss$/,
+        use: ['style-loader', 'css-loader', 'sass-loader']
       }
     ]
   },
@@ -26,7 +30,7 @@ module.exports = {
     filename: 'bundle.js'
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin()
+    // new webpack.HotModuleReplacementPlugin()
   ],
   devServer: {
     contentBase: './dist',

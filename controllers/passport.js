@@ -2,28 +2,36 @@
 
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const _pick = require('lodash/pick');
+const bcrypt = require('bcrypt');
+const Bluebird = require('bluebird');
+const UserModel = require('../models/users');
 
-const USER = {
-  id: '1',
-  email: 'shashi20008@gmail.com',
-  name: 'Shashi Shekhar'
-};
+const compare = Bluebird.promisify(bcrypt.compare, {context: bcrypt});
 
 passport.use(new LocalStrategy(
   function(username, password, done) {
-    if(username === 'shashi20008@gmail.com' && password === 'testing123') {
-      return done(null, USER)
-    }
-    return done(null, false);
+    UserModel.findOne({email: username})
+      .then(user => {
+        if(!user) {
+          return done(null, false);
+        }
+
+        return compare(password, user.password)
+          .then(res => done(null, (res ? _pick(user.toJSON(), ['email', 'name']) : false)))
+      })
+      .catch(done);
   }
 ));
 
 passport.serializeUser(function(user, done) {
-  done(null, user.id);
+  done(null, user.email);
 });
 
-passport.deserializeUser(function(id, done) {
-  done(null, USER);
+passport.deserializeUser(function(email, done) {
+  UserModel.findOne({ email })
+    .then(user => done(null, _pick(user.toJSON(), ['email', 'name'])))
+    .catch(done);
 });
 
 module.exports.authMiddleware = (req, res, next) => {

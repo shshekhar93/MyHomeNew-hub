@@ -6,6 +6,7 @@ const morgan = require('morgan');
 
 const MDNS = require('./controllers/mdns');
 const routes = require('./routes');
+const DB = require('./controllers/db');
 
 const app = express();
 
@@ -27,5 +28,6 @@ app.use(passport.session());
 routes.setupRoutes(app);
 
 MDNS.startDiscovery();
+DB.connect();
 
 app.listen(8080);

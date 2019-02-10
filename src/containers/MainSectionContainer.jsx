@@ -4,9 +4,10 @@ import _uniq from 'lodash/uniq';
 
 import * as API from '../common/api';
 import NoDeviceMessageComponent from '../components/noDevicesAdded';
+import DeviceList from '../components/DeviceList';
 import DeviceSetupModalContainer from './DeviceSetupModalContainer';
 import '../css/main.less';
-import { Tabs, Tab } from 'react-bootstrap';
+import { Tabs, Tab, Card } from 'react-bootstrap';
 
 class MainSectionContainer extends Component {
     constructor(props) {
@@ -17,6 +18,7 @@ class MainSectionContainer extends Component {
         };
 
         this.setupNewDevice = this.setupNewDevice.bind(this);
+        this.onSwitchToggle = this.onSwitchToggle.bind(this);
     }
 
     componentDidMount() {
@@ -37,6 +39,11 @@ class MainSectionContainer extends Component {
                     devices: []
                 })
             });
+    }
+
+    onSwitchToggle(device, switchId, event) {
+        const newState = event.target.checked ? 'on': 'off';
+        API.updateDeviceState(device, switchId, newState);
     }
 
     setupNewDevice() {
@@ -71,7 +78,8 @@ class MainSectionContainer extends Component {
 
             return (
                 <Tab eventKey={room} title={room}>
-                    <span>we have {devsInThisRoom.length} devices here!</span>
+                    <div style={{margin: '1rem auto'}}>{room} has following {devsInThisRoom.length} devices.</div>
+                    { devsInThisRoom.map(dev => <DeviceList dev={dev} onChange={ this.onSwitchToggle } />) }
                 </Tab>
             );
         });

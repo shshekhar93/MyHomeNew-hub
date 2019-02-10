@@ -75,5 +75,25 @@ export const saveDeviceForUser = (body) => {
         return resp.json();
       }
       throw UNAUTHORIZED;
+    });
+};
+
+export const updateDeviceState = (device, switchId, newState) => {
+  return fetch(`/devices/${device}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    body: JSON.stringify({
+      switchId,
+      newState
     })
+  })
+    .then((resp) => {
+      if(resp.ok) {
+        return resp.json();
+      }
+      throw UNAUTHORIZED;
+    });
 };

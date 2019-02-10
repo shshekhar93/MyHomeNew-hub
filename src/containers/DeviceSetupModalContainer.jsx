@@ -91,9 +91,7 @@ class DeviceSetupModalContainer extends Component {
                     <Form.Control as="select" ref={this.deviceRef}>
                         <option value="">Select one</option>
                         {
-                            Object.keys(this.state.devices || {}).map((device) => (
-                                <option value={device}>{ device }</option>
-                            ))
+                            Object.keys(this.state.devices || {}).map(device => <option value={device}>{device}</option>)
                         }
                     </Form.Control>
                     <Form.Label style={formFieldsStyle}>Device label</Form.Label>

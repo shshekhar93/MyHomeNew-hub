@@ -99,7 +99,7 @@ class PageContainer extends Component {
             <Container fluid={true}>
                 <Row className="flex-xl-nowrap">
                     <SideNav displayNav={ !this.state.isMobile || this.state.navOpen } navigate={this.navigateTo}/>
-                    <MainSectionContainer selectedPage={ this.state.selectedPage }/>
+                    <MainSectionContainer selectedPage={this.state.selectedPage} user={this.state.user} />
                 </Row>
             </Container>
         );

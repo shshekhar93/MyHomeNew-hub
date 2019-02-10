@@ -12,6 +12,6 @@ module.exports = (app) => {
     app.get('/devices/available', authMiddleware, (req, res) => res.json(MDNS.getKnownDevices()));
     app.get('/devices/', authMiddleware, (req, res) => {
         // Get list of devices for current user
-        res.json({});
+        res.json([]);
     });
 };

@@ -38,7 +38,17 @@ export const getCurrentUserDetails = () => {
         return resp.json();
       }
       throw UNAUTHORIZED;
-    })
+    });
+};
+
+export const getExistingDevices = () => {
+  return fetch('/devices')
+    .then(resp => {
+      if(resp.ok) {
+        return resp.json();
+      }
+      throw UNAUTHORIZED;
+    });
 };
 
 export const getKnownDeviceList = () => {

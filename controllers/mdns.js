@@ -2,6 +2,9 @@
 
 const _cloneDeep = require('lodash/cloneDeep');
 const mdns = require('mdns');
+
+mdns.Browser.defaultResolverSequence[1] = 'DNSServiceGetAddrInfo' in mdns.dns_sd ? mdns.rst.DNSServiceGetAddrInfo() : mdns.rst.getaddrinfo({families:[4]});
+
 const browser = mdns.createBrowser('_http._tcp');
 
 const devices = {};

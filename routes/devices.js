@@ -11,17 +11,17 @@ const authMiddleware = function(req, res, next) {
 
 module.exports = (app) => {
     app.get('/devices/available', authMiddleware, (req, res) => res.json(MDNS.getKnownDevices()));
-    
+
     app.get('/devices', authMiddleware, (req, res) => {
         // Get list of devices for current user
-        DeviceModel.find({email: req.user.email})
+        DeviceModel.find({user: req.user.email})
             .then(devices => res.json(devices))
             .catch(err => res.json({err}));
     });
 
     app.post('/devices', authMiddleware, (req, res) => {
         const device = req.body;
-        device.email = req.user.email;
+        device.user = req.user.email;
 
         DeviceModel.create(device)
             .then(() => res.json({success: true}))

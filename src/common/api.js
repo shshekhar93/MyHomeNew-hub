@@ -60,3 +60,20 @@ export const getKnownDeviceList = () => {
       throw UNAUTHORIZED;
     });
 };
+
+export const saveDeviceForUser = (body) => {
+  return fetch('/devices', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    body: JSON.stringify(body)
+  })
+    .then(resp => {
+      if(resp.ok) {
+        return resp.json();
+      }
+      throw UNAUTHORIZED;
+    })
+};

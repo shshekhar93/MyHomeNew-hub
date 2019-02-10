@@ -1,9 +1,12 @@
-'use strict';
 import React, { Component } from 'react';
 import _get from 'lodash/get';
+import _uniq from 'lodash/uniq';
 
 import * as API from '../common/api';
+import NoDeviceMessageComponent from '../components/noDevicesAdded';
+import DeviceSetupModalContainer from './DeviceSetupModalContainer';
 import '../css/main.less';
+import { Tabs, Tab } from 'react-bootstrap';
 
 class MainSectionContainer extends Component {
     constructor(props) {
@@ -12,9 +15,15 @@ class MainSectionContainer extends Component {
             loading: true,
             devices: []
         };
+
+        this.setupNewDevice = this.setupNewDevice.bind(this);
     }
 
     componentDidMount() {
+        this.loadDevicesList();
+    }
+
+    loadDevicesList() {
         API.getExistingDevices()
             .then(devices => {
                 this.setState({
@@ -30,6 +39,12 @@ class MainSectionContainer extends Component {
             });
     }
 
+    setupNewDevice() {
+        this.setState({
+            showDeviceSetupModel: true
+        })
+    }
+
     getDeviceUI() {
         if(this.state.loading){
             return (
@@ -38,15 +53,34 @@ class MainSectionContainer extends Component {
                 </div>
             );
         }
-        if(this.state.devices.length === 0) {
-            console.log('here');
-            return (
-                <div className="no-items-section">
-                    <h4>Looks like you haven't added any devices to your profile.</h4>
-                    <h4>Would you like to add one now?</h4>
-                </div>
-            );
+
+        if(this.state.showDeviceSetupModel) {
+            return <DeviceSetupModalContainer closeModal={() => {
+                this.setState({ showDeviceSetupModel: false });
+                this.loadDevicesList();
+            }} />;
         }
+
+        if(this.state.devices.length === 0) {
+            return <NoDeviceMessageComponent setupNewDevice={this.setupNewDevice} />;
+        }
+
+        const roomsList = _uniq(this.state.devices.map(device => device.room));
+        const roomTabs = roomsList.map(room => {
+            const devsInThisRoom = this.state.devices.filter(dev => dev.room === room);
+
+            return (
+                <Tab eventKey={room} title={room}>
+                    <span>we have {devsInThisRoom.length} devices here!</span>
+                </Tab>
+            );
+        });
+
+        return (
+            <Tabs>
+                { roomTabs }
+            </Tabs>
+        );
     }
 
     render() {

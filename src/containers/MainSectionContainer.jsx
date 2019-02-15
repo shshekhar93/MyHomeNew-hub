@@ -42,8 +42,20 @@ class MainSectionContainer extends Component {
     }
 
     onSwitchToggle(device, switchId, event) {
-        const newState = event.target.checked ? 'on': 'off';
-        API.updateDeviceState(device, switchId, newState);
+        let newState;
+        if(typeof event === 'number') {
+            newState = event;
+        } else {
+            newState = event.target.checked ? 100 : 0;
+        }
+        
+        // this.pauseAPICalls = true;
+        API.updateDeviceState(device, switchId, newState)
+            .then(() => {
+                // this.pauseAPICalls = false
+            });
+        this.state.devices.find(dev => dev.name === device).leads[switchId].brightness = newState;
+        this.setState({});
     }
 
     setupNewDevice() {

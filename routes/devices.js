@@ -19,13 +19,39 @@ module.exports = (app) => {
 
     app.get('/devices', authMiddleware, (req, res) => {
         // Get list of devices for current user
-        DeviceModel.find({user: req.user.email})
+        DeviceModel.find({user: req.user.email}).lean()
             .then(devices => {
-                return JSON.parse(JSON.stringify(devices)).map(device => 
-                    Object.assign({
-                        isActive: Object.keys(MDNS.getKnownDevices()).includes(device.name)
-                    }, device)
-                )
+                // Get current state of device(s).
+                return Bluebird.map(devices, (device) => 
+                    lookup(`${device.name}.local`, { family: 4 })
+                        .then(ip => {
+                            return ip;
+                        })
+                        .then(ip => request(`http://${ip}/v1/config`))
+                        .then(resp => {
+                            if(resp.statusCode > 299) {
+                                return Object.assign(device, {
+                                    isActive: false
+                                });
+                            }
+                            
+                            const leadsMap = device.leads.reduce(((orig, lead) => Object.assign(orig, {[lead.devId + 1]: lead})), {});
+                            console.log(leadsMap);
+                            const respBody = JSON.parse(resp.body);
+                            console.log(respBody);
+
+                            device.isActive = true;
+                            Object.keys(respBody).filter(lead => lead.indexOf('lead') === 0).forEach(lead => {
+                                const devId = lead.replace('lead', '');
+                                leadsMap[devId] && (leadsMap[devId].brightness = respBody[lead]);
+                            });
+                            return device;
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            return device;
+                        })
+                );
             })
             .then(devices => res.json(devices))
             .catch(err => {

@@ -3,12 +3,14 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
+const { transformer } = require('../libs/helpers');
+
 const DeviceInteractionUnitSchema = new Schema({
     devId: Number,
     label: String,
     state: String,
     hasPwm: Boolean
-});
+}, transformer);
 
 const DeviceSchema = new Schema({
     name: String,
@@ -18,6 +20,6 @@ const DeviceSchema = new Schema({
     hostname: String,
     port: Number,
     leads: [DeviceInteractionUnitSchema]
-});
+}, transformer);
 
 module.exports = mongoose.model('Devices', DeviceSchema);

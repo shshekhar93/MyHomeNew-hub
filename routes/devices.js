@@ -6,6 +6,7 @@ const _pickBy = require('lodash/pickBy');
 const DNS = require('dns');
 
 const { authorize } = require('../libs/passport');
+const schemaTransformer = require('../libs/helpers').schemaTransformer.bind(null, null);
 
 const lookup = Bluebird.promisify(DNS.lookup, {context: DNS});
 
@@ -16,6 +17,7 @@ module.exports = (app) => {
         // Get list of devices for current user
         DeviceModel.find({user: req.user.email}).lean()
             .then(devices => {
+                devices = devices.map(schemaTransformer);
                 // Get current state of device(s).
                 return Bluebird.map(devices, (device) => 
                     lookup(`${device.name}.local`, { family: 4 })
@@ -31,9 +33,7 @@ module.exports = (app) => {
                             }
                             
                             const leadsMap = device.leads.reduce(((orig, lead) => Object.assign(orig, {[lead.devId + 1]: lead})), {});
-                            console.log(leadsMap);
                             const respBody = JSON.parse(resp.body);
-                            console.log(respBody);
 
                             device.isActive = true;
                             Object.keys(respBody).filter(lead => lead.indexOf('lead') === 0).forEach(lead => {

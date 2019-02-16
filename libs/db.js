@@ -1,6 +1,7 @@
 'use strict';
 
 const mongoose = require('mongoose');
+mongoose.Promise = require('bluebird');
 
 module.exports.connect = () => {
     const user = process.env.MONGO_DB_USER;

@@ -1,18 +1,13 @@
 'use strict';
 
-const authMiddleware = function(req, res, next) {
-    if(!req.isAuthenticated() || !req.user){
-      return res.status(401).json({});
-    }
-    next();
-};
+const { authorize } = require('../libs/passport');
 
 module.exports = app => {
-    app.get('/user/@me', authMiddleware, (req, res) => {
+    app.get('/user/@me', authorize, (req, res) => {
         res.json(req.user);
     });
 
-    app.post('/user/@me', authMiddleware, (req, res) => {
+    app.post('/user/@me', authorize, (req, res) => {
         res.status(400).json({});
     });
 };

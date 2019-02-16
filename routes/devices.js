@@ -3,21 +3,16 @@ const DeviceModel = require('../models/devices');
 const Bluebird = require('bluebird');
 const request = Bluebird.promisify(require('request'));
 const _pickBy = require('lodash/pickBy');
-
 const DNS = require('dns');
+
+const { authorize } = require('../libs/passport');
+
 const lookup = Bluebird.promisify(DNS.lookup, {context: DNS});
 
-const authMiddleware = function(req, res, next) {
-    if(!req.isAuthenticated() || !req.user){
-      return res.status(401).json({});
-    }
-    next();
-};
-
 module.exports = (app) => {
-    app.get('/devices/available', authMiddleware, (req, res) => res.json(MDNS.getKnownDevices()));
+    app.get('/devices/available', authorize, (req, res) => res.json(MDNS.getKnownDevices()));
 
-    app.get('/devices', authMiddleware, (req, res) => {
+    app.get('/devices', authorize, (req, res) => {
         // Get list of devices for current user
         DeviceModel.find({user: req.user.email}).lean()
             .then(devices => {
@@ -59,7 +54,7 @@ module.exports = (app) => {
             });
     });
 
-    app.post('/devices', authMiddleware, (req, res) => {
+    app.post('/devices', authorize, (req, res) => {
         const device = req.body;
         device.user = req.user.email;
 
@@ -68,7 +63,7 @@ module.exports = (app) => {
             .catch(err => res.json({success: false, err}));
     });
 
-    app.post('/devices/:name', authMiddleware, (req, res) => {
+    app.post('/devices/:name', authorize, (req, res) => {
         const devName = req.params.name;
         const { switchId, newState } = req.body;
 
@@ -93,7 +88,7 @@ module.exports = (app) => {
             });
     });
 
-    app.get('/devices/:name', authMiddleware, (req, res) => {
+    app.get('/devices/:name', authorize, (req, res) => {
         return lookup(`${req.params.name}.local`, {family: 4})
             .then(ip => request(`http://${ip}/v1/config`))
             .then(resp => {

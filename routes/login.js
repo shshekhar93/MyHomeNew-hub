@@ -1,6 +1,6 @@
 'use strict';
 
-const { authMiddleware } = require('../controllers/passport');
+const { authMiddleware } = require('../libs/passport');
 
 module.exports = (app) => {
     app.post('/login', authMiddleware, (req, res) => res.status(200).json({}));

@@ -1,4 +1,4 @@
-const MDNS = require('../controllers/mdns');
+const MDNS = require('../libs/mdns');
 const DeviceModel = require('../models/devices');
 const Bluebird = require('bluebird');
 const request = Bluebird.promisify(require('request'));
@@ -93,7 +93,7 @@ module.exports = (app) => {
             });
     });
 
-    app.get('/devices/:name', /*authMiddleware, */ (req, res) => {
+    app.get('/devices/:name', authMiddleware, (req, res) => {
         return lookup(`${req.params.name}.local`, {family: 4})
             .then(ip => request(`http://${ip}/v1/config`))
             .then(resp => {

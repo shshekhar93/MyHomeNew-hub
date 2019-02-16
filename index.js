@@ -4,9 +4,9 @@ const session = require('express-session');
 const passport = require('passport');
 const morgan = require('morgan');
 
-const MDNS = require('./controllers/mdns');
+const MDNS = require('./libs/mdns');
 const routes = require('./routes');
-const DB = require('./controllers/db');
+const DB = require('./libs/db');
 
 const app = express();
 

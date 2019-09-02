@@ -2,6 +2,7 @@
 
 const Bluebird = require('bluebird');
 const _pickBy = require('lodash/pickBy');
+const _get = require('lodash/get');
 
 const MDNS = require('../libs/mdns');
 const DeviceModel = require('../models/devices');
@@ -59,7 +60,7 @@ module.exports.switchDeviceState = (req, res) => {
     const devName = req.params.name;
     const { switchId, newState } = req.body;
 
-    DeviceModel.findOne({user: req.user.email, name: devName})
+    DeviceModel.findOne({ name: devName})
         .then(device => {
             if(!device) {
                 throw new Error('UNAUTHORIZED');

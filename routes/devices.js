@@ -13,6 +13,6 @@ module.exports = (app) => {
 
     app.post('/devices', authorize, saveNewDeviceForUser);
     app.get('/devices', authorize, getAllDevicesForUser);
-    app.post('/devices/:name', authorize, switchDeviceState);
+    app.post('/devices/:name', switchDeviceState);
     app.get('/devices/:name', authorize, getDeviceConfig);
 };

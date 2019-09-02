@@ -35,6 +35,7 @@
     "bcrypt": "^3.0.4",
     "bluebird": "^3.5.3",
     "body-parser": "^1.18.3",
+    "connect-sqlite3": "^0.9.11",
     "express": "^4.16.4",
     "express-session": "^1.15.6",
     "lodash": "^4.17.11",

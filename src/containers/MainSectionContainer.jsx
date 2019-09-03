@@ -84,7 +84,7 @@ class MainSectionContainer extends Component {
             return <NoDeviceMessageComponent setupNewDevice={this.setupNewDevice} />;
         }
 
-        const roomsList = _uniq(this.state.devices.map(device => device.room));
+        const roomsList = _uniq(this.state.devices.map(device => device.room)).sort();
         const roomTabs = roomsList.map(room => {
             const devsInThisRoom = this.state.devices.filter(dev => dev.room === room);
 

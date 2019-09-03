@@ -88,6 +88,10 @@ class PageContainer extends Component {
                 .catch(noop);
         }
 
+        if(event === 'setup') {
+            return window.setupNewDevice();
+        }
+
         return this.setState({
             selectedPage: event
         });

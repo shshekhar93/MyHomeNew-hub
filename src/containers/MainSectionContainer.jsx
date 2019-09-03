@@ -17,7 +17,7 @@ class MainSectionContainer extends Component {
             devices: []
         };
 
-        this.setupNewDevice = this.setupNewDevice.bind(this);
+        window.setupNewDevice = this.setupNewDevice = this.setupNewDevice.bind(this);
         this.onSwitchToggle = this.onSwitchToggle.bind(this);
     }
 

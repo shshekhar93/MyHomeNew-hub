@@ -1,9 +1,9 @@
 'use strict';
 const _omit = require('lodash/omit');
+const _get = require('lodash/get');
 const Bluebird = require('bluebird');
 const request = Bluebird.promisify(require('request'));
-const DNS = require('dns');
-const lookup = Bluebird.promisify(DNS.lookup, {context: DNS});
+const dnssd = require('./dnssd');
 
 const IGNORED_KEYS = ['_id', '__v'];
 const schemaTransformer = module.exports.schemaTransformer = (doc, ret) => {
@@ -20,7 +20,7 @@ module.exports.trasformer = {
 };
 
 module.exports.getRequestToDevice = (devName, devPort, url) => {
-    return lookup(`${devName}.local`, { family: 4 })
+    return dnssd.resolve(devName)
         .then(ip => request(`http://${ip}:${devPort}${url}`))
         .then(resp => {
             if(resp.statusCode > 299) {

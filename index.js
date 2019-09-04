@@ -5,7 +5,7 @@ const SQLiteStore = require('connect-sqlite3')(session);
 const passport = require('passport');
 const morgan = require('morgan');
 
-const MDNS = require('./libs/mdns');
+const MDNS = require('./libs/dnssd');
 const routes = require('./routes');
 const DB = require('./libs/db');
 
@@ -31,7 +31,6 @@ app.use(passport.session());
 
 routes.setupRoutes(app);
 
-MDNS.startDiscovery();
 DB.connect();
 
 app.listen(8090);

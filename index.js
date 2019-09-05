@@ -3,20 +3,33 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const SQLiteStore = require('connect-sqlite3')(session);
 const passport = require('passport');
+const OAuthServer = require('express-oauth-server');
 const morgan = require('morgan');
 
-const MDNS = require('./libs/dnssd');
 const routes = require('./routes');
 const DB = require('./libs/db');
+const OAuthModel = require('./models/oAuth');
 
 const app = express();
+app.oAuth = new OAuthServer({
+    debug: true,
+    model: OAuthModel
+});
+
+app.use(express.static('./dist'));
+app.use(express.static('./public'));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.use(express.static('./dist'));
-app.use(express.static('./public'));
 app.use(morgan('tiny'));
+
+app.post('/dialog', (req, res) => {
+  // api password: *J-)hea^C>;EE7<M
+  console.log('got req');
+  console.log(JSON.stringify(req.body, null, 2));
+  res.json({});
+});
 
 app.use(session({ 
     secret: 'keyboard cat',

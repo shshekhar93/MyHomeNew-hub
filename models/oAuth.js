@@ -1,4 +1,5 @@
-const mongoose, {
+const mongoose = require('mongoose');
+const {
   Schema
 } = require('mongoose');
 const _cloneDeep = require('lodash/cloneDeep');

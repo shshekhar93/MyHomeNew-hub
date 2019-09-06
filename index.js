@@ -28,6 +28,7 @@ app.post('/dialog', (req, res) => {
   // api password: *J-)hea^C>;EE7<M
   console.log('got req');
   console.log(JSON.stringify(req.body, null, 2));
+  console.log(JSON.stringify(req.headers, null, 2));
   res.json({});
 });
 

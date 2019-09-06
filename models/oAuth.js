@@ -42,7 +42,7 @@ function getAuthorizationCode(authorizationCode) {
       return Promise.all([
         authCode,
         getClient(authCode.client),
-        UserModel.find({email: authCode.user}).then(i=>i)
+        UserModel.findOne({email: authCode.user}).lean()
       ]);
     })
     .then(([authCode, client, user]) => Object.assign(
@@ -73,7 +73,6 @@ function createClient(clientObj) {
 }
 
 function getClient(id, secret) {
-  console.log('finding client!!', id, secret);
   return OAuthClientsModel.findOne(Object.assign({id}, secret && {secret})).lean();
 }
 
@@ -110,7 +109,7 @@ function getAccessToken (bearerToken) {
     .then(token => Promise.all([
       token,
       getClient(token.client),
-      UserModel.find({email: token.user}).then(i=>i)
+      UserModel.findOne({email: token.user}).lean()
     ]))
     .then(([token, client, user]) => Object.assign(
       token.toJSON(),
@@ -134,7 +133,7 @@ function getRefreshToken(refreshToken) {
     .then(token => Promise.all([
       token,
       getClient(token.client),
-      UserModel.find({email: token.user}).then(i=>i)
+      UserModel.findOne({email: token.user}).lean()
     ]))
     .then(([token, client, user]) => Object.assign(
       token.toJSON(),

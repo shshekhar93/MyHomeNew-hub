@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Authorize</title>
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.1.0/dist/css/bootstrap.min.css" crossorigin="anonymous" />
+    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+  </head>
+  <body>
+    <form id="login-form" style="width: 350px; margin: 50px auto">
+      <div id="msg"></div>
+      <input type="text" class="form-control" name="username" placeholder="Email" />
+      <input type="password" class="form-control" name="password" placeholder="Password" />
+      <button type="submit" class="btn btn-primary">Login</button>
+      <input type="hidden" id="redirectTo" value="{redirectTo}" />
+    </form>
+    <script type="text/javascript">
+    console.log('here');
+      var form = document.getElementById('login-form');
+      form.onsubmit = function(e) {
+        e.preventDefault();
+        const username = document.querySelector('[name="username"]').value;
+        const password = document.querySelector('[name="password"]').value;
+        fetch('/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({
+            username,
+            password
+          })
+        })
+          .then(resp => {
+            window.location.href = document.getElementById('redirectTo').value;
+          })
+          .catch(err => {
+            document.getElementById('msg').innerHTML = err.message || err;
+          });
+        return false;
+      }
+    </script>
+  </body>
+</html>

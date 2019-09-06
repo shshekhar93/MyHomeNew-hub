@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const {
   Schema
-} = require('mongoose');
+} = mongoose;
+const UserModel = require('./users');
 const _cloneDeep = require('lodash/cloneDeep');
 
 /**
@@ -22,22 +23,28 @@ function saveAuthorizationCode(code, client, user) {
     expiresAt,
     redirectUri,
     client: client.id,
-    user: user._id
+    user: user.email
   });
   return authCodeDoc.save()
     .then(authCode => {
       const resp = _cloneDeep(authCode.toJSON());
-      return Object.assign(resp, {client}, {user});
+      return Object.assign(resp, {authorizationCode}, {client}, {user});
     })
 }
 
 function getAuthorizationCode(authorizationCode) {
   return OAuthCodesModel.findOne({code: authorizationCode})
-    .then(authCode => Promise.all([
-      authCode,
-      getClient(authCode.client),
-      getUser(authCode.user)
-    ]))
+    .then(authCode => {
+      if(!authCode) {
+        throw new Error('AUTH_CODE_NOT_FOUND');
+      }
+
+      return Promise.all([
+        authCode,
+        getClient(authCode.client),
+        UserModel.find({email: authCode.user}).then(i=>i)
+      ]);
+    })
     .then(([authCode, client, user]) => Object.assign(
       authCode.toJSON(),
       {client},
@@ -46,7 +53,7 @@ function getAuthorizationCode(authorizationCode) {
 }
 
 function revokeAuthorizationCode(code) {
-  return new Promise(resolve => OAuthCodesModel.remove({code}, (err) => {
+  return new Promise(resolve => OAuthCodesModel.remove({code: code.code}, (err) => {
     resolve(!err);
   }))
 }
@@ -66,7 +73,8 @@ function createClient(clientObj) {
 }
 
 function getClient(id, secret) {
-  return OAuthClientsModel.findOne({id, secret}).lean();
+  console.log('finding client!!', id, secret);
+  return OAuthClientsModel.findOne(Object.assign({id}, secret && {secret})).lean();
 }
 
 /**
@@ -85,7 +93,7 @@ function saveToken(token, client, user) {
   const tokenDoc = new OAuthTokensModel({
     ...token,
     client: client.id,
-    user: user._id
+    user: user.email
   });
 
   return tokenDoc.save()
@@ -102,7 +110,7 @@ function getAccessToken (bearerToken) {
     .then(token => Promise.all([
       token,
       getClient(token.client),
-      getUser(token.user)
+      UserModel.find({email: token.user}).then(i=>i)
     ]))
     .then(([token, client, user]) => Object.assign(
       token.toJSON(),
@@ -111,11 +119,37 @@ function getAccessToken (bearerToken) {
     ));
 };
 
+function revokeToken(token) {
+  return new Promise(resolve => OAuthTokensModel.remove({
+    refreshToken: token.refreshToken
+  }, err => {
+    resolve(!err);
+  }));
+}
+
+function getRefreshToken(refreshToken) {
+  return OAuthTokensModel.findOne({
+    refreshToken
+  })
+    .then(token => Promise.all([
+      token,
+      getClient(token.client),
+      UserModel.find({email: token.user}).then(i=>i)
+    ]))
+    .then(([token, client, user]) => Object.assign(
+      token.toJSON(),
+      {client},
+      {user}
+    ));
+}
+
 module.exports = {
   saveAuthorizationCode,
   getAuthorizationCode,
   revokeAuthorizationCode,
   getClient,
   saveToken,
-  getAccessToken
+  getAccessToken,
+  getRefreshToken,
+  revokeToken
 };

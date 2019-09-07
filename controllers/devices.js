@@ -33,7 +33,7 @@ function mapBrightness(devConfig, lead) {
   }
 }
 
-async function getDevState(device) {
+module.exports.getDevState = async device => {
   return getRequestToDevice(device.name, device.port || '80', '/v1/config')
     .then(resp => ({
       ...device,

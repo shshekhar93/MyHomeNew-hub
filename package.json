@@ -43,12 +43,14 @@
     "lodash": "^4.17.11",
     "mongoose": "^4.8.0",
     "morgan": "^1.9.1",
+    "nconf": "^0.10.0",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "react": "^16.8.1",
     "react-dom": "^16.8.1",
     "request": "^2.88.0",
-    "sqlite3": "^4.1.0"
+    "sqlite3": "^4.1.0",
+    "websocket": "^1.0.29"
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",

@@ -10,10 +10,8 @@ function createChildProcess(options) {
   const child = spawn('node', [PROXY_SCRIPT_PATH], {
     stdio: [ 'inherit', 'inherit', 'inherit', 'ipc' ]
   });
-  // redirect child's ouput to our console for now!
-  // child.stdout.pipe(process.stdout); 
   // restart the child process if it exits (should never happen)
-  // child.on('exit', () => createChildProcess(options));
+  child.on('exit', () => createChildProcess(options));
 
   child.send(options);
 }

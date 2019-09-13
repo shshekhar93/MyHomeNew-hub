@@ -40,7 +40,9 @@
     "express": "^4.16.4",
     "express-oauth-server": "^2.0.0",
     "express-session": "^1.15.6",
+    "is-wsl": "^2.1.0",
     "lodash": "^4.17.11",
+    "mdns": "^2.5.1",
     "mongoose": "^4.8.0",
     "morgan": "^1.9.1",
     "nconf": "^0.10.0",
@@ -69,6 +71,7 @@
     "style-loader": "^0.23.1",
     "webpack": "^4.29.3",
     "webpack-cli": "^3.2.3",
+    "webpack-dev-middleware": "^3.7.1",
     "whatwg-fetch": "^3.0.0"
   }
 }

@@ -41,7 +41,7 @@ try {
     const ip = addresses.find(address => (address || '').split('.').length === 4);
 
     if(name.startsWith('myhomenew') && host && ip) {
-      devices[name] = { host, ip, port, type: _get(txt, 'type') };
+      devices[name] = { host, ip, port, type: _get(txt, 'type', _get(service, 'txtRecord.type')) };
       if(!devices[name].type) {
         devices[name].type = 'switch';
       }
@@ -79,3 +79,4 @@ module.exports.resolve = (name) => {
     .then(result => _get(result, 'answer.address'))
     .catch(() => lookup(`${name}.local`, { family: 4 }));
 };
+

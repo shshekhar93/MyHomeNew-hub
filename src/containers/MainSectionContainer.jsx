@@ -5,7 +5,7 @@ import _uniq from 'lodash/uniq';
 import * as API from '../common/api';
 import NoDeviceMessageComponent from '../components/noDevicesAdded';
 import DeviceList from '../components/DeviceList';
-import DeviceSetupModalContainer from './DeviceSetupModalContainer';
+import DeviceSetupModalContainer from './setup-modal/DeviceSetupModalContainer';
 import '../css/main.less';
 import { Tabs, Tab, Card } from 'react-bootstrap';
 

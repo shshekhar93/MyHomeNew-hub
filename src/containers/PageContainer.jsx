@@ -9,8 +9,6 @@ import LoginComponent from '../components/login';
 import SideNav from '../components/side-nav';
 import MainSectionContainer from './MainSectionContainer';
 
-import '../css/slider.less';
-
 class PageContainer extends Component {
     constructor(props) {
         super(props);

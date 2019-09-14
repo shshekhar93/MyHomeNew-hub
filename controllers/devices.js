@@ -1,6 +1,6 @@
 'use strict';
-
-const Bluebird = require('bluebird');
+const _get = require('lodash/get');
+const _omit = require('lodash/omit');
 const _pickBy = require('lodash/pickBy');
 
 const dnssd = require('../libs/dnssd');
@@ -9,10 +9,36 @@ const { getRequestToDevice } = require('../libs/helpers');
 const schemaTransformer = require('../libs/helpers').schemaTransformer.bind(null, null);
 
 module.exports.getAvailableDevices = (req, res) => {
-  res.json(dnssd.getKnownDevices());
+  const allDevices = dnssd.getKnownDevices();
+  Promise.all(
+    Object.keys(allDevices).map(dev => 
+      DeviceModel.findOne({name: dev})
+        .then(added => ({dev, added: !!added}))
+        .catch(() => ({dev, added: false}))
+    )
+  )
+    .then(deviceInfo => 
+      res.json(
+        _omit(allDevices, deviceInfo
+          .filter(i => i.added === true)
+          .map(i => i.dev)
+        )
+      )
+    )
+    .catch(err => {
+      console.error('check device free failed', err.stack || err);
+      res.json({});
+    });
 };
 
 module.exports.saveNewDeviceForUser = (req, res) => {
+  if(dnssd.getKnownDevices()[_get(req, 'body.name')] === undefined) {
+    return res.json({
+      success: false,
+      err: 'Device not online'
+    });
+  }
+
   return DeviceModel.create({
     user: req.user.email,
     ...req.body
@@ -52,7 +78,7 @@ module.exports.getDevState = async device => {
 module.exports.getAllDevicesForUser = (req, res) => {
   // Get list of devices for current user
   return DeviceModel.find({user: req.user.email}).lean()
-    .then(devices => Promise.all(devices.map(schemaTransformer).map(getDevState)))
+    .then(devices => Promise.all(devices.map(schemaTransformer).map(module.exports.getDevState)))
     .then(devices => res.json(devices))
     .catch(err => res.json({
       sucess: false, 

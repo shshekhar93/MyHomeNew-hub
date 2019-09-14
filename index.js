@@ -20,6 +20,15 @@ app.oAuth = new OAuthServer({
     model: OAuthModel
 });
 
+if(process.env.mode === 'development') {
+  const webpack = require('webpack');
+  const middleware = require('webpack-dev-middleware');
+  const config = require('./webpack.config');
+  config.devtool = 'cheap-eval-source-map';
+  const compiler = webpack(config);
+  app.use(middleware(compiler, { index: false, lazy: true, publicPath: '/js/' }))
+}
+
 app.use(express.static('./dist'));
 app.use(express.static('./public'));
 

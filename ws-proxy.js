@@ -31,7 +31,6 @@ client.on('connect', function(connection) {
 let options = {};
 process.on('message', message => {
   options = message;
-  console.log(message);
   connect();
 });
 

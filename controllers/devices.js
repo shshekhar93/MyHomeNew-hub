@@ -5,7 +5,7 @@ const _pickBy = require('lodash/pickBy');
 
 const dnssd = require('../libs/dnssd');
 const DeviceModel = require('../models/devices');
-const { getRequestToDevice } = require('../libs/helpers');
+const { getRequestToDevice, series } = require('../libs/helpers');
 const schemaTransformer = require('../libs/helpers').schemaTransformer.bind(null, null);
 
 module.exports.getAvailableDevices = (req, res) => {
@@ -78,7 +78,7 @@ module.exports.getDevState = async device => {
 module.exports.getAllDevicesForUser = (req, res) => {
   // Get list of devices for current user
   return DeviceModel.find({user: req.user.email}).lean()
-    .then(devices => Promise.all(devices.map(schemaTransformer).map(module.exports.getDevState)))
+    .then(devices => series(devices.map(schemaTransformer), module.exports.getDevState))
     .then(devices => res.json(devices))
     .catch(err => res.json({
       sucess: false, 

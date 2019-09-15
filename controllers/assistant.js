@@ -5,12 +5,14 @@ const { getRequestToDevice } = require('../libs/helpers');
 const { getDevState } = require('./devices');
 
 function syncDevices(req, res) {
-  deviceModel.find({user: _get(res, 'locals.oauth.token.user.email')})
+  const userEmail = _get(res, 'locals.oauth.token.user.email', _get(req, 'user.email'));
+  const agentUserId = _get(res, 'locals.oauth.token.user._id', _get(req, 'user._id'))
+  deviceModel.find({user: userEmail})
     .then(devices => {
       res.send({
         requestId: req.body.requestId,
         payload: {
-          agentUserId: _get(res, 'locals.oauth.token.user._id'),
+          agentUserId,
           devices: devices.map(deviceMapper)
         }
       });

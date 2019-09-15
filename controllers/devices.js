@@ -59,7 +59,9 @@ function mapBrightness(devConfig, lead) {
   }
 }
 
-module.exports.getDevState = async device => {
+const RETRY_ERR_CODES = ['EHOSTUNREACH', 'ENOTFOUND'];
+;
+module.exports.getDevState = async (device, retries = 2) => {
   return getRequestToDevice(device.name, device.port || '80', '/v1/config')
     .then(resp => ({
       ...device,
@@ -67,6 +69,15 @@ module.exports.getDevState = async device => {
       leads: device.leads.map(schemaTransformer).map(mapBrightness.bind(null, resp))
     }))
     .catch(err => {
+      retries--;
+      if(RETRY_ERR_CODES.includes(err.code) && // Err requires retry
+        retries !== 0 && // We have more retries left
+        dnssd.getKnownDevices()[device.name]) // And the device said it is online
+      {
+        console.warn('retrying bcz of', err.code);
+        return module.exports.getDevState(device, retries);
+      }
+
       console.error('getDevState failed', err);
       return {
         ...device,

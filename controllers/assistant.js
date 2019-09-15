@@ -14,15 +14,14 @@ function syncDevices(req, res) {
         requestId: req.body.requestId,
         payload: {
           agentUserId,
-          devices: devices.map(deviceMapper)
+          devices: devices.map(deviceMapper).reduce((a, t) => [...a, ...t])
         }
       });
     });
 }
 
 function getDeviceType(dbType) {
-  if(dbType === 'tv' || 
-    dbType === 'light' || 
+  if(dbType === 'light' || 
     dbType === 'fan') {
     return dbType.toUpperCase();
   }

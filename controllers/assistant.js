@@ -102,6 +102,14 @@ function execute(req, res) {
           device.port || '80',
           `/v1/ops?dev=${devId || 0}&brightness=${isOn? 100 : 0}`
         ))
+        .then(() => {
+          return deviceModel.update({
+            _id: id,
+            'leads.devId': devId
+          }, {
+            'leads.$.state': (isOn? 100 : 0)
+          }).exec();
+        })
         .then(() => ({ id: dev.id, status: 'SUCCESS', isOn }))
         .catch(err => {
           console.log('device state update failed', err.stack || err);

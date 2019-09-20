@@ -40,6 +40,7 @@
     "express": "^4.16.4",
     "express-oauth-server": "^2.0.0",
     "express-session": "^1.15.6",
+    "ip": "^1.1.5",
     "is-wsl": "^2.1.0",
     "lodash": "^4.17.11",
     "mdns": "^2.5.1",

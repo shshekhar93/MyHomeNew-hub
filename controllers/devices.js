@@ -5,7 +5,7 @@ const _pickBy = require('lodash/pickBy');
 
 const dnssd = require('../libs/dnssd');
 const DeviceModel = require('../models/devices');
-const { getRequestToDevice, series } = require('../libs/helpers');
+const { getRequestToDevice, wakeAllDevices } = require('../libs/helpers');
 const schemaTransformer = require('../libs/helpers').schemaTransformer.bind(null, null);
 
 module.exports.getAvailableDevices = (req, res) => {
@@ -89,8 +89,17 @@ module.exports.getDevState = async (device, retries = 2) => {
 module.exports.getAllDevicesForUser = (req, res) => {
   // Get list of devices for current user
   return DeviceModel.find({user: req.user.email}).lean()
-    .then(devices => series(devices.map(schemaTransformer), module.exports.getDevState))
+    .then(devices => {
+      // series(devices.map(schemaTransformer), module.exports.getDevState);
+      return devices.map(schemaTransformer)
+        .map(device => ({
+          ...device,
+          isActive: !!dnssd.getKnownDevices()[device.name],
+          leads: device.leads.map(lead => ({ ...lead, brightness: lead.state }))
+        }));
+    })
     .then(devices => res.json(devices))
+    .then(wakeAllDevices)
     .catch(err => res.json({
       sucess: false, 
       err: err.message || err
@@ -98,32 +107,44 @@ module.exports.getAllDevicesForUser = (req, res) => {
 };
 
 module.exports.switchDeviceState = (req, res) => {
-    const devName = req.params.name;
-    const { switchId, newState } = req.body;
+  const devName = req.params.name;
+  const { switchId, newState } = req.body;
 
-    DeviceModel.findOne({ name: devName})
-        .then(device => {
-            if(!device) {
-                throw new Error('UNAUTHORIZED');
-            }
-            return getRequestToDevice(device.name, device.port || '80', `/v1/ops?dev=${switchId}&brightness=${newState}`)
-        })
-        .then(() => res.json({
-                success: true
-        }))
-        .catch(err => {
-            console.log(err);
-            res.status(400).json({ success: false, err });
-        });
+  DeviceModel.findOne({ name: devName})
+    .then(device => {
+      if(!device) {
+        throw new Error('UNAUTHORIZED');
+      }
+      return getRequestToDevice(
+        device.name,
+        device.port || '80',
+        `/v1/ops?dev=${switchId}&brightness=${newState}`
+      );
+    })
+    .then(() => {
+      return DeviceModel.update({
+        name: devName,
+        'leads.devId': switchId
+      }, {
+        'leads.$.state': newState
+      }).exec();
+    })
+    .then(() => res.json({
+      success: true
+    }))
+    .catch(err => {
+      console.log(err);
+      res.status(400).json({ success: false, err });
+    });
 };
 
 module.exports.getDeviceConfig = (req, res) => {
-    return getRequestToDevice(req.params.name, '80', '/v1/config')
-        .then(resp => res.json(_pickBy(resp, (val, key) => key.indexOf('lead') === 0)))
-        .catch(err => {
-            res.status(400).json({
-                success: false,
-                err: err.message || err
-            });
-        });
+  return getRequestToDevice(req.params.name, '80', '/v1/config')
+    .then(resp => res.json(_pickBy(resp, (val, key) => key.indexOf('lead') === 0)))
+    .catch(err => {
+      res.status(400).json({
+        success: false,
+        err: err.message || err
+      });
+    });
 };

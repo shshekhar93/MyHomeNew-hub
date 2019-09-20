@@ -32,42 +32,48 @@ const mDNSLib = getDNSLib();
 
 const devices = {};
 
-try {
-  const browser = mDNSLib.createBrowser(mDNSLib.tcp('http'));
-  browser.on('serviceUp', function(service) {
-    const {
-      name = '', host = '', port = 80, txt ={}, addresses = []
-    } = service;
-    const ip = addresses.find(address => (address || '').split('.').length === 4);
+function startBrowsing() {
+  try {
+    const browser = mDNSLib.createBrowser(mDNSLib.tcp('http'));
+    browser.on('serviceUp', function(service) {
+      const {
+        name = '', host = '', port = 80, txt ={}, addresses = []
+      } = service;
+      const ip = addresses.find(address => (address || '').split('.').length === 4);
 
-    if(name.startsWith('myhomenew') && host && ip) {
-      devices[name] = { host, ip, port, type: _get(txt, 'type', _get(service, 'txtRecord.type')) };
-      if(!devices[name].type) {
-        devices[name].type = 'switch';
+      if(name.startsWith('myhomenew') && host && ip) {
+        devices[name] = { host, ip, port, type: _get(txt, 'type', _get(service, 'txtRecord.type')) };
+        if(!devices[name].type) {
+          devices[name].type = 'switch';
+        }
+        console.log('found', devices[name]);
       }
-      console.log('found', devices[name]);
-    }
-  });
-  browser.on('serviceDown', function(service) {
-    const { name = '' } = service;
+    });
+    browser.on('serviceDown', function(service) {
+      const { name = '' } = service;
 
-    if(devices[name]) {
-      console.log('lost', devices[name]);
-      devices[name] = undefined;
-    }
-  });
-  browser.on('error', function(err) {
-    console.error(err);
+      if(devices[name]) {
+        console.log('lost', devices[name]);
+        devices[name] = undefined;
+      }
+    });
+    browser.on('error', function(err) {
+      console.error(err);
 
-    // restart browsing..
-    browser.stop();
-    window.setTimeout(() => browser.start(), 2000);
-  });
-  browser.start();
+      // restart browsing..
+      browser.stop();
+      setTimeout(startBrowsing, 2000);
+    });
+    browser.start();
+      
+  } catch(e) {
+    console.error('could not create browser.', e.stack || e);
     
-} catch(e) {
-  console.error('could not create browser.', e.stack || e);
+    // Retry in 5 minutes.
+    setTimeout(startBrowsing, 300000);
+  }
 }
+startBrowsing();
 
 module.exports.getKnownDevices = () => _cloneDeep(devices);
 module.exports.resolve = (name) => {

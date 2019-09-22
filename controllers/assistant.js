@@ -59,7 +59,7 @@ function reduceDevsToQueryResp(allDeviceStates) {
     const thisLead = thisDev.leads.find(lead => lead.devId === Number(devId)) || {};
     
     return Object.assign(resp || {}, {
-      [id]: {
+      [`${id}-${devId}`]: {
         on: thisLead.brightness === 100,
         online: thisDev.isActive
       }

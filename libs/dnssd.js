@@ -2,9 +2,9 @@
 
 const _cloneDeep = require('lodash/cloneDeep');
 const _get = require('lodash/get');
-const dns = require('dns');
 const util = require('util');
-const lookup = util.promisify(dns.lookup);
+const lookup = util.promisify(require('dns').lookup);
+const request = util.promisify(require('request'));
 
 function getDNSLib() {
   if(require('is-wsl')) {
@@ -86,3 +86,20 @@ module.exports.resolve = (name) => {
     .catch(() => lookup(`${name}.local`, { family: 4 }));
 };
 
+function keepDevicesAwake() {
+  Promise.all(Object.keys(devices)
+    .map(name => devices[name].ip)
+    .filter(Boolean)
+    .map(ip => request({
+        url:`http://${ip}/v1/ops?dev=0`,
+        method: 'GET',
+        timeout: 1000 
+      })
+        .catch(err => {
+          console.log(err.code, ': failed to wake up', ip)
+        })
+    ))
+    .then(() => setTimeout(keepDevicesAwake, 7000));
+}
+
+keepDevicesAwake();

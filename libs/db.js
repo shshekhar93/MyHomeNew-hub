@@ -1,13 +1,16 @@
 'use strict';
 
+const nconf = require('nconf');
 const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 
+nconf.env().file({ file: 'config/config.json' });
+
 module.exports.connect = () => {
-    const user = process.env.MONGO_DB_USER;
-    const password = process.env.MONGO_DB_PASS;
-    const host = process.env.MONGO_DB_HOST;
-    const port = process.env.MONGO_DB_PORT;
+    const user = nconf.get('MONGO_DB_USER');
+    const password = nconf.get('MONGO_DB_PASS');
+    const host = nconf.get('MONGO_DB_HOST');
+    const port = nconf.get('MONGO_DB_PORT');
 
     mongoose.connect(`mongodb://${user}:${password}@${host}:${port}/myhomenew`, {
         useNewUrlParser: true,

@@ -8,19 +8,22 @@ import Nav from '../components/nav';
 import LoginComponent from '../components/login';
 import SideNav from '../components/side-nav';
 import MainSectionContainer from './MainSectionContainer';
+import RegistrationModal from '../components/registration';
 
 class PageContainer extends Component {
   constructor(props) {
     super(props);
     this.state = {
       loggedin: true,
-      isMobile: getViewPortWidth() <= 768
+      isMobile: getViewPortWidth() <= 768,
+      registration: false
     };
     this.onLogin = this.onLogin.bind(this);
     this.getCurrentUserDetails = this.getCurrentUserDetails.bind(this);
     this.onResize = this.onResize.bind(this);
     this.onNavToggle = this.onNavToggle.bind(this);
     this.navigateTo = this.navigateTo.bind(this);
+    this.openRegistrationModal = this.openRegistrationModal.bind(this);
 
     setTimeout(this.getCurrentUserDetails, 10);
   }
@@ -101,10 +104,22 @@ class PageContainer extends Component {
     });
   }
 
+  openRegistrationModal() {
+    this.setState({
+      registration: true
+    });
+  }
+
   getPage() {
-    if(!this.state.loggedin) {
-      return <LoginComponent onLogin={this.onLogin} />;
+    if(this.state.registration) {
+      return <RegistrationModal
+        onClose={() => this.setState({ registration: false })} />;
     }
+
+    if(!this.state.loggedin) {
+      return <LoginComponent onLogin={this.onLogin} openRegistrationModal={this.openRegistrationModal} />;
+    }
+    
     return (
       <Container fluid={true}>
         <Row className="flex-xl-nowrap">

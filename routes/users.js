@@ -1,7 +1,8 @@
 'use strict';
 
 const { authorize } = require('../libs/passport');
-const bcrypt = require('bcrypt');
+const { promisify } = require('util');
+const hash = promisify(require('bcrypt').hash);
 const uuid = require('uuid/v4');
 const UserModel = require('../models/users');
 
@@ -31,22 +32,25 @@ module.exports = app => {
     }
 
     const hubClientId = uuid().replace(/-/g, '');
-    const hubClientSecret = uuid().replace(/-/g, '');
-    bcrypt.hash(req.body.password, 8, function(err, hash) {
-      if(err) {
-        return res.status(500).json({error: 'Internal server error'});
-      }
-      req.body.password = hash;
-      const user = new UserModel({...req.body, hubClientId, hubClientSecret});
-      user.save(function(err) {
-        if(err) {
-          return res.status(500).json({error: 'Internal server error'});
-        }
-        res.json({
-          hubClientId, 
+    const clientSecret = uuid().replace(/-/g, '');
+    Promise.all([hash(req.body.password), hash(clientSecret)])
+      .then(([password, hubClientSecret]) => {
+        const user = new UserModel({
+          ...req.body,
+          password,
+          hubClientId,
           hubClientSecret
         });
+        return user.save();
+      })
+      .then(() => {
+        res.json({
+          hubClientId, 
+          hubClientSecret: clientSecret
+        });
+      })
+      .catch(() => {
+        return res.status(500).json({error: 'Internal server error'});
       });
-    })
   });
 };

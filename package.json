@@ -53,6 +53,7 @@
     "react-dom": "^16.8.1",
     "request": "^2.88.0",
     "sqlite3": "^4.1.0",
+    "uuid": "^3.3.3",
     "websocket": "^1.0.29"
   },
   "devDependencies": {
@@ -66,6 +67,7 @@
     "less-loader": "^4.1.0",
     "node-sass": "^4.11.0",
     "promise-polyfill": "^8.1.0",
+    "prop-types": "^15.7.2",
     "rc-slider": "^8.6.5",
     "react-bootstrap": "^1.0.0-beta.5",
     "sass-loader": "^7.1.0",

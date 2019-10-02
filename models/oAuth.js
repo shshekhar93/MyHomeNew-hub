@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const {
   Schema
 } = mongoose;
+const {promisify} = require('util');
+const compare = promisify(require('bcrypt').compare);
 const UserModel = require('./users');
 const _cloneDeep = require('lodash/cloneDeep');
 const _get = require('lodash/get');
@@ -63,6 +65,7 @@ function revokeAuthorizationCode(code) {
  * Clients
  */
 const OAuthClientsModel = mongoose.model('OauthClients', new Schema({
+  name: String,
   id: String,
   secret: String,
   redirectUris: [String],
@@ -70,11 +73,28 @@ const OAuthClientsModel = mongoose.model('OauthClients', new Schema({
 }));
 
 function createClient(clientObj) {
-  return (new OAuthClientsModel(clientObj)).save().then(client => client);
+  return (new OAuthClientsModel(clientObj)).save();
 }
 
 function getClient(id, secret) {
-  return OAuthClientsModel.findOne(Object.assign({id}, secret && {secret})).lean();
+  return OAuthClientsModel.findOne({ id }).lean()
+    .then(client => {
+      if(id && !secret) {
+        return client;
+      }
+      return compare(secret, client.secret);
+    })
+    .then(isSame => {
+      if(isSame) {
+        return client;
+      }
+      console.log('wrong secret provided for', id);
+      return null;
+    })
+    .catch(err => {
+      console.log('client fetch failed', err.stack);
+      return null;
+    });
 }
 
 /**
@@ -147,6 +167,7 @@ module.exports = {
   saveAuthorizationCode,
   getAuthorizationCode,
   revokeAuthorizationCode,
+  createClient,
   getClient,
   saveToken,
   getAccessToken,

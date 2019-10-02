@@ -80,11 +80,13 @@ function getClient(id, secret) {
   return OAuthClientsModel.findOne({ id }).lean()
     .then(client => {
       if(id && !secret) {
-        return client;
+        return [client, true];
       }
-      return compare(secret, client.secret);
+      return Promise.all([client, compare(secret, client.secret)]);
     })
-    .then(isSame => {
+    .then(result => {
+      const client = result[0];
+      const isSame = result[1];
       if(isSame) {
         return client;
       }
@@ -132,11 +134,17 @@ function getAccessToken (bearerToken) {
       _get(token, 'client') && getClient(token.client),
       _get(token, 'user') && UserModel.findOne({email: token.user}).lean()
     ]))
-    .then(([token, client, user]) => Object.assign({},
-      token && token.toJSON(),
-      client && {client},
-      user && {user}
-    ));
+    .then(([token, client, user]) => {
+      if (!token || !client || !user) {
+        return null;
+      }
+
+      return Object.assign({ client, user }, token.toJSON());
+    })
+    .catch(err => {
+      console.log(err.stack);
+      return null;
+    });
 };
 
 function revokeToken({ refreshToken }) {

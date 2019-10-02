@@ -56,7 +56,7 @@ module.exports = (app) => {
       const redirectUris = [ req.body.redirectUri ];
       return hash(secret, 8)
         .then(secret => createClient({name, id, secret, grants, redirectUris}))
-        .then(resp => res.json(resp.toJSON()))
+        .then(resp => res.json({ ...resp.toJSON(), secret, _id: undefined, __v: undefined }))
         .catch(err => res.status(500).json({err: err.message}));
     }
     return res.status(403).end();

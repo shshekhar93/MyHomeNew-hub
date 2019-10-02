@@ -72,9 +72,10 @@ class PageContainer extends Component {
 
   onLogin (username, password) {
     API.login(username, password)
-      .then(() => {
+      .then(user => {
         this.setState({
-          loggedin: true
+          loggedin: true,
+          user
         });
       })
       .catch(err=> console.error);

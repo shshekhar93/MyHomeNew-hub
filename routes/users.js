@@ -33,7 +33,7 @@ module.exports = app => {
 
     const hubClientId = uuid().replace(/-/g, '');
     const clientSecret = uuid().replace(/-/g, '');
-    Promise.all([hash(req.body.password), hash(clientSecret)])
+    Promise.all([hash(req.body.password, 8), hash(clientSecret, 8)])
       .then(([password, hubClientSecret]) => {
         const user = new UserModel({
           ...req.body,
@@ -49,7 +49,8 @@ module.exports = app => {
           hubClientSecret: clientSecret
         });
       })
-      .catch(() => {
+      .catch(err => {
+        console.log(err.stack);
         return res.status(500).json({error: 'Internal server error'});
       });
   });

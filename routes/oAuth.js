@@ -54,7 +54,7 @@ module.exports = (app) => {
       const secret = uuid().replace(/-/g, '');
       const grants = [ 'authorization_code',  'refresh_token' ];
       const redirectUris = [ req.body.redirectUri ];
-      return hash(secret)
+      return hash(secret, 8)
         .then(secret => createClient({name, id, secret, grants, redirectUris}))
         .then(resp => res.json(resp.toJSON()))
         .catch(err => res.status(500).json({err: err.message}));

@@ -12,6 +12,7 @@ const compare = Bluebird.promisify(bcrypt.compare, {context: bcrypt});
 passport.use(new LocalStrategy(
   function(username, password, done) {
     UserModel.findOne({email: username})
+      .then(user => (user || UserModel.findOne({ username })))
       .then(user => {
         if(!user) {
           return done(null, false);

@@ -1,3 +1,4 @@
+const http = require('http');
 const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
@@ -10,6 +11,7 @@ const routes = require('./routes');
 const DB = require('./libs/db');
 const OAuthModel = require('./models/oAuth');
 const { proxyRequestsSetup } = require('./controllers/proxy');
+const WSServer = require('./libs/ws-server');
 
 const _get = require('lodash/get');
 const config = require('./config/config.json');
@@ -62,4 +64,6 @@ routes.setupRoutes(app);
 
 DB.connect();
 
-app.listen(8090);
+const server =  http.createServer(app);
+WSServer.start(server);
+server.listen(process.env.PORT || 8090);

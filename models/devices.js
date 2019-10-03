@@ -20,6 +20,7 @@ const DeviceSchema = new Schema({
     room: String,
     hostname: String,
     port: Number,
+    encryptionKey: String,
     leads: [DeviceInteractionUnitSchema]
 }, transformer);
 

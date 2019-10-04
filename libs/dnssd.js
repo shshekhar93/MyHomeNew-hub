@@ -73,7 +73,7 @@ function startBrowsing() {
     setTimeout(startBrowsing, 300000);
   }
 }
-startBrowsing();
+// startBrowsing();
 
 module.exports.getKnownDevices = () => _cloneDeep(devices);
 module.exports.resolve = (name) => {
@@ -102,4 +102,4 @@ function keepDevicesAwake() {
     .then(() => setTimeout(keepDevicesAwake, 7000));
 }
 
-keepDevicesAwake();
+// keepDevicesAwake();

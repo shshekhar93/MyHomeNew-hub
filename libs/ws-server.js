@@ -3,8 +3,8 @@ const uuid = require('uuid/v4');
 const WebsocketServer = require('websocket').server;
 const _get = require('lodash/get');
 const EventEmitter = require('events');
-const UserModel = require('../models/users');
-const { validateHubCreds } = require('./ws-helpers');
+const { validateHubCreds, validateDeviceCreds } = require('./ws-helpers');
+const { encrypt } = require('./crypto');
 const JSON_TYPE = 'application/json';
 
 const emitter = new EventEmitter();
@@ -70,6 +70,30 @@ function onHubConnect(connection, user) {
   });
 }
 
+function onDeviceConnect(connection, device, user) {
+  console.log('device connected!');
+}
+
+function executeKeyUpdate(connection, newKey, oldKey) {
+  return new Promise((resolve, reject) => {
+    const payload = JSON.stringify({
+      action: "update-key",
+      data: newKey
+    });
+    const encryptedPayload = encrypt(payload, oldKey);
+
+    connection.once('message', function(data) {
+      if(data === 'OK') {
+        return resolve();
+      }
+      connection.close();
+      return reject(new Error('DEVICE_KEY_UPDATE_FAILED')); 
+    });
+
+    connection.send(encryptedPayload);
+  });
+}
+
 module.exports.start = httpServer => {
   const wsServer = new WebsocketServer({
     httpServer,
@@ -84,8 +108,40 @@ module.exports.start = httpServer => {
       return request.reject();
     }
 
-    if(username.startsWith('myhomenew-')) {
-      
+    if(request.requestedProtocols.includes('myhomenew-device')) {
+      return validateDeviceCreds(username, password)
+        .then(obj => {
+          const connection = request.accept('myhomenew-device', request.origin);
+          return (obj.newKey ? 
+            executeKeyUpdate(connection, obj.newKey, obj.device.otk) :
+            Promise.resolve()
+          )
+            .then(() => ({ ...obj, connection }));
+        })
+        .then(obj => {
+          // Do this conditionally is the device is in setup phase..
+          return DeviceSetupModel.updateOne({
+            _id: obj.device._id
+          }, { 
+            $set: { 
+              name: obj.deviceName,
+              encryptionKey: obj.newKey
+            }
+          }).exec()
+            .then(() => obj);
+        })
+        .then(({connection, device, user}) => {
+          if(user && device && connection && connection.connected) {
+            return onDeviceConnect(connection, device, user);
+          }
+
+          if(!connection) {
+            return request.reject();
+          }
+        })
+        .catch(err => {
+          console.log('device setup sequence failed', err.stack || err);
+        });
     }
 
     return validateHubCreds(username, password)

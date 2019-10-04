@@ -57,32 +57,3 @@ module.exports.series = (arr, mapper, others = []) => {
     return allResps;
   });
 };
-
-module.exports.wakeAllDevices = () => {
-  try {
-    const allInterfaces = os.networkInterfaces();
-    const theInterfaces = Object.entries(allInterfaces).map(([name, interf]) => {
-      const ipv4Int = interf.find(({family}) => family === 'IPv4');
-      if(ipv4Int.address.startsWith('192.') || ipv4Int.address.startsWith('10.')) {
-        return ipv4Int;
-      }
-      return false;
-    }).filter(Boolean);
-
-    if(theInterfaces.length === 0) {
-      return;
-    }
-
-    theInterfaces.forEach(theInterface => {
-      const {broadcastAddress} = ip.subnet(theInterface.address, theInterface.netmask) || {};
-      exec(`ping -c2 ${process.platform !== 'win32' ? '-b': ''} ${broadcastAddress}`, {
-        timeout: 3000
-      }, function(err) {
-        if(err) {
-          return console.log('wake up broadcast failed!', err.stack || err);
-        }
-        console.log('wake pings completed!');
-      });
-    });
-  } catch(e){ console.log(e.stack) }
-};

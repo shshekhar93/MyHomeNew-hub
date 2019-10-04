@@ -12,6 +12,8 @@ class DeviceSetupModalContainer extends Component {
     super(props);
     this.state = {
       loading: true,
+      showOTK: false,
+      otk: '',
       leads: {}
     };
 
@@ -19,6 +21,7 @@ class DeviceSetupModalContainer extends Component {
     this.updateSetupComponent = this.updateSetupComponent.bind(this);
     this.updateLead = this.updateLead.bind(this);
     this.updateValue = this.updateValue.bind(this);
+    this.generateOTK = this.generateOTK.bind(this);
   }
 
   componentDidMount() {
@@ -114,41 +117,84 @@ class DeviceSetupModalContainer extends Component {
     });
   }
 
+  generateOTK(e) {
+    e.preventDefault();
+    API.generateOTK()
+      .then(({otk}) => {
+        this.setState({
+          showOTK: true,
+          otk
+        });
+      })
+      .catch(() => {
+        this.setState({
+          error: true
+        });
+      })
+  }
+
   getModalBody() {
     if(this.state.loading) {
       return <span>loading</span>;
-    } else if(this.state.error){
+    }
+    
+    if(this.state.error){
       return <span>An error occured! Please try again later.</span>;
-    } else if(Object.keys(this.state.devices || {}).length === 0) {
-      return <span>No new devices found! If you have purchased a new device, make sure its plugged in and connected to your WiFi.</span>
-    } else {
+    }
+
+    if(this.state.showOTK) {
       return (
         <div>
-          <Form.Label>Available devices</Form.Label>
-          <Form.Control className="form-group" as="select" onChange={this.updateSetupComponent}>
-            <option value="">Select one</option>
-            {
-                Object.keys(this.state.devices || {}).map(device => <option value={device}>{device}</option>)
-            }
-          </Form.Control>
-          
-          {
-            this.SetupComponent && <this.SetupComponent 
-              updateValue={this.updateValue}
-              updateLead={this.updateLead} /> ||
-            <span>Please select a device to configure</span>
-          }
-          <Form.Group>
-            <Button variant="primary" size="medium" style={{
-              'margin-top': '20px',
-              'margin-left': '140px',
-              'width': '150px'
-            }} 
-            onClick={this.addDevice}>Save</Button>
-          </Form.Group>
+          <p>One time setup key generated</p>
+          <h2 className="text-center" style={{color: 'green'}}>{this.state.otk}</h2>
+          <p>To add a new device to your account:</p>
+          <ol>
+            <li>Plug in your device and switch it on.</li>
+            <li>Connect to the WiFi access point started by device.</li>
+            <li>When the setup modal opens, enter your user id, and this key</li>
+            <li>Select your home WiFi SSID and provide password.</li>
+            <li>Once the device connects to internet, you will see the device listed here, ready for setup.</li>
+          </ol>
         </div>
       );
     }
+    
+    if(Object.keys(this.state.devices || {}).length === 0) {
+      return (
+        <React.Fragment>
+          <p>No device awaiting setup!</p>
+          <p><a href="#" onClick={this.generateOTK}>Generate an One Time Key (OTK)</a> to activate a new device.</p>
+          <span>If you have already activated your device using OTK, make sure its plugged in and connected to your WiFi.</span>
+        </React.Fragment>
+      );
+    }
+
+    return (
+      <div>
+        <Form.Label>Available devices</Form.Label>
+        <Form.Control className="form-group" as="select" onChange={this.updateSetupComponent}>
+          <option value="">Select one</option>
+          {
+              Object.keys(this.state.devices || {}).map(device => <option value={device}>{device}</option>)
+          }
+        </Form.Control>
+        
+        {
+          this.SetupComponent && <this.SetupComponent 
+            updateValue={this.updateValue}
+            updateLead={this.updateLead} /> ||
+          <span>Please select a device to configure</span>
+        }
+        <Form.Group>
+          <Button variant="primary" size="medium" style={{
+            'margin-top': '20px',
+            'margin-left': '140px',
+            'width': '150px'
+          }} 
+          onClick={this.addDevice}>Save</Button>
+        </Form.Group>
+      </div>
+    );
   }
 
   render() {

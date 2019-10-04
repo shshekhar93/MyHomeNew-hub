@@ -120,3 +120,13 @@ export function registerUser (user) {
       throw SERVER_ERROR;
     })
 }
+
+export function generateOTK() {
+  return fetch('/devices/new', { method: 'POST' })
+    .then(resp => {
+      if(resp.ok) {
+        return resp.json();
+      }
+      throw SERVER_ERROR;
+    })
+}

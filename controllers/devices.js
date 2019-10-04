@@ -2,33 +2,26 @@
 const _get = require('lodash/get');
 const _omit = require('lodash/omit');
 const _pickBy = require('lodash/pickBy');
+const {randomBytes} = require('../libs/crypto');
 
 const dnssd = require('../libs/dnssd');
 const DeviceModel = require('../models/devices');
-const { getRequestToDevice, wakeAllDevices } = require('../libs/helpers');
+const DeviceSetupModel = require('../models/device-setup');
+const { getRequestToDevice } = require('../libs/helpers');
 const schemaTransformer = require('../libs/helpers').schemaTransformer.bind(null, null);
 
 module.exports.getAvailableDevices = (req, res) => {
-  const allDevices = dnssd.getKnownDevices();
-  Promise.all(
-    Object.keys(allDevices).map(dev => 
-      DeviceModel.findOne({name: dev})
-        .then(added => ({dev, added: !!added}))
-        .catch(() => ({dev, added: false}))
-    )
-  )
-    .then(deviceInfo => 
-      res.json(
-        _omit(allDevices, deviceInfo
-          .filter(i => i.added === true)
-          .map(i => i.dev)
-        )
-      )
-    )
+  const user = _get(req, 'user._id');
+  DeviceSetupModel.find({ user }).lean()
+    .then(pendingDevices => {
+      const availableDevs = pendingDevices.filter(d => !!d.name)
+        .reduce((all, d) => ({...all, [d.name]: d}), {});
+      res.json(availableDevs);
+    })
     .catch(err => {
-      console.error('check device free failed', err.stack || err);
-      res.json({});
-    });
+      console.error('failed to find pending devices', err.stack);
+      res.status(400).json({});
+    })
 };
 
 module.exports.saveNewDeviceForUser = (req, res) => {
@@ -99,7 +92,6 @@ module.exports.getAllDevicesForUser = (req, res) => {
         }));
     })
     .then(devices => res.json(devices))
-    .then(wakeAllDevices)
     .catch(err => res.json({
       sucess: false, 
       err: err.message || err
@@ -147,4 +139,23 @@ module.exports.getDeviceConfig = (req, res) => {
         err: err.message || err
       });
     });
+};
+
+module.exports.generateOTK = (req, res) => {
+  randomBytes(16, 'hex')
+    .then(otk => {
+      const user = _get(req, 'user._id');
+      return (new DeviceSetupModel({otk, user})).save();
+    })
+    .then(doc => {
+      res.json({
+        otk: doc.otk
+      });
+    })
+    .catch(err => {
+      console.log('OTK generation failed!', err.stack);
+      res.status(400).json({
+        error: err.message
+      });
+    })
 };

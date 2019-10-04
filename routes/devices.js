@@ -5,7 +5,8 @@ const {
     saveNewDeviceForUser, 
     switchDeviceState, 
     getDeviceConfig, 
-    getAllDevicesForUser 
+    getAllDevicesForUser,
+    generateOTK
 } = require('../controllers/devices');
 
 module.exports = (app) => {
@@ -13,6 +14,9 @@ module.exports = (app) => {
 
     app.post('/devices', authorize, saveNewDeviceForUser);
     app.get('/devices', authorize, getAllDevicesForUser);
+
+    app.post('/devices/new', authorize, generateOTK);
+    
     app.post('/devices/:name', switchDeviceState);
     app.get('/devices/:name', authorize, getDeviceConfig);
 };

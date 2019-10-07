@@ -10,6 +10,10 @@ const allDevices = fs.readdirSync(path.join(__dirname, 'mock-devices'))
 
 allDevices.forEach(startDevice);
 
+function sendJSON(conn, obj, key) {
+  conn.send(Crypto.encrypt(JSON.stringify(obj), key));
+}
+
 function enableDeviceAPI(device, connection) {
   connection.on('message', message => {
     try {
@@ -30,10 +34,17 @@ function enableDeviceAPI(device, connection) {
           device[`lead${leadId}`] = brightness;
           console.log('updating', leadId, 'with', brightness);
           break;
+        case 'get-state':
+          const payload = {
+            status: 'OK',
+            lead0: device.lead0,
+            lead1: device.lead1
+          };
+          return sendJSON(connection, payload, device.encryptionKey);
         default:
-          return connection.send(Crypto.encrypt(JSON.stringify({ status: 'FAIL' }), device.encryptionKey));
+          return sendJSON(connection, { status: 'FAIL' }, device.encryptionKey);
       }
-      connection.send(Crypto.encrypt(JSON.stringify({ status: 'OK' }), device.encryptionKey));
+      sendJSON(connection, { status: 'OK' }, device.encryptionKey);
     } catch(e) {
       console.log('Failed to process server req', e.stack || e);
     }

@@ -64,28 +64,19 @@ function mapBrightness(devConfig, lead) {
   }
 }
 
-const RETRY_ERR_CODES = ['EHOSTUNREACH', 'ENOTFOUND'];
-;
 module.exports.getDevState = async (device, retries = 2) => {
-  return getRequestToDevice(device.name, device.port || '80', '/v1/config')
+  return requestToDevice(device.name, {
+    action: 'get-state'
+  })
     .then(resp => ({
-      ...device,
+      ..._omit(device, 'encryptionKey'),
       isActive: true,
       leads: device.leads.map(schemaTransformer).map(mapBrightness.bind(null, resp))
     }))
     .catch(err => {
-      retries--;
-      if(RETRY_ERR_CODES.includes(err.code) && // Err requires retry
-        retries !== 0 && // We have more retries left
-        dnssd.getKnownDevices()[device.name]) // And the device said it is online
-      {
-        console.warn('retrying bcz of', err.code);
-        return module.exports.getDevState(device, retries);
-      }
-
       console.error('getDevState failed', err);
       return {
-        ...device,
+        ..._omit(device, 'encryptionKey'),
         isActive: false
       };
     });
@@ -95,10 +86,9 @@ module.exports.getAllDevicesForUser = (req, res) => {
   // Get list of devices for current user
   return DeviceModel.find({user: req.user.email}).lean()
     .then(devices => {
-      // series(devices.map(schemaTransformer), module.exports.getDevState);
       return devices.map(schemaTransformer)
         .map(device => ({
-          ...device,
+          ..._omit(device, 'encryptionKey'),
           isActive: isDevOnline(device.name),
           leads: device.leads.map(lead => ({ ...lead, brightness: lead.state }))
         }));

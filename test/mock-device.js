@@ -1,74 +1,88 @@
-const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
+
+const Crypto = require('../libs/crypto');
 const WebSocketClient = require('websocket').client;
-const readline = require('readline');
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
 
-const question = q => (new Promise(resolve => rl.question(q, resolve)));
+const allDevices = fs.readdirSync(path.join(__dirname, 'mock-devices'))
+  .filter(f => f.endsWith('.json'))
+  .map(f => require(path.join(__dirname, 'mock-devices', f)));
 
-function ensureEntryValid(entry) {
-  if(!entry) {
-    throw new Error('required field');
-  }
-  return true;
+allDevices.forEach(startDevice);
+
+function enableDeviceAPI(device, connection) {
+  connection.on('message', message => {
+    try {
+      const payload = Crypto.decrypt(message.utf8Data, device.encryptionKey, 'utf8');
+      const request = JSON.parse(payload);
+      
+      switch(request.action) {
+        case 'update-key': 
+          device.encryptionKey = request.data;
+          console.log('updating key for', device.name);
+          break;
+        case 'update-username': 
+          device.username = request.data;
+          console.log('updating username for', device.name);
+          break;
+        case 'set-state': 
+          const [leadId, brightness] = request.data.split('=');
+          device[`lead${leadId}`] = brightness;
+          console.log('updating', leadId, 'with', brightness);
+          break;
+        default:
+          return connection.send(Crypto.encrypt(JSON.stringify({ status: 'FAIL' }), device.encryptionKey));
+      }
+      connection.send(Crypto.encrypt(JSON.stringify({ status: 'OK' }), device.encryptionKey));
+    } catch(e) {
+      console.log('Failed to process server req', e.stack || e);
+    }
+  });
+
+  connection.on('error', e => {
+    console.error('connection error', e.stack || e);
+  });
+
+  connection.on('close', () => {
+    setTimeout(startDevice.bind(null, device), 1000);
+  });
 }
 
-Promise.resolve({})
-  .then(ctx => {
-    return question('Name of device: ')
-      .then(name => ensureEntryValid(name) && ({...ctx, name }));
-  })
-  .then(ctx => {
-    return question('Host url: ')
-      .then(host => ensureEntryValid(host) && ({...ctx, host}));
-  })
-  .then(ctx => {
-    return question('One time key: ')
-      .then(otk => ensureEntryValid(otk) && ({...ctx, otk}));
-  })
-  .then(ctx => {
-    return question('Site username: ')
-      .then(username => ensureEntryValid(username) && ({...ctx, username}));
-  })
-  .then(ctx => {
-    console.log('does this look okay:\n', JSON.stringify(ctx, null, 2));
-    return question('(Y/n)? ')
-      .then(okay => {
-        if((okay || '').startsWith('y')) {
-          return ctx;
-        }
-        throw new Error('Process interrupted.');
-      })
-  })
-  .then(ctx => {
-    const secret = Buffer.from(ctx.otk, 'hex');
-    const IV = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv('aes-128-cbc', Buffer.from(secret), IV);
-    let encrypted = cipher.update(ctx.name);
-    encrypted = Buffer.concat([encrypted, cipher.final()]);
-    return {
-      ...ctx,
-      password: IV.toString('hex') + '-' + encrypted.toString('hex')
-    };
-  })
-  .then(ctx => {
-    const wsClient = new WebSocketClient();
-    wsClient.on('connect', connection => {
-      console.log('connected');
-    });
+function startDevice(device) {
+  const password = Crypto.encrypt(device.name, device.encryptionKey);
+  const wsClient = new WebSocketClient();
 
-    wsClient.on('connectFailed', err => {
-      console.log('connection failed', err.stack || err);
-    });
+  wsClient.on('connect', connection => {
+    console.log('connected');
+    enableDeviceAPI(device, connection);
+  });
 
-    wsClient.connect(
-      `ws://${ctx.host}/setup`,
-      'myhomenew-device',
-      null,
-      {
-        authorization: `${ctx.username}:${ctx.password}`
-      });
-  })
-  .catch(err => console.log(err.stack || err));
+  wsClient.on('connectFailed', err => {
+    console.error('connection failed', err.stack || err);
+  });
+
+  wsClient.connect(
+    `ws://${device.host}/v1/ws`,
+    'myhomenew-device',
+    null,
+    {
+      authorization: `${device.username}:${password}`,
+      type: 'light'
+    }
+  );
+}
+
+function saveDevice(device) {
+  fs.writeFileSync(
+    path.join(__dirname, 'mock-devices', `${device.name}.json`), 
+    JSON.stringify(device, null, 2)
+  );
+}
+
+process.on('exit', () => {
+  (allDevices || []).forEach(saveDevice);
+});
+
+process.on('SIGINT', () => {
+  process.exit();
+});

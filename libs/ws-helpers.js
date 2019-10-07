@@ -1,4 +1,5 @@
 const UserModel = require('../models/users');
+const DeviceModel = require('../models/devices');
 const DeviceSetupModel = require('../models/device-setup');
 const Crypto = require('./crypto');
 
@@ -23,9 +24,9 @@ function validateHubCreds (hubClientId, hubClientSecret) {
 
 function decrypt(password, devices) {
   let deviceName = '';
-  const device = devices.find(({otk}) => {
+  const device = devices.find(({encryptionKey}) => {
     try {
-      deviceName = Crypto.decrypt(password, otk, 'utf8');
+      deviceName = Crypto.decrypt(password, encryptionKey, 'utf8');
       return deviceName.startsWith('myhomenew');
     } catch(e) {
       return false;
@@ -35,23 +36,45 @@ function decrypt(password, devices) {
 }
 
 function validateDeviceCreds(username, password) {
-  if(username.startsWith('myhomenew-')) {
-    // Already setup device.
-  }
+  return DeviceModel.findOne({ name: username })
+    .then(device => {
+      if(device) { // already added..
+        const { deviceName } = decrypt(password, [device]);
+        if(deviceName === username) {
+          return Promise.all([device, UserModel.findOne({email: device.user})])
+            .then(([device, user]) => ({ device, user }));
+        }
 
-  return UserModel.findOne({ username }).lean()
-    .then(user => {
-      return DeviceSetupModel.find({user: user._id}).lean()
-        .then(devices => {
-          const { device, deviceName } = decrypt(password, devices) || {};
+        throw new Error('DECRYPTED_VALUE_DID_NOT_MATCH');
+      }
 
-          if(!device || !deviceName) {
-            throw new Error('DEVICE_PASSWORD_DECRYPTION_FAILED');
-          }
+      // New device
+      let devAndUserPromise;
+      if(username.startsWith('myhomenew-')) {
+        devAndUserPromise = DeviceSetupModel.findOne({name: username}).lean()
+          .then(device => Promise.all([device, UserModel.findOne({ _id: device.user })]))
+          .then(([device, user]) => ({ devices: [device], user }));
+      }
+      else {
+        devAndUserPromise = UserModel.findOne({ username }).lean()
+          .then(user => Promise.all([user, DeviceSetupModel.find({user: user._id}).lean()]))
+          .then(([user, devices]) => ({ devices, user }));
+      }
 
-          return Crypto.randomBytes(16, 'hex')
-            .then(newKey => ({ user, device, deviceName, newKey}));
-        });
+      return devAndUserPromise.then(({devices, user}) => {
+        const { device, deviceName } = decrypt(password, devices) || {};
+
+        if(!device || !deviceName) {
+          throw new Error('DEVICE_PASSWORD_DECRYPTION_FAILED');
+        }
+
+        if((device.name || '').startsWith('myhomenew-')) {
+          return { user, device, deviceName };
+        }
+
+        return Crypto.randomBytes(16, 'hex')
+          .then(newKey => ({ user, device, deviceName, newKey}));
+      });
     });
 }
 

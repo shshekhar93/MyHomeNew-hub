@@ -9,6 +9,7 @@ const DeviceModel = require('../models/devices');
 const DeviceSetupModel = require('../models/device-setup');
 const { getRequestToDevice } = require('../libs/helpers');
 const schemaTransformer = require('../libs/helpers').schemaTransformer.bind(null, null);
+const { isDevOnline, requestToDevice } = require('../libs/ws-server');
 
 module.exports.getAvailableDevices = (req, res) => {
   const user = _get(req, 'user._id');
@@ -25,24 +26,35 @@ module.exports.getAvailableDevices = (req, res) => {
 };
 
 module.exports.saveNewDeviceForUser = (req, res) => {
-  if(dnssd.getKnownDevices()[_get(req, 'body.name')] === undefined) {
-    return res.json({
-      success: false,
-      err: 'Device not online'
-    });
-  }
-
-  return DeviceModel.create({
-    user: req.user.email,
-    ...req.body
+  return DeviceSetupModel.findOne({
+    user: _get(req, 'user._id'),
+    name: _get(req, 'body.name')
   })
-  .then(() => res.json({
-    success: true
-  }))
-  .catch(err => res.status(400).json({
-    success: false, 
-    err: err.message
-  }));
+    .then(dev2Setup => {
+      if(!dev2Setup) {
+        throw new Error('Device not available to setup')
+      }
+
+      // if(!isDevOnline(dev2Setup.name)) {
+      //   throw new Error('Device not online');
+      // }
+
+      return DeviceModel.create({
+        ...req.body,
+        user: req.user.email,
+        encryptionKey: dev2Setup.encryptionKey
+      })
+        .then(() => DeviceSetupModel.deleteOne({ _id: dev2Setup._id }));
+    })
+    .then(() => res.json({
+      success: true
+    }))
+    .catch(err => {
+      return res.status(400).json({
+        success: false,
+        err: err.message
+      });
+    });
 };
 
 function mapBrightness(devConfig, lead) {
@@ -87,7 +99,7 @@ module.exports.getAllDevicesForUser = (req, res) => {
       return devices.map(schemaTransformer)
         .map(device => ({
           ...device,
-          isActive: !!dnssd.getKnownDevices()[device.name],
+          isActive: isDevOnline(device.name),
           leads: device.leads.map(lead => ({ ...lead, brightness: lead.state }))
         }));
     })
@@ -102,16 +114,15 @@ module.exports.switchDeviceState = (req, res) => {
   const devName = req.params.name;
   const { switchId, newState } = req.body;
 
-  DeviceModel.findOne({ name: devName})
+  DeviceModel.findOne({ name: devName, user: _get(req, 'user.email') })
     .then(device => {
       if(!device) {
         throw new Error('UNAUTHORIZED');
       }
-      return getRequestToDevice(
-        device.name,
-        device.port || '80',
-        `/v1/ops?dev=${switchId}&brightness=${newState}`
-      );
+      return requestToDevice(devName, {
+        action: 'set-state',
+        data: `${switchId}=${newState}`
+      });
     })
     .then(() => {
       return DeviceModel.update({
@@ -143,13 +154,13 @@ module.exports.getDeviceConfig = (req, res) => {
 
 module.exports.generateOTK = (req, res) => {
   randomBytes(16, 'hex')
-    .then(otk => {
+    .then(encryptionKey => {
       const user = _get(req, 'user._id');
-      return (new DeviceSetupModel({otk, user})).save();
+      return (new DeviceSetupModel({encryptionKey, user})).save();
     })
     .then(doc => {
       res.json({
-        otk: doc.otk
+        otk: doc.encryptionKey
       });
     })
     .catch(err => {

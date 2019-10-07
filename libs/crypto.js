@@ -1,5 +1,7 @@
 'use strict';
+const util = require('util');
 const crypto = require('crypto');
+const crRandomBytes = util.promisify(crypto.randomBytes);
 
 /**
  * 
@@ -7,14 +9,8 @@ const crypto = require('crypto');
  * @param {String} encoding : Format to return the bytes in. Falsey to return buffer.
  */
 function randomBytes(len, encoding) {
-  return new Promise(resolve => {
-    crypto.randomBytes(len, bytes => {
-      if(!encoding) {
-        return(resolve(bytes));
-      }
-      resolve(bytes.toString(encoding));
-    });
-  })
+  return crRandomBytes(len)
+    .then(bytes => (encoding ? bytes.toString(encoding) : bytes));
 }
 
 /**

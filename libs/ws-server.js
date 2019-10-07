@@ -3,11 +3,32 @@ const uuid = require('uuid/v4');
 const WebsocketServer = require('websocket').server;
 const _get = require('lodash/get');
 const EventEmitter = require('events');
+const {
+  refreshKeyForDevice,
+  updateUserName,
+  onConnect: onDeviceConnect
+} = require('../controllers/ws/devices');
 const { validateHubCreds, validateDeviceCreds } = require('./ws-helpers');
-const { encrypt } = require('./crypto');
+const DeviceSetupModel = require('../models/device-setup');
 const JSON_TYPE = 'application/json';
 
 const emitter = new EventEmitter();
+
+module.exports.isDevOnline = function (name) {
+  return emitter.listenerCount(name) > 0;
+}
+
+module.exports.requestToDevice = function (name, obj) {
+  return new Promise((resolve, reject) => {
+    emitter.emit(name, {
+      ...obj,
+      cb: (err, resp) => {
+        if(err) { return reject(err); }
+        return resolve(resp);
+      }
+    })
+  })
+}
 
 module.exports.proxy = function(req, res) {
   const hubClientId = _get(req, 'user.hubClientId');
@@ -70,30 +91,6 @@ function onHubConnect(connection, user) {
   });
 }
 
-function onDeviceConnect(connection, device, user) {
-  console.log('device connected!');
-}
-
-function executeKeyUpdate(connection, newKey, oldKey) {
-  return new Promise((resolve, reject) => {
-    const payload = JSON.stringify({
-      action: "update-key",
-      data: newKey
-    });
-    const encryptedPayload = encrypt(payload, oldKey);
-
-    connection.once('message', function(data) {
-      if(data === 'OK') {
-        return resolve();
-      }
-      connection.close();
-      return reject(new Error('DEVICE_KEY_UPDATE_FAILED')); 
-    });
-
-    connection.send(encryptedPayload);
-  });
-}
-
 module.exports.start = httpServer => {
   const wsServer = new WebsocketServer({
     httpServer,
@@ -110,33 +107,42 @@ module.exports.start = httpServer => {
 
     if(request.requestedProtocols.includes('myhomenew-device')) {
       return validateDeviceCreds(username, password)
-        .then(obj => {
-          const connection = request.accept('myhomenew-device', request.origin);
-          return (obj.newKey ? 
-            executeKeyUpdate(connection, obj.newKey, obj.device.otk) :
-            Promise.resolve()
-          )
-            .then(() => ({ ...obj, connection }));
+        .catch(err => {
+          request.reject();
+          throw err;
         })
         .then(obj => {
-          // Do this conditionally is the device is in setup phase..
+          const connection = request.accept('myhomenew-device', request.origin);
+          if(!obj.newKey) {
+            return Promise.resolve({ ...obj, connection });
+          }
+          return refreshKeyForDevice(connection, obj.newKey, obj.device.encryptionKey)
+            .then(() => updateUserName(connection, obj.deviceName, obj.newKey))
+            .then(() => ({ ...obj, connection }))
+            .catch(e => {
+              connection.close();
+              throw e;
+            });
+        })
+        .then(obj => {
+          if(!obj.newKey) {
+            return obj;
+          }
+          
           return DeviceSetupModel.updateOne({
             _id: obj.device._id
           }, { 
             $set: { 
               name: obj.deviceName,
-              encryptionKey: obj.newKey
+              encryptionKey: obj.newKey,
+              type: _get(request, 'httpRequest.headers.type', 'switch')
             }
           }).exec()
             .then(() => obj);
         })
-        .then(({connection, device, user}) => {
+        .then(({ connection, device, user }) => {
           if(user && device && connection && connection.connected) {
-            return onDeviceConnect(connection, device, user);
-          }
-
-          if(!connection) {
-            return request.reject();
+            return onDeviceConnect(connection, emitter, device, user);
           }
         })
         .catch(err => {

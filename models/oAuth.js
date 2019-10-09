@@ -139,7 +139,7 @@ function getAccessToken (bearerToken) {
         return null;
       }
 
-      return Object.assign({ client, user }, token.toJSON());
+      return Object.assign(token.toJSON(), { client, user });
     })
     .catch(err => {
       console.log(err.stack);

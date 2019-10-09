@@ -6,8 +6,10 @@ function sendMessageToDevice(conn, obj, key, decryptionKey) {
   return new Promise((resolve, reject) => {
     const payload = JSON.stringify(obj);
     const encryptedPayload = encrypt(payload, key);
+    let cleanupTimeoutId;
 
-    conn.once('message', function(message) {
+    function onMsg(message) {
+      clearTimeout(cleanupTimeoutId);
       try {
         const resp = JSON.parse(decrypt(message.utf8Data, decryptionKey || key));
         if(resp.status === 'OK') {
@@ -17,8 +19,17 @@ function sendMessageToDevice(conn, obj, key, decryptionKey) {
       } catch(e) {
         return reject(new Error('COULDNT_PARSE_MSG'));
       }
-    });
+    }
+    
+    function cleanup (shouldReject = true) {
+      conn.removeListener('message', onMsg);
+      if (shouldReject) {
+        return reject(new Error('WS_WAIT_TIMEOUT'));
+      }
+    };
 
+    cleanupTimeoutId = setTimeout(cleanup, 5000);
+    conn.once('message', onMsg);
     conn.send(encryptedPayload);
   });
 }
@@ -61,9 +72,9 @@ function onConnect(connection, emitter, device) {
 
   // Clean up on socket disconnect.
   connection.on('close', () => {
+    console.log('device disconnected!');
     emitter.removeListener(device.name, onRequest);
   });
-
   console.log('device connected!');
 }
 

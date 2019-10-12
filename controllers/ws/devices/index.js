@@ -70,12 +70,18 @@ function onConnect(connection, emitter, device) {
 
   emitter.on(device.name, onRequest);
 
+  // We must receive periodic pings.
+  connection.socket.setTimeout(45000, () => {
+    connection.close();
+  });
+
   // Clean up on socket disconnect.
   connection.on('close', () => {
-    console.log('device disconnected!');
+    console.log(new Date(), 'device disconnected!');
     emitter.removeListener(device.name, onRequest);
   });
-  console.log('device connected!');
+
+  console.log(new Date(), 'device connected!');
 }
 
 module.exports = {

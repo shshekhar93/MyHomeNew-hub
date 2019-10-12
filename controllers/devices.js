@@ -4,10 +4,8 @@ const _omit = require('lodash/omit');
 const _pickBy = require('lodash/pickBy');
 const {randomBytes} = require('../libs/crypto');
 
-const dnssd = require('../libs/dnssd');
 const DeviceModel = require('../models/devices');
 const DeviceSetupModel = require('../models/device-setup');
-const { getRequestToDevice } = require('../libs/helpers');
 const schemaTransformer = require('../libs/helpers').schemaTransformer.bind(null, null);
 const { isDevOnline, requestToDevice } = require('../libs/ws-server');
 
@@ -100,11 +98,8 @@ module.exports.getAllDevicesForUser = (req, res) => {
     }));
 };
 
-module.exports.switchDeviceState = (req, res) => {
-  const devName = req.params.name;
-  const { switchId, newState } = req.body;
-
-  DeviceModel.findOne({ name: devName, user: _get(req, 'user.email') })
+module.exports.updateDeviceState = function updateDeviceState(devName, switchId, newState) {
+  return DeviceModel.findOne({ name: devName, user: _get(req, 'user.email') })
     .then(device => {
       if(!device) {
         throw new Error('UNAUTHORIZED');
@@ -121,7 +116,14 @@ module.exports.switchDeviceState = (req, res) => {
       }, {
         'leads.$.state': newState
       }).exec();
-    })
+    });
+}
+
+module.exports.switchDeviceState = (req, res) => {
+  const devName = req.params.name;
+  const { switchId, newState } = req.body;
+
+  updateDeviceState(devName, switchId, newState)
     .then(() => res.json({
       success: true
     }))
@@ -132,7 +134,9 @@ module.exports.switchDeviceState = (req, res) => {
 };
 
 module.exports.getDeviceConfig = (req, res) => {
-  return getRequestToDevice(req.params.name, '80', '/v1/config')
+  return requestToDevice(req.params.name, {
+    action: 'get-state'
+  })
     .then(resp => res.json(_pickBy(resp, (val, key) => key.indexOf('lead') === 0)))
     .catch(err => {
       res.status(400).json({

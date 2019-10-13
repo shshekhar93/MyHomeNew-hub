@@ -96,7 +96,7 @@ function execute(req, res) {
       const [id, devId] = dev.id.split('-');
 
       return deviceModel.findById(id).lean()
-        .then(device => updateDeviceState(device.name, devId, (isOn? 100 : 0)))
+        .then(device => updateDeviceState(device.user, device.name, devId, (isOn? 100 : 0)))
         .then(() => {
           return deviceModel.update({
             _id: id,

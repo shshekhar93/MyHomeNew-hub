@@ -66,4 +66,4 @@ DB.connect();
 
 const server =  http.createServer(app);
 WSServer.start(server);
-server.listen(process.env.PORT || 8090);
+server.listen(process.env.PORT || 8020);

@@ -98,8 +98,8 @@ module.exports.getAllDevicesForUser = (req, res) => {
     }));
 };
 
-module.exports.updateDeviceState = function updateDeviceState(devName, switchId, newState) {
-  return DeviceModel.findOne({ name: devName, user: _get(req, 'user.email') })
+const updateDeviceState = module.exports.updateDeviceState = (user, devName, switchId, newState) => {
+  return DeviceModel.findOne({ name: devName, user })
     .then(device => {
       if(!device) {
         throw new Error('UNAUTHORIZED');
@@ -123,7 +123,7 @@ module.exports.switchDeviceState = (req, res) => {
   const devName = req.params.name;
   const { switchId, newState } = req.body;
 
-  updateDeviceState(devName, switchId, newState)
+  updateDeviceState(_get(req, 'user.email'), devName, switchId, newState)
     .then(() => res.json({
       success: true
     }))

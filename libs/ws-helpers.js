@@ -7,7 +7,7 @@ const { promisify } = require('util');
 const compare = promisify(require('bcrypt').compare);
 
 function validateHubCreds (hubClientId, hubClientSecret) {
-  return UserModel.findOne({ hubClientId, hubClientSecret })
+  return UserModel.findOne({ hubClientId })
     .then(user => {
       if(!user) {
         throw new Error('User not found');

@@ -1,5 +1,4 @@
 'use strict';
-const uuid = require('uuid/v4');
 const WebsocketServer = require('websocket').server;
 const _get = require('lodash/get');
 const EventEmitter = require('events');
@@ -8,6 +7,8 @@ const {
   updateUserName,
   onConnect: onDeviceConnect
 } = require('../controllers/ws/devices');
+const onHubConnect = require('../controllers/ws/devices/hub');
+
 const { validateHubCreds, validateDeviceCreds } = require('./ws-helpers');
 const DeviceSetupModel = require('../models/device-setup');
 const JSON_TYPE = 'application/json';
@@ -31,7 +32,8 @@ module.exports.requestToDevice = function (name, obj) {
 }
 
 module.exports.proxy = function(req, res) {
-  const hubClientId = _get(req, 'user.hubClientId');
+  const hubClientId = _get(req, 'user.hubClientId') || 
+    _get(res, 'locals.oauth.token.user.hubClientId');
 
   if(emitter.listenerCount(hubClientId) === 0) {
     // We should at least retry once in a second or so!!
@@ -43,53 +45,15 @@ module.exports.proxy = function(req, res) {
     method: req.method,
     body: req.body,
     type: req.get('content-type'),
-    cb: resp => {
+    cb: (err, resp) => {
+      if(err) {
+        return res.status(500).end();
+      }
       const respPayload = typeof resp.body !== 'string' ? JSON.stringify(resp.body) : resp.body; 
       res.status(resp.status || 200).type(req.type || JSON_TYPE).end(respPayload);
     }
   });
 };
-
-function onHubConnect(connection, user) {
-  const hubClientId = user.hubClientId;
-
-  if(emitter.listenerCount(hubClientId) > 0) {
-    console.error('already have a hub attached for account');
-    return connection.close();
-  }
-
-  function onRequest(reqData) {
-    const { cb } = reqData;
-    const reqId = uuid();
-    reqData = {
-      ...reqData, 
-      reqId,
-      cb: undefined
-    };
-    connection.on('message', function onResponse(message) {
-      try {
-        const payload = JSON.parse(message.utf8Data);
-        if(payload.reqId !== reqId) {
-          return; // This message is not for us. Ignore.
-        }
-        
-        cb(payload);
-        connection.removeListener(message, onResponse);
-      } catch(e) {
-        console.error('could not parse message', message.utf8Data);
-      }
-    });
-
-    connection.send(JSON.stringify(reqData));
-  }
-
-  emitter.on(hubClientId, onRequest);
-
-  // Clean up on websocket close.
-  connection.on('close', function() {
-    emitter.removeListener(hubClientId, onRequest);
-  });
-}
 
 module.exports.start = httpServer => {
   const wsServer = new WebsocketServer({
@@ -113,6 +77,12 @@ module.exports.start = httpServer => {
         })
         .then(obj => {
           const connection = request.accept('myhomenew-device', request.origin);
+
+          // Event emitters must have an error event handler.
+          connection.on('error', err => {
+            console.error('Hub connection error', err.message);
+          });
+
           if(!obj.newKey) {
             return Promise.resolve({ ...obj, connection });
           }
@@ -154,7 +124,13 @@ module.exports.start = httpServer => {
       .then(user => {
         if(user) {
           const connection = request.accept('myhomenew', request.origin);
-          return onHubConnect(connection, user);
+
+          // Event emitters must have an error event handler.
+          connection.on('error', err => {
+            console.error('Hub connection error', err.message);
+          });
+
+          return onHubConnect(connection, emitter, user);
         }
         return request.reject();
       })

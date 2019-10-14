@@ -1,5 +1,6 @@
 'use strict';
 const _get = require('lodash/get');
+const { isDevOnline, proxy } = require('../libs/ws-server');
 const {
   syncDevices, queryStatus, execute
 } = require('../controllers/assistant');
@@ -17,7 +18,13 @@ function oAuthAuthenticate(req, res, next) {
 module.exports =  app => {
   app.post('/assistant/fullfill', oAuthAuthenticate, (req, res) => {
     console.log('Assistant req', JSON.stringify(req.body, null, 2));
-    console.log('user', _get(res, 'locals.oauth.token.user.email'), _get(req, 'user.email'));
+
+    const hubClientId = _get(res,
+      'locals.oauth.token.user.hubClientId',
+      _get(req, 'user.hubClientId'));
+    if(hubClientId && isDevOnline(hubClientId)) {
+      return proxy(req, res);
+    }
     
     const type = _get(req.body, 'inputs[0].intent');
 

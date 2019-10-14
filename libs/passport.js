@@ -8,6 +8,7 @@ const Bluebird = require('bluebird');
 const UserModel = require('../models/users');
 
 const compare = Bluebird.promisify(bcrypt.compare, {context: bcrypt});
+const USER_FIELDS = ['_id', 'email', 'name', 'hubClientId'];
 
 passport.use(new LocalStrategy(
   function(username, password, done) {
@@ -19,7 +20,7 @@ passport.use(new LocalStrategy(
         }
 
         return compare(password, user.password)
-          .then(res => done(null, (res ? _pick(user.toJSON(), ['_id', 'email', 'name']) : false)))
+          .then(res => done(null, (res ? _pick(user.toJSON(), USER_FIELDS) : false)))
       })
       .catch(done);
   }
@@ -31,7 +32,7 @@ passport.serializeUser(function(user, done) {
 
 passport.deserializeUser(function(email, done) {
   UserModel.findOne({ email })
-    .then(user => done(null, _pick(user.toJSON(), ['_id', 'email', 'name'])))
+    .then(user => done(null, _pick(user.toJSON(), USER_FIELDS)))
     .catch(done);
 });
 

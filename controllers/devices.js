@@ -183,8 +183,8 @@ module.exports.triggerFirmwareUpdate = (req, res) => {
         .then(resp => {
           const { version = '' } = resp;
           const [hardwareVer, softwareVer] = version.split('-');
-          const latestFirmWare = fs.readFileSync(path.join(__dirname, `../firmwares/${hardwareVer}.latest`));
-    
+          const latestFirmWare = fs.readFileSync(path.join(__dirname, `../firmwares/${hardwareVer}.latest`), 'utf8');
+
           const updateRequired = semver.gt(latestFirmWare, softwareVer);
           if(!updateRequired) {
             return res.json({ message: 'Already up-to-date' });

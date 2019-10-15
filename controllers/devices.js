@@ -191,10 +191,14 @@ module.exports.triggerFirmwareUpdate = (req, res) => {
           }
     
           const firmwarePath = `firmwares/${hardwareVer}/${latestFirmWare}/firmware.bin`
-          requestToDevice({
+          return requestToDevice({
             action: 'firmware-update',
             data: `/v1/${name}/get-firmware/${encrypt(`${firmwarePath}-1`, device.encryptionKey)}`
           });
+        })
+        .then(resp => {
+          console.log(resp);
+          res.json({ succes: true });
         });
     })
     .catch(err => {

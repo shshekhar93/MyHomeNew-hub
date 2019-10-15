@@ -25,16 +25,18 @@ module.exports = function (req, res) {
         throw new Error('INVALID_ID_IN_REQ');
       }
 
-      const fullPath = fpath.join(__dirname, '..', filePath);
+      const fullPath = path.join(__dirname, '..', filePath);
       fs.readFile(fullPath, function(err, buffer) {
         if(err) {
           console.error('firmware read error', err.message);
+          return;
         }
 
         const md5Hash = crypto.createHash('md5').update(buffer).digest('hex');
 
         res.setHeader('Content-Type', 'application/octet-stream');
         res.setHeader('Content-Disposition', 'attachment; filename=firmware.bin');
+        res.setHeader('Content-Length', buffer.length);
         res.setHeader('x-MD5', md5Hash);
 
         res.end(buffer);

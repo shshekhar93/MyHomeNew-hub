@@ -7,8 +7,10 @@ const {
   switchDeviceState, 
   getDeviceConfig, 
   getAllDevicesForUser,
-  generateOTK
+  generateOTK,
+  triggerFirmwareUpdate
 } = require('../controllers/devices');
+const streamFirmware = require('../controllers/firmware');
 const { isDevOnline, proxy } = require('../libs/ws-server');
 
 module.exports = (app) => {
@@ -29,4 +31,7 @@ module.exports = (app) => {
   
   app.post('/devices/:name', authorize, switchDeviceState);
   app.get('/devices/:name', authorize, getDeviceConfig);
+
+  app.post('/devices/:name/update-firmware', authorize, triggerFirmwareUpdate);
+  app.get('/v1/:name/get-firmware/:id', streamFirmware);
 };

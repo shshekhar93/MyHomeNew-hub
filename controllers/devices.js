@@ -1,8 +1,12 @@
 'use strict';
+const path = require('path');
+const fs = require('fs');
+
+const semver = require('semver');
 const _get = require('lodash/get');
 const _omit = require('lodash/omit');
 const _pickBy = require('lodash/pickBy');
-const {randomBytes} = require('../libs/crypto');
+const {randomBytes, encrypt} = require('../libs/crypto');
 
 const DeviceModel = require('../models/devices');
 const DeviceSetupModel = require('../models/device-setup');
@@ -163,4 +167,38 @@ module.exports.generateOTK = (req, res) => {
         error: err.message
       });
     })
+};
+
+module.exports.triggerFirmwareUpdate = (req, res) => {
+  const { name } = req.params;
+
+  DeviceModel.findOne({name}).lean()
+    .then(device => {
+      if(!device) {
+        throw new Error('DEV_NOT_FOUND');
+      }
+      return requestToDevice(name, {
+        action: 'get-state'
+      })
+        .then(resp => {
+          const { version = '' } = resp;
+          const [hardwareVer, softwareVer] = version.split('-');
+          const latestFirmWare = fs.readFileSync(path.join(__dirname, `../firmwares/${hardwareVer}.latest`));
+    
+          const updateRequired = semver.gt(latestFirmWare, softwareVer);
+          if(!updateRequired) {
+            return res.json({ message: 'Already up-to-date' });
+          }
+    
+          const firmwarePath = `firmwares/${hardwareVer}/${latestFirmWare}/firmware.bin`
+          requestToDevice({
+            action: 'firmware-update',
+            data: `/v1/${name}/get-firmware/${encrypt(`${firmwarePath}-1`, device.encryptionKey)}`
+          });
+        });
+    })
+    .catch(err => {
+      console.error('TRIGGER_UPDATE_FAILED', err.message);
+      res.status(400).json({ error: err.message });
+    });
 };

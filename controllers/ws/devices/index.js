@@ -37,7 +37,8 @@ function sendMessageToDevice(conn, obj, key, decryptionKey) {
 function confirmSessionKeyToDevice(conn, sessionKey) {
   const request = {
     action: 'confirm-session',
-    data: sessionKey
+    data: sessionKey,
+    'frame-num': 1
   };
   return sendMessageToDevice(conn, request, sessionKey)
     .catch(e => {
@@ -49,7 +50,8 @@ function confirmSessionKeyToDevice(conn, sessionKey) {
 function refreshKeyForDevice(conn, newKey, sessionKey) {
   const request = {
     action: 'update-key',
-    data: newKey
+    data: newKey,
+    'frame-num': 2
   };
 
   return sendMessageToDevice(conn, request, sessionKey)
@@ -62,7 +64,8 @@ function refreshKeyForDevice(conn, newKey, sessionKey) {
 function updateUserName(conn, newUsername, encryptionKey) {
   const request = {
     action: 'update-username',
-    data: newUsername
+    data: newUsername,
+    'frame-num': 3
   };
   return sendMessageToDevice(conn, request, encryptionKey)
     .catch(e => {
@@ -77,10 +80,14 @@ function onConnect(connection, sessionKey, emitter, device) {
     return connection.close();
   }
 
+  let frameNum = 10;
   const onRequest = reqData => {
     const { cb } = reqData;
-    const reqId = uuid();
-    reqData = { ...reqData, reqId, cd: undefined };
+    reqData = {
+      ...reqData,
+      'frame-num': ++frameNum,
+      cd: undefined
+    };
     sendMessageToDevice(connection, reqData, sessionKey)
       .then(cb.bind(null, null))
       .catch(cb);

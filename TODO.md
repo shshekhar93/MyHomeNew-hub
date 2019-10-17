@@ -1,0 +1,4 @@
+- ✓ Enable OTA firmware upgrade
+- ✓ Use different session tokens for encryption in each session
+- Use increasing frame number to protect against replay attacks
+- Download encrypted firmware

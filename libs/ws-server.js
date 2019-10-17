@@ -3,6 +3,7 @@ const WebsocketServer = require('websocket').server;
 const _get = require('lodash/get');
 const EventEmitter = require('events');
 const {
+  confirmSessionKeyToDevice,
   refreshKeyForDevice,
   updateUserName,
   onConnect: onDeviceConnect
@@ -83,11 +84,14 @@ module.exports.start = httpServer => {
             console.error('Hub connection error', err.message);
           });
 
-          if(!obj.newKey) {
-            return Promise.resolve({ ...obj, connection });
-          }
-          return refreshKeyForDevice(connection, obj.newKey, obj.device.encryptionKey)
-            .then(() => updateUserName(connection, obj.deviceName, obj.newKey))
+          return confirmSessionKeyToDevice(connection, obj.sessionKey)
+            .then(() => {
+              if(!obj.newKey) {
+                return Promise.resolve({ ...obj, connection });
+              }
+              return refreshKeyForDevice(connection, obj.newKey, obj.device.encryptionKey)
+                .then(() => updateUserName(connection, obj.deviceName, obj.newKey));
+            })
             .then(() => ({ ...obj, connection }))
             .catch(e => {
               connection.close();
@@ -110,9 +114,9 @@ module.exports.start = httpServer => {
           }).exec()
             .then(() => obj);
         })
-        .then(({ connection, device, user }) => {
-          if(user && device && connection && connection.connected) {
-            return onDeviceConnect(connection, emitter, device, user);
+        .then(({ connection, device, user, sessionKey }) => {
+          if(user && device && sessionKey && connection && connection.connected) {
+            return onDeviceConnect(connection, sessionKey, emitter, device, user);
           }
         })
         .catch(err => {

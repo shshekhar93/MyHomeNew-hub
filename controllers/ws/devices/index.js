@@ -34,14 +34,29 @@ function sendMessageToDevice(conn, obj, key, decryptionKey) {
   });
 }
 
-function refreshKeyForDevice(conn, newKey, oldKey, _id) {
+function confirmSessionKeyToDevice(conn, sessionKey) {
+  const request = {
+    action: 'confirm-session',
+    data: sessionKey
+  };
+  return sendMessageToDevice(conn, request, sessionKey)
+    .catch(e => {
+      console.error('DEV_SESS_KEY_CONF', e.message);
+      throw new Error('SESS_KEY_CONF_FAILED');
+    });
+}
+
+function refreshKeyForDevice(conn, newKey, sessionKey) {
   const request = {
     action: 'update-key',
     data: newKey
   };
 
-  return sendMessageToDevice(conn, request, oldKey, newKey)
-    .catch(() => { throw new Error('DEVICE_KEY_UPDATE_FAILED') });
+  return sendMessageToDevice(conn, request, sessionKey)
+    .catch(e => {
+      console.error('DEV_KEY_UPDATE', e.message);
+      throw new Error('DEVICE_KEY_UPDATE_FAILED');
+    });
 }
 
 function updateUserName(conn, newUsername, encryptionKey) {
@@ -50,10 +65,13 @@ function updateUserName(conn, newUsername, encryptionKey) {
     data: newUsername
   };
   return sendMessageToDevice(conn, request, encryptionKey)
-    .catch((e) => { throw new Error('DEVICE_USERNAME_UPDATE_FAILED'); });
+    .catch(e => {
+      console.error('DEV_USER_UPDATE', e.message);
+      throw new Error('DEVICE_USERNAME_UPDATE_FAILED');
+    });
 }
 
-function onConnect(connection, emitter, device) {
+function onConnect(connection, sessionKey, emitter, device) {
   if(emitter.listenerCount(device.name) > 0) {
     console.error('device is already connected!');
     return connection.close();
@@ -63,7 +81,7 @@ function onConnect(connection, emitter, device) {
     const { cb } = reqData;
     const reqId = uuid();
     reqData = { ...reqData, reqId, cd: undefined };
-    sendMessageToDevice(connection, reqData, device.encryptionKey)
+    sendMessageToDevice(connection, reqData, sessionKey)
       .then(cb.bind(null, null))
       .catch(cb);
   };
@@ -86,6 +104,7 @@ function onConnect(connection, emitter, device) {
 
 module.exports = {
   onConnect,
+  confirmSessionKeyToDevice,
   refreshKeyForDevice,
   updateUserName
 };

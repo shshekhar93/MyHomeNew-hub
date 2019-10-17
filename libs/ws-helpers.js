@@ -24,25 +24,29 @@ function validateHubCreds (hubClientId, hubClientSecret) {
 
 function decrypt(password, devices) {
   let deviceName = '';
+  let sessionKey = '';
   const device = devices.find(({encryptionKey}) => {
     try {
-      deviceName = Crypto.decrypt(password, encryptionKey, 'utf8');
-      return deviceName.startsWith('myhomenew');
+      const decryptedPayload = Crypto.decrypt(password, encryptionKey, 'utf8');
+      const parts = decryptedPayload.split('|');
+      deviceName = parts[0].trim();
+      sessionKey = parts[1].trim();
+      return deviceName.startsWith('myhomenew') && sessionKey.length === 32;
     } catch(e) {
       return false;
     }
   });
-  return device && { device, deviceName };
+  return device && { device, deviceName, sessionKey } || {};
 }
 
 function validateDeviceCreds(username, password) {
   return DeviceModel.findOne({ name: username })
     .then(device => {
       if(device) { // already added..
-        const { deviceName } = decrypt(password, [device]);
+        const { deviceName, sessionKey } = decrypt(password, [device]);
         if(deviceName === username) {
           return Promise.all([device, UserModel.findOne({email: device.user})])
-            .then(([device, user]) => ({ device, user }));
+            .then(([device, user]) => ({ device, user, sessionKey }));
         }
 
         throw new Error('DECRYPTED_VALUE_DID_NOT_MATCH');
@@ -62,18 +66,18 @@ function validateDeviceCreds(username, password) {
       }
 
       return devAndUserPromise.then(({devices, user}) => {
-        const { device, deviceName } = decrypt(password, devices) || {};
+        const { device, deviceName, sessionKey } = decrypt(password, devices) || {};
 
-        if(!device || !deviceName) {
+        if(!device || !deviceName || !sessionKey) {
           throw new Error('DEVICE_PASSWORD_DECRYPTION_FAILED');
         }
 
         if((device.name || '').startsWith('myhomenew-')) {
-          return { user, device, deviceName };
+          return { user, device, deviceName, sessionKey };
         }
 
         return Crypto.randomBytes(16, 'hex')
-          .then(newKey => ({ user, device, deviceName, newKey}));
+          .then(newKey => ({ user, device, deviceName, newKey, sessionKey }));
       });
     });
 }

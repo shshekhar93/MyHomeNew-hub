@@ -1,8 +1,7 @@
 'use strict';
 const _get = require('lodash/get');
 const deviceModel = require('../models/devices');
-const { getRequestToDevice } = require('../libs/helpers');
-const { getDevState } = require('./devices');
+const { getDevState, updateDeviceState } = require('./devices');
 
 function syncDevices(req, res) {
   const userEmail = _get(res, 'locals.oauth.token.user.email', _get(req, 'user.email'));
@@ -97,11 +96,7 @@ function execute(req, res) {
       const [id, devId] = dev.id.split('-');
 
       return deviceModel.findById(id).lean()
-        .then(device => getRequestToDevice(
-          device.name,
-          device.port || '80',
-          `/v1/ops?dev=${devId || 0}&brightness=${isOn? 100 : 0}`
-        ))
+        .then(device => updateDeviceState(device.user, device.name, devId, (isOn? 100 : 0)))
         .then(() => {
           return deviceModel.update({
             _id: id,

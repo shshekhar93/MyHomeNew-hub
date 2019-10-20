@@ -1,55 +1,62 @@
 'use strict';
+const path = require('path');
+const fs = require('fs');
+
+const semver = require('semver');
 const _get = require('lodash/get');
 const _omit = require('lodash/omit');
 const _pickBy = require('lodash/pickBy');
+const {randomBytes, encrypt} = require('../libs/crypto');
 
-const dnssd = require('../libs/dnssd');
 const DeviceModel = require('../models/devices');
-const { getRequestToDevice, wakeAllDevices } = require('../libs/helpers');
+const DeviceSetupModel = require('../models/device-setup');
 const schemaTransformer = require('../libs/helpers').schemaTransformer.bind(null, null);
+const { isDevOnline, requestToDevice } = require('../libs/ws-server');
 
 module.exports.getAvailableDevices = (req, res) => {
-  const allDevices = dnssd.getKnownDevices();
-  Promise.all(
-    Object.keys(allDevices).map(dev => 
-      DeviceModel.findOne({name: dev})
-        .then(added => ({dev, added: !!added}))
-        .catch(() => ({dev, added: false}))
-    )
-  )
-    .then(deviceInfo => 
-      res.json(
-        _omit(allDevices, deviceInfo
-          .filter(i => i.added === true)
-          .map(i => i.dev)
-        )
-      )
-    )
+  const user = _get(req, 'user._id');
+  DeviceSetupModel.find({ user }).lean()
+    .then(pendingDevices => {
+      const availableDevs = pendingDevices.filter(d => !!d.name)
+        .reduce((all, d) => ({...all, [d.name]: d}), {});
+      res.json(availableDevs);
+    })
     .catch(err => {
-      console.error('check device free failed', err.stack || err);
-      res.json({});
-    });
+      console.error('failed to find pending devices', err.stack);
+      res.status(400).json({});
+    })
 };
 
 module.exports.saveNewDeviceForUser = (req, res) => {
-  if(dnssd.getKnownDevices()[_get(req, 'body.name')] === undefined) {
-    return res.json({
-      success: false,
-      err: 'Device not online'
-    });
-  }
-
-  return DeviceModel.create({
-    user: req.user.email,
-    ...req.body
+  return DeviceSetupModel.findOne({
+    user: _get(req, 'user._id'),
+    name: _get(req, 'body.name')
   })
-  .then(() => res.json({
-    success: true
-  }))
-  .catch(err => res.status(400).json({
-    success: false, 
-    err: err.message
-  }));
+    .then(dev2Setup => {
+      if(!dev2Setup) {
+        throw new Error('Device not available to setup')
+      }
+
+      // if(!isDevOnline(dev2Setup.name)) {
+      //   throw new Error('Device not online');
+      // }
+
+      return DeviceModel.create({
+        ...req.body,
+        user: req.user.email,
+        encryptionKey: dev2Setup.encryptionKey
+      })
+        .then(() => DeviceSetupModel.deleteOne({ _id: dev2Setup._id }));
+    })
+    .then(() => res.json({
+      success: true
+    }))
+    .catch(err => {
+      return res.status(400).json({
+        success: false,
+        err: err.message
+      });
+    });
 };
 
 function mapBrightness(devConfig, lead) {
@@ -59,28 +66,19 @@ function mapBrightness(devConfig, lead) {
   }
 }
 
-const RETRY_ERR_CODES = ['EHOSTUNREACH', 'ENOTFOUND'];
-;
 module.exports.getDevState = async (device, retries = 2) => {
-  return getRequestToDevice(device.name, device.port || '80', '/v1/config')
+  return requestToDevice(device.name, {
+    action: 'get-state'
+  })
     .then(resp => ({
-      ...device,
+      ..._omit(device, 'encryptionKey'),
       isActive: true,
       leads: device.leads.map(schemaTransformer).map(mapBrightness.bind(null, resp))
     }))
     .catch(err => {
-      retries--;
-      if(RETRY_ERR_CODES.includes(err.code) && // Err requires retry
-        retries !== 0 && // We have more retries left
-        dnssd.getKnownDevices()[device.name]) // And the device said it is online
-      {
-        console.warn('retrying bcz of', err.code);
-        return module.exports.getDevState(device, retries);
-      }
-
       console.error('getDevState failed', err);
       return {
-        ...device,
+        ..._omit(device, 'encryptionKey'),
         isActive: false
       };
     });
@@ -90,36 +88,30 @@ module.exports.getAllDevicesForUser = (req, res) => {
   // Get list of devices for current user
   return DeviceModel.find({user: req.user.email}).lean()
     .then(devices => {
-      // series(devices.map(schemaTransformer), module.exports.getDevState);
       return devices.map(schemaTransformer)
         .map(device => ({
-          ...device,
-          isActive: !!dnssd.getKnownDevices()[device.name],
+          ..._omit(device, 'encryptionKey'),
+          isActive: isDevOnline(device.name),
           leads: device.leads.map(lead => ({ ...lead, brightness: lead.state }))
         }));
     })
     .then(devices => res.json(devices))
-    .then(wakeAllDevices)
     .catch(err => res.json({
       sucess: false, 
       err: err.message || err
     }));
 };
 
-module.exports.switchDeviceState = (req, res) => {
-  const devName = req.params.name;
-  const { switchId, newState } = req.body;
-
-  DeviceModel.findOne({ name: devName})
+const updateDeviceState = module.exports.updateDeviceState = (user, devName, switchId, newState) => {
+  return DeviceModel.findOne({ name: devName, user })
     .then(device => {
       if(!device) {
         throw new Error('UNAUTHORIZED');
       }
-      return getRequestToDevice(
-        device.name,
-        device.port || '80',
-        `/v1/ops?dev=${switchId}&brightness=${newState}`
-      );
+      return requestToDevice(devName, {
+        action: 'set-state',
+        data: `${switchId}=${newState}`
+      });
     })
     .then(() => {
       return DeviceModel.update({
@@ -128,7 +120,14 @@ module.exports.switchDeviceState = (req, res) => {
       }, {
         'leads.$.state': newState
       }).exec();
-    })
+    });
+}
+
+module.exports.switchDeviceState = (req, res) => {
+  const devName = req.params.name;
+  const { switchId, newState } = req.body;
+
+  updateDeviceState(_get(req, 'user.email'), devName, switchId, newState)
     .then(() => res.json({
       success: true
     }))
@@ -139,12 +138,71 @@ module.exports.switchDeviceState = (req, res) => {
 };
 
 module.exports.getDeviceConfig = (req, res) => {
-  return getRequestToDevice(req.params.name, '80', '/v1/config')
+  return requestToDevice(req.params.name, {
+    action: 'get-state'
+  })
     .then(resp => res.json(_pickBy(resp, (val, key) => key.indexOf('lead') === 0)))
     .catch(err => {
       res.status(400).json({
         success: false,
         err: err.message || err
       });
+    });
+};
+
+module.exports.generateOTK = (req, res) => {
+  randomBytes(16, 'hex')
+    .then(encryptionKey => {
+      const user = _get(req, 'user._id');
+      return (new DeviceSetupModel({encryptionKey, user})).save();
+    })
+    .then(doc => {
+      res.json({
+        otk: doc.encryptionKey
+      });
+    })
+    .catch(err => {
+      console.log('OTK generation failed!', err.stack);
+      res.status(400).json({
+        error: err.message
+      });
+    })
+};
+
+module.exports.triggerFirmwareUpdate = (req, res) => {
+  const { name } = req.params;
+
+  DeviceModel.findOne({name}).lean()
+    .then(device => {
+      if(!device) {
+        throw new Error('DEV_NOT_FOUND');
+      }
+      return requestToDevice(name, {
+        action: 'get-state'
+      })
+        .then(resp => {
+          const { version = '' } = resp;
+          const [hardwareVer, softwareVer] = version.split('-');
+          const latestFirmWare = fs.readFileSync(path.join(__dirname, `../firmwares/${hardwareVer}.latest`), 'utf8');
+
+          const updateRequired = semver.gt(latestFirmWare, softwareVer);
+          if(!updateRequired) {
+            return res.json({ message: 'Already up-to-date' });
+          }
+    
+          const firmwarePath = `firmwares/${hardwareVer}/${latestFirmWare.trim()}/firmware.bin`
+          return requestToDevice(name, {
+            action: 'firmware-update',
+            data: `/v1/${name}/get-firmware/${encrypt(`${firmwarePath}-1`, device.encryptionKey)}`
+          });
+        })
+        .then(resp => {
+          console.log(resp);
+          res.json({ succes: true });
+        });
+    })
+    .catch(err => {
+      console.error('TRIGGER_UPDATE_FAILED', err.message);
+      res.status(400).json({ error: err.message });
     });
 };

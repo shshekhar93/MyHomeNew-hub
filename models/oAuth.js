@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const {
   Schema
 } = mongoose;
+const {promisify} = require('util');
+const compare = promisify(require('bcrypt').compare);
 const UserModel = require('./users');
 const _cloneDeep = require('lodash/cloneDeep');
 const _get = require('lodash/get');
@@ -63,6 +65,7 @@ function revokeAuthorizationCode(code) {
  * Clients
  */
 const OAuthClientsModel = mongoose.model('OauthClients', new Schema({
+  name: String,
   id: String,
   secret: String,
   redirectUris: [String],
@@ -70,11 +73,30 @@ const OAuthClientsModel = mongoose.model('OauthClients', new Schema({
 }));
 
 function createClient(clientObj) {
-  return (new OAuthClientsModel(clientObj)).save().then(client => client);
+  return (new OAuthClientsModel(clientObj)).save();
 }
 
 function getClient(id, secret) {
-  return OAuthClientsModel.findOne(Object.assign({id}, secret && {secret})).lean();
+  return OAuthClientsModel.findOne({ id }).lean()
+    .then(client => {
+      if(id && !secret) {
+        return [client, true];
+      }
+      return Promise.all([client, compare(secret, client.secret)]);
+    })
+    .then(result => {
+      const client = result[0];
+      const isSame = result[1];
+      if(isSame) {
+        return client;
+      }
+      console.log('wrong secret provided for', id);
+      return null;
+    })
+    .catch(err => {
+      console.log('client fetch failed', err.stack);
+      return null;
+    });
 }
 
 /**
@@ -112,11 +134,17 @@ function getAccessToken (bearerToken) {
       _get(token, 'client') && getClient(token.client),
       _get(token, 'user') && UserModel.findOne({email: token.user}).lean()
     ]))
-    .then(([token, client, user]) => Object.assign({},
-      token && token.toJSON(),
-      client && {client},
-      user && {user}
-    ));
+    .then(([token, client, user]) => {
+      if (!token || !client || !user) {
+        return null;
+      }
+
+      return Object.assign(token.toJSON(), { client, user });
+    })
+    .catch(err => {
+      console.log(err.stack);
+      return null;
+    });
 };
 
 function revokeToken({ refreshToken }) {
@@ -147,6 +175,7 @@ module.exports = {
   saveAuthorizationCode,
   getAuthorizationCode,
   revokeAuthorizationCode,
+  createClient,
   getClient,
   saveToken,
   getAccessToken,

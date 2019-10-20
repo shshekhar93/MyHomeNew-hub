@@ -21,7 +21,7 @@ module.exports.proxyRequestsSetup = function(options) {
   createChildProcess({
     ...options, 
     cpSecret,
-    localhost: `http://localhost:${process.env.PORT || 8090}`
+    localhost: `http://localhost:${process.env.PORT || 8020}`
   });
 
   return function(req, res, next) {

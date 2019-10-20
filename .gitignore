@@ -1,4 +1,6 @@
-
+firmwares/
+sessions
+test/mock-devices
 # Created by https://www.gitignore.io/api/node,eclipse,webstorm,intellij,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=node,eclipse,webstorm,intellij,visualstudiocode
 

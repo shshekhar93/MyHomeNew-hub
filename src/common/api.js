@@ -102,3 +102,31 @@ export const updateDeviceState = (device, switchId, newState) => {
       throw SERVER_ERROR;
     });
 };
+
+export function registerUser (user) {
+  return fetch('/user/register', {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(user)
+  })
+    .then(resp => {
+      if(resp.ok) {
+        return resp.json();
+      }
+      throw SERVER_ERROR;
+    })
+}
+
+export function generateOTK() {
+  return fetch('/devices/new', { method: 'POST' })
+    .then(resp => {
+      if(resp.ok) {
+        return resp.json();
+      }
+      throw SERVER_ERROR;
+    })
+}

@@ -1,6 +1,6 @@
 {
   "name": "react-boiler-plate",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "boiler plate code required for starting react library project",
   "main": "index.js",
   "scripts": {

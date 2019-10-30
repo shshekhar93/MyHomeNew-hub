@@ -9,6 +9,7 @@ import LoginComponent from '../components/login';
 import SideNav from '../components/side-nav';
 import MainSectionContainer from './MainSectionContainer';
 import RegistrationModal from '../components/registration';
+import CreateClientModal from '../components/create-client-modal';
 
 class PageContainer extends Component {
   constructor(props) {
@@ -96,6 +97,12 @@ class PageContainer extends Component {
         .catch(noop);
     }
 
+    if(event === 'connect-app') {
+      return this.setState({
+        createClient: true
+      });
+    }
+
     if(event === 'setup') {
       return window.setupNewDevice();
     }
@@ -131,6 +138,7 @@ class PageContainer extends Component {
             selectedPage={this.state.selectedPage} 
             user={this.state.user} 
             navigateTo={this.navigateTo} />
+          {this.state.createClient && <CreateClientModal onClose={() => this.setState({createClient:false})} />}
         </Row>
       </Container>
     );

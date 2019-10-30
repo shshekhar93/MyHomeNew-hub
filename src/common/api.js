@@ -130,3 +130,21 @@ export function generateOTK() {
       throw SERVER_ERROR;
     })
 }
+
+export function createClientCreds(req) {
+  return fetch ('/create-client', {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(req)
+  })
+    .then(resp => {
+      if(resp.ok) {
+        return resp.json();
+      }
+      throw SERVER_ERROR;
+    })
+}

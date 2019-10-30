@@ -20,6 +20,7 @@
       var form = document.getElementById('login-form');
       form.onsubmit = function(e) {
         e.preventDefault();
+        e.stopPropagation();
         const username = document.querySelector('[name="username"]').value;
         const password = document.querySelector('[name="password"]').value;
         fetch('/login', {

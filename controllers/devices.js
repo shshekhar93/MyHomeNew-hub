@@ -66,6 +66,16 @@ function mapBrightness(devConfig, lead) {
   }
 }
 
+module.exports.queryDevice = (req, res) => {
+  DeviceModel.find({ name: req.params.name }).lean()
+    .then(module.exports.getDevState)
+    .then(resp => res.json(resp))
+    .catch(err => res.json({
+      success: false,
+      error: err.message
+    }));
+};
+
 module.exports.getDevState = async (device, retries = 2) => {
   return requestToDevice(device.name, {
     action: 'get-state'

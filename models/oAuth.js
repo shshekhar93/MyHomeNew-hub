@@ -69,7 +69,8 @@ const OAuthClientsModel = mongoose.model('OauthClients', new Schema({
   id: String,
   secret: String,
   redirectUris: [String],
-  grants: [String]
+  grants: [String],
+  userId: String // _id from Users model
 }));
 
 function createClient(clientObj) {

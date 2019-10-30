@@ -47,15 +47,18 @@ module.exports = (app) => {
   app.post('/token', app.oAuth.token());
 
   app.post('/create-client', authorize, (req, res) => {
-    const email = _get(req, 'user.email');
-    if(email === 'shashi20008@gmail.com' && req.body.name && req.body.redirectUri) {
+    const userId = _get(req, 'user._id');
+
+    // Check if user already have existing client creds
+
+    if(req.body.name && req.body.redirectUri) {
       const name = req.body.name;
       const id = uuid().replace(/-/g, '');
       const secret = uuid().replace(/-/g, '');
       const grants = [ 'authorization_code',  'refresh_token' ];
       const redirectUris = [ req.body.redirectUri ];
       return hash(secret, 8)
-        .then(secret => createClient({name, id, secret, grants, redirectUris}))
+        .then(secret => createClient({name, id, secret, grants, redirectUris, userId}))
         .then(resp => res.json({ ...resp.toJSON(), secret, _id: undefined, __v: undefined }))
         .catch(err => res.status(500).json({err: err.message}));
     }

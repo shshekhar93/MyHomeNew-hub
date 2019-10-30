@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
+const nodeCrypto = require('crypto');
 const Crypto = require('../libs/crypto');
 const WebSocketClient = require('websocket').client;
 
@@ -14,13 +15,16 @@ function sendJSON(conn, obj, key) {
   conn.send(Crypto.encrypt(JSON.stringify(obj), key));
 }
 
-function enableDeviceAPI(device, connection) {
+function enableDeviceAPI(device, connection, key) {
   connection.on('message', message => {
     try {
-      const payload = Crypto.decrypt(message.utf8Data, device.encryptionKey, 'utf8');
+      const payload = Crypto.decrypt(message.utf8Data, key, 'utf8');
       const request = JSON.parse(payload);
       
       switch(request.action) {
+        case 'confirm-session': 
+          // noop
+          break;
         case 'update-key': 
           device.encryptionKey = request.data;
           console.log('updating key for', device.name);
@@ -40,11 +44,11 @@ function enableDeviceAPI(device, connection) {
             lead0: device.lead0,
             lead1: device.lead1
           };
-          return sendJSON(connection, payload, device.encryptionKey);
+          return sendJSON(connection, payload, key);
         default:
-          return sendJSON(connection, { status: 'FAIL' }, device.encryptionKey);
+          return sendJSON(connection, { status: 'FAIL' }, key);
       }
-      sendJSON(connection, { status: 'OK' }, device.encryptionKey);
+      sendJSON(connection, { status: 'OK' }, key);
     } catch(e) {
       console.log('Failed to process server req', e.stack || e);
     }
@@ -60,12 +64,13 @@ function enableDeviceAPI(device, connection) {
 }
 
 function startDevice(device) {
-  const password = Crypto.encrypt(device.name, device.encryptionKey);
+  const key = nodeCrypto.randomBytes(16).toString('hex');
+  const password = Crypto.encrypt(`${device.name}|${key}`, device.encryptionKey);
   const wsClient = new WebSocketClient();
 
   wsClient.on('connect', connection => {
     console.log('connected');
-    enableDeviceAPI(device, connection);
+    enableDeviceAPI(device, connection, key);
   });
 
   wsClient.on('connectFailed', err => {

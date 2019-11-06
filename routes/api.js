@@ -2,15 +2,23 @@
 const _set = require('lodash/set');
 const _get = require('lodash/get');
 
+const { isDevOnline, proxy } = require('../libs/ws-server');
+
 const { 
   switchDeviceState,
   getAllDevicesForUser,
   queryDevice
 } = require('../controllers/devices');
 
-function applyReqUser(req, res) {
+function applyReqUser(req, res, next) {
   const user = _get(res, 'locals.oauth.token.user');
+
+  if(user && user.hubClientId && isDevOnline(user.hubClientId)) {
+    return proxy(req, res);
+  }
+
   _set(req, 'user', user);
+  return next();
 }
 
 module.exports = app => {

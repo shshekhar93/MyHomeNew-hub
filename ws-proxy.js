@@ -2,7 +2,13 @@
 const WSClient = require('websocket').client;
 const request = require('request');
 
-const client = new WSClient();
+const client = new WSClient({
+  keepalive: true,
+  useNativeKeepalive: false,
+  keepaliveInterval: 5000,
+  dropConnectionOnKeepaliveTimeout: true,
+  keepaliveGracePeriod: 8000
+});
 
 client.on('connectFailed', function(err) {
   console.log('err', err.stack || err);
@@ -15,6 +21,8 @@ client.on('connect', function(connection) {
   });
 
   connection.on('close', function() {
+    console.log('connection closed!');
+//    process.exit(1);
     setTimeout(connect, 1000); // delay reconnect by a second.
   });
 

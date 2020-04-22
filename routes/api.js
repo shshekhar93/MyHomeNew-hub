@@ -22,7 +22,15 @@ function applyReqUser(req, res, next) {
 }
 
 module.exports = app => {
-  const oAuth = app.oAuth.authenticate();
+  const oAuthenticate = app.oAuth.authenticate();
+
+  const oAuth = (req, res, next) => {
+    if(req.user) {
+      _set(res, 'locals.oauth.token.user', req.user);
+      return next();
+    }
+    return oAuthenticate(req, res, next);
+  };
 
   app.get('/v1/devices', oAuth, applyReqUser, getAllDevicesForUser);
   app.get('/v1/devices/:name', oAuth, applyReqUser, queryDevice);

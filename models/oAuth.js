@@ -100,6 +100,29 @@ function getClient(id, secret) {
     });
 }
 
+function getUserFromClient({ id }) {
+  return OAuthClientsModel.findOne({ id }).lean()
+    .then(client => {
+      if(!client.userId) {
+        return null;
+      }
+      return UserModel.findById(client.userId).lean();
+    })
+    .catch(() => null);
+}
+
+function getAllClientsForUser(userId) {
+  return OAuthClientsModel.find({ userId }).lean()
+    .catch(err => {
+      console.error('Query error', err.stack);
+      return [];
+    });
+}
+
+function deleteClient(id) {
+  return OAuthClientsModel.findOneAndRemove({ id }).lean();
+}
+
 /**
  * Tokens
  */
@@ -181,5 +204,8 @@ module.exports = {
   saveToken,
   getAccessToken,
   getRefreshToken,
-  revokeToken
+  revokeToken,
+  getUserFromClient,
+  getAllClientsForUser,
+  deleteClient
 };

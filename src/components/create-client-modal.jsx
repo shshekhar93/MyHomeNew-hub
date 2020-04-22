@@ -11,7 +11,7 @@ import * as API from '../common/api';
 function CreateClientModal(props) {
   const [state, setState] = useState({ loading: true });
   useEffect(() => {
-    return API.createClientCreds({
+    API.createClientCreds({
       name: 'MyHome App',
       redirectUri: 'myhomenew://oauthreturn/'
     })

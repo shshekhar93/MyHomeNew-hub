@@ -148,3 +148,29 @@ export function createClientCreds(req) {
       throw SERVER_ERROR;
     })
 }
+
+export function getAllAppConnections() {
+  return fetch('/existing-clients')
+    .then(resp => {
+      if(resp.ok) {
+        return resp.json();
+      }
+      throw SERVER_ERROR;
+    });
+}
+
+export function deleteAppConnection(id) {
+  return fetch('/delete-client', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/JSON'
+    },
+    body: JSON.stringify({ id })
+  })
+    .then(resp => {
+      if(resp.ok) {
+        return resp.json();
+      }
+      throw SERVER_ERROR;
+    });
+}

@@ -11,6 +11,7 @@ const SideNav = (props) => {
                 <Nav.Link eventKey="manage">Manage devices</Nav.Link>
                 <Nav.Link eventKey="setup">Setup new device</Nav.Link>
                 <Nav.Link eventKey="connect-app">Connect to app</Nav.Link>
+                <Nav.Link eventKey="existing-connections">Manage connected apps</Nav.Link>
                 <Nav.Link eventKey="logout">Logout</Nav.Link>
             </Nav>
         </Col>

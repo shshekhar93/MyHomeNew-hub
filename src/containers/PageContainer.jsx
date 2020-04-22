@@ -10,6 +10,7 @@ import SideNav from '../components/side-nav';
 import MainSectionContainer from './MainSectionContainer';
 import RegistrationModal from '../components/registration';
 import CreateClientModal from '../components/create-client-modal';
+import ExistingClientsModal from '../components/existing-clients-modal';
 
 class PageContainer extends Component {
   constructor(props) {
@@ -103,6 +104,12 @@ class PageContainer extends Component {
       });
     }
 
+    if(event === 'existing-connections') {
+      return this.setState({
+        listExistingClients: true
+      });
+    }
+
     if(event === 'setup') {
       return window.setupNewDevice();
     }
@@ -139,6 +146,7 @@ class PageContainer extends Component {
             user={this.state.user} 
             navigateTo={this.navigateTo} />
           {this.state.createClient && <CreateClientModal onClose={() => this.setState({createClient:false})} />}
+          {this.state.listExistingClients && <ExistingClientsModal onClose={() => this.setState({listExistingClients:false})} />}
         </Row>
       </Container>
     );

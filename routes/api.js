@@ -3,7 +3,10 @@ const _set = require('lodash/set');
 const _get = require('lodash/get');
 
 const { isDevOnline, proxy } = require('../libs/ws-server');
-
+const { 
+    appManifest,
+    downloadApp
+} = require('../controllers/app');
 const { 
   switchDeviceState,
   getAllDevicesForUser,
@@ -35,4 +38,7 @@ module.exports = app => {
   app.get('/v1/devices', oAuth, applyReqUser, getAllDevicesForUser);
   app.get('/v1/devices/:name', oAuth, applyReqUser, queryDevice);
   app.post('/v1/devices/:name/set-state', oAuth, applyReqUser, switchDeviceState);
+
+  app.get('/v1/app/latest-manifest', appManifest);
+  app.get('/v1/app/download/:apk', downloadApp);
 };

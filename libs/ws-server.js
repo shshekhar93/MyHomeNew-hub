@@ -89,8 +89,8 @@ module.exports.start = httpServer => {
               if(!obj.newKey) {
                 return Promise.resolve({ ...obj, connection });
               }
-              return refreshKeyForDevice(connection, obj.newKey, obj.device.encryptionKey)
-                .then(() => updateUserName(connection, obj.deviceName, obj.newKey));
+              return refreshKeyForDevice(connection, obj.newKey, obj.sessionKey)
+                .then(() => updateUserName(connection, obj.deviceName, obj.sessionKey));
             })
             .then(() => ({ ...obj, connection }))
             .catch(e => {

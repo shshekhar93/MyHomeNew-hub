@@ -1,4 +1,8 @@
 - ✓ Enable OTA firmware upgrade
 - ✓ Use different session tokens for encryption in each session
 - ✓ Use increasing frame number to protect against replay attacks
+- Allow updating already saved devices
+- Allow deleting devices
+- Migrate existing functionality to be powered by APIs
+- Fix the authorization workflow
 - Download encrypted firmware

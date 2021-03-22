@@ -12,7 +12,7 @@ module.exports.connect = () => {
     const host = nconf.get('MONGO_DB_HOST');
     const port = nconf.get('MONGO_DB_PORT');
 
-    mongoose.connect(`mongodb://${user}:${password}@${host}:${port}/myhomenew`, {
+    mongoose.connect(`mongodb+srv://${user}:${password}@${host}/myhomenew?retryWrites=true&w=majority`, {
         useNewUrlParser: true,
         autoIndex: false
     })

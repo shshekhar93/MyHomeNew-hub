@@ -18,8 +18,14 @@
 
 .device-body {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+
+  .device-entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
 
   label {
     margin: 0;

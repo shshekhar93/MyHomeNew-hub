@@ -1,14 +1,11 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
-// import Slider, {createSliderWithTooltip} from 'rc-slider';
-
 import '../css/device-list.less';
 import Switch from './switch';
-// import 'rc-slider/assets/index.css';
 
 const SwitchDisplay = ({leads = [], name, isActive, onChange}) => {
   return (leads || []).map((switchUnit, idx) => (
-    <React.Fragment>
+    <div className="device-entry">
       <div>
           <span>{switchUnit.label || ('Switch ' + (idx + 1))}</span>
           { leads.length === 1 && 
@@ -18,20 +15,7 @@ const SwitchDisplay = ({leads = [], name, isActive, onChange}) => {
       <div>
         <Switch onChange={ onChange.bind(null, name, idx) } checked={ switchUnit.brightness > 0 } />
       </div>
-      {/* <div xs={1}>
-          <SliderWithTooltip 
-              vertical 
-              onChange={onChange.bind(null, dev.name, idx)} value={switchUnit.brightness || 0} 
-              handleStyle={{
-                  bottom: '100%',
-                  'border-radius': '0',
-                  width: '20px',
-                  height: '10px',
-                  'margin-left': '-8px'
-              }}
-          />
-      </div> */}
-    </React.Fragment>
+    </div>
   ))
 };
 

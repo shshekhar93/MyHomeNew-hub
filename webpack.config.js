@@ -2,7 +2,10 @@
 const webpack = require('webpack');
 
 module.exports = {
-  entry: './src/index.js',
+  entry: {
+    bundle: './src/index.js',
+    watch: './src/watch.js'
+  },
   module: {
     rules: [
       {
@@ -30,7 +33,7 @@ module.exports = {
   output: {
     path: __dirname + '/dist/js/',
     publicPath: '/js/',
-    filename: 'bundle.js'
+    filename: '[name].js'
   },
   plugins: [
     // new webpack.HotModuleReplacementPlugin()

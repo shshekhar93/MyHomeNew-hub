@@ -9,6 +9,12 @@ module.exports.setupRoutes = (app) => {
         .filter(route => typeof route === 'function')
         .forEach(route => route(app));
 
+    app.get('/watch', (req, res) => {
+        fs.createReadStream (
+            path.join(__dirname, '..', 'src', 'watch.html')
+        ).pipe(res.type('html'))
+    });
+
     app.use((req, res) => 
         fs.createReadStream (
             path.join(__dirname, '..', 'src', 'index.html')

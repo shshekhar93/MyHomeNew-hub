@@ -32,7 +32,7 @@
   },
   "homepage": "https://github.com/shashi20008/react-boiler-plate#readme",
   "dependencies": {
-    "bcrypt": "^3.0.4",
+    "bcrypt": "^5.0.0",
     "bluebird": "^3.5.3",
     "body-parser": "^1.18.3",
     "connect-sqlite3": "^0.9.11",

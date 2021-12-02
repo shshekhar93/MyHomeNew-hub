@@ -61,6 +61,19 @@ if(config.external_server) {
   }
 }
 
+const PWA_HOST = 'https://pwa.applyed.in';
+app.use(function(req, res, next) {
+    const origin = req.get('Origin');
+    if(origin === PWA_HOST) {
+        res.set({
+            'Access-Control-Allow-Headers': 'authorization',
+            'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, HEAD, OPTIONS',
+            'Access-Control-Allow-Origin': PWA_HOST
+        });
+    }
+    next();
+});
+
 routes.setupRoutes(app);
 
 DB.connect();

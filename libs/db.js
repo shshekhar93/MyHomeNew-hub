@@ -13,6 +13,7 @@ module.exports.connect = () => {
     const port = nconf.get('MONGO_DB_PORT');
 
     mongoose.connect(`mongodb+srv://${user}:${password}@${host}/myhomenew?retryWrites=true&w=majority`, {
+        useUnifiedTopology: true,
         useNewUrlParser: true,
         autoIndex: false
     })

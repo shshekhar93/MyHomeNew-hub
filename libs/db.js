@@ -7,12 +7,9 @@ mongoose.Promise = require('bluebird');
 nconf.env().file({ file: 'config/config.json' });
 
 module.exports.connect = () => {
-    const user = nconf.get('MONGO_DB_USER');
-    const password = nconf.get('MONGO_DB_PASS');
-    const host = nconf.get('MONGO_DB_HOST');
-    const port = nconf.get('MONGO_DB_PORT');
+    const connectionStr = nconf.get('MONGO_CONNECT_STR');
 
-    mongoose.connect(`mongodb+srv://${user}:${password}@${host}/myhomenew?retryWrites=true&w=majority`, {
+    mongoose.connect(connectionStr, {
         useUnifiedTopology: true,
         useNewUrlParser: true,
         autoIndex: false

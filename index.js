@@ -1,8 +1,9 @@
 const http = require('http');
 const express = require('express');
 const bodyParser = require('body-parser');
+const Redis = require('./libs/redis');
 const session = require('express-session');
-const SQLiteStore = require('connect-sqlite3')(session);
+const RedisStore = require('connect-redis')(session);
 const passport = require('passport');
 const OAuthServer = require('express-oauth-server');
 const morgan = require('morgan');
@@ -45,7 +46,10 @@ app.use(session({
     saveUninitialized: true,
     resave: true,
     cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 }, // 1 week
-    store: new SQLiteStore
+    store: new RedisStore({
+      client: Redis.client,
+      ttl: 7 * 24 * 60 * 60
+    })
 }));
 
 app.use(passport.initialize());
@@ -77,6 +81,7 @@ app.use(function(req, res, next) {
 routes.setupRoutes(app);
 
 DB.connect();
+Redis.connect();
 
 const server =  http.createServer(app);
 WSServer.start(server);

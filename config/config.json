@@ -1,7 +1,7 @@
 {
   "MONGO_CONNECT_STR": "mongodb://localhost/myhomenew?retryWrites=true&w=majority",
   "REDIS_CONNECT_STR": "redis://127.0.0.1:6379",
-  "external_server": "",
+  "external_server": "wss://home.applyed.in/wss/",
   "hub_credentials": {
     "id": "HUB CLIENT ID",
     "secret": "HUB CLIENT SECRET",

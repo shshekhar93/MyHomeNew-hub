@@ -1,6 +1,7 @@
 'use strict';
 
 const { authorize } = require('../libs/passport');
+const { logError } = require('../libs/logger');
 const { promisify } = require('util');
 const hash = promisify(require('bcrypt').hash);
 const uuid = require('uuid/v4');
@@ -50,7 +51,7 @@ module.exports = app => {
         });
       })
       .catch(err => {
-        console.log(err.stack);
+        logError(err);
         return res.status(500).json({error: 'Internal server error'});
       });
   });

@@ -2,7 +2,7 @@
 
 const nconf = require('nconf');
 const mongoose = require('mongoose');
-mongoose.Promise = require('bluebird');
+const { logInfo, logError } = require('./logger');
 
 nconf.env().file({ file: 'config/config.json' });
 
@@ -15,9 +15,9 @@ module.exports.connect = () => {
         autoIndex: false
     })
     .then(() => {
-        console.log('connected to db');
+        logInfo('Database connected!');
     })
     .catch(err => {
-        console.log('DB connection failed: ', err);
+        logError(`Database connection failed: ${err.message}`);
     });
 };

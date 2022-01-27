@@ -4,6 +4,7 @@ const DeviceSetupModel = require('../models/device-setup');
 const Crypto = require('./crypto');
 
 const { promisify } = require('util');
+const { logError } = require('./logger');
 const compare = promisify(require('bcrypt').compare);
 
 function validateHubCreds (hubClientId, hubClientSecret) {
@@ -17,7 +18,7 @@ function validateHubCreds (hubClientId, hubClientSecret) {
         .then(isSame => (isSame ? user : null));
     })
     .catch(err => {
-      console.error('Error', err.stack || err);
+      logError(err);
       return null;
     });
 }

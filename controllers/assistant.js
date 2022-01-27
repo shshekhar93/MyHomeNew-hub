@@ -1,5 +1,6 @@
 'use strict';
 const _get = require('lodash/get');
+const { logError } = require('../libs/logger');
 const deviceModel = require('../models/devices');
 const { getDevState, updateDeviceState } = require('./devices');
 
@@ -115,7 +116,8 @@ function execute(req, res) {
         })
         .then(() => ({ id: dev.id, status: 'SUCCESS', isOn }))
         .catch(err => {
-          console.log('device state update failed', err.stack || err);
+          logError(`Device ${dev.id} state update failed`);
+          logError(err);
           return { id: dev.id, status: 'ERROR' };
         })
     }))
@@ -156,7 +158,7 @@ function execute(req, res) {
       });
     })
     .catch(err => {
-      console.log('caught unexpected error', err.stack || err);
+      logError(err);
       res.status(400).json({});
     });
 }

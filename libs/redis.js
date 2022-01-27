@@ -1,5 +1,6 @@
 const redis = require('redis');
 const nconf = require('nconf');
+const { logInfo, logError } = require('./logger');
 
 nconf.env().file({ file: 'config/config.json' });
 const redisUrl = nconf.get('REDIS_CONNECT_STR');
@@ -10,15 +11,15 @@ const client = redis.createClient({
 });
 
 client.once('ready', () => {
-  console.log('connected to redis!');
+  logInfo('Connected to redis!');
 });
 
-client.on('error', () => {
-  console.error('Redis connection error.');
+client.on('error', (err) => {
+  logError(`Redis connection error: ${err.message}`);
 });
 
 client.on('end', () => {
-  console.log('Redis client disconnected.. Should we restart server?');
+  logInfo('Redis client disconnected.. Should we restart server?');
 });
 
 const connect = async () => await client.connect();

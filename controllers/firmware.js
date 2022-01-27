@@ -4,10 +4,9 @@ const fs = require('fs');
 const DeviceModel = require('../models/devices');
 const { decrypt } = require('../libs/crypto');
 const crypto = require('crypto');
+const { logError } = require('../libs/logger');
 
 module.exports = function (req, res) {
-  console.log(req.headers);
-
   // if current version same return 304
 
   const { name, id } = req.params;
@@ -28,7 +27,7 @@ module.exports = function (req, res) {
       const fullPath = path.join(__dirname, '..', filePath);
       fs.readFile(fullPath, function(err, buffer) {
         if(err) {
-          console.error('firmware read error', err.message);
+          logError(err);
           return;
         }
 
@@ -43,7 +42,7 @@ module.exports = function (req, res) {
       });
     })
     .catch(err => {
-      console.log('FIRMWARE_STREAM_FAILED', err.message);
+      logError(err);
       res.status(400).json({ error: err.message });
     });
 };

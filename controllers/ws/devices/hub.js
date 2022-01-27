@@ -1,6 +1,6 @@
 'use strict';
-const uuid = require('uuid/v4');
-const { logError } = require('../../../libs/logger');
+import uuid from 'uuid';
+import { logError } from '../../../libs/logger.js';
 
 function onConnect (connection, emitter, user) {
   const hubClientId = user.hubClientId;
@@ -12,7 +12,7 @@ function onConnect (connection, emitter, user) {
 
   function onRequest(reqData) {
     const { cb } = reqData;
-    const reqId = uuid();
+    const reqId = uuid.v4();
     let cleanupTimeoutId;
 
     reqData = {
@@ -57,4 +57,4 @@ function onConnect (connection, emitter, user) {
   });
 }
 
-module.exports = onConnect;
+export default onConnect;

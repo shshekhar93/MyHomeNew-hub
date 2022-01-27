@@ -1,6 +1,9 @@
-const redis = require('redis');
-const nconf = require('nconf');
-const { logInfo, logError } = require('./logger');
+import redis from 'redis';
+import nconf from 'nconf';
+import {
+  logInfo,
+  logError
+} from './logger.js';
 
 nconf.env().file({ file: 'config/config.json' });
 const redisUrl = nconf.get('REDIS_CONNECT_STR');
@@ -23,7 +26,8 @@ client.on('end', () => {
 });
 
 const connect = async () => await client.connect();
-module.exports = {
+
+export {
   client,
   connect
 };

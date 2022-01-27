@@ -1,7 +1,12 @@
 'use strict';
-const _get = require('lodash/get');
-const { authorize } = require('../libs/passport');
-const { 
+import _get from 'lodash/get.js';
+import { authorize } from '../libs/passport.js';
+import {
+  isDevOnline,
+  proxy
+} from '../libs/ws-server.js';
+import streamFirmware from '../controllers/firmware.js';
+import { 
   getAvailableDevices, 
   saveNewDeviceForUser, 
   switchDeviceState, 
@@ -9,11 +14,9 @@ const {
   getAllDevicesForUser,
   generateOTK,
   triggerFirmwareUpdate
-} = require('../controllers/devices');
-const streamFirmware = require('../controllers/firmware');
-const { isDevOnline, proxy } = require('../libs/ws-server');
+} from '../controllers/devices.js';
 
-module.exports = (app) => {
+const setupDevicesRoutes = (app) => {
   app.use('/devices', authorize, function(req, res, next) {
     const hubClientId = _get(req, 'user.hubClientId');
     if(hubClientId && isDevOnline(hubClientId)) {
@@ -35,3 +38,5 @@ module.exports = (app) => {
   app.post('/devices/:name/update-firmware', authorize, triggerFirmwareUpdate);
   app.get('/v1/:name/get-firmware/:id', streamFirmware);
 };
+
+export default setupDevicesRoutes;

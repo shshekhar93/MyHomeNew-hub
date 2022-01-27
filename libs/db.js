@@ -1,12 +1,12 @@
 'use strict';
 
-const nconf = require('nconf');
-const mongoose = require('mongoose');
-const { logInfo, logError } = require('./logger');
+import nconf from 'nconf';
+import mongoose from 'mongoose';
+import { logInfo, logError } from './logger.js';
 
 nconf.env().file({ file: 'config/config.json' });
 
-module.exports.connect = () => {
+const connect = () => {
     const connectionStr = nconf.get('MONGO_CONNECT_STR');
 
     mongoose.connect(connectionStr, {
@@ -21,3 +21,5 @@ module.exports.connect = () => {
         logError(`Database connection failed: ${err.message}`);
     });
 };
+
+export { connect };

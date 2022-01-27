@@ -1,0 +1,8 @@
+{
+  "name": "myhomenew-aabbcc",
+  "host": "127.0.0.1:8020",
+  "username": "<your username>",
+  "encryptionKey": "<OTK>",
+  "lead0": 0,
+  "lead1": 0
+}

@@ -1,14 +1,18 @@
-const fs = require('fs');
-const path = require('path');
+import {
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from 'fs';
+import nodeCrypto from 'crypto';
+import * as Crypto from '../libs/crypto.js';
+import { logInfo, logError } from '../libs/logger.js';
+import websocket from 'websocket';
 
-const nodeCrypto = require('crypto');
-const Crypto = require('../libs/crypto');
-const { logInfo, logError } = require('../libs/logger');
-const WebSocketClient = require('websocket').client;
+const WebSocketClient = websocket.client;
 
-const allDevices = fs.readdirSync(path.join(__dirname, 'mock-devices'))
+const allDevices = readdirSync(new URL('./mock-devices', import.meta.url))
   .filter(f => f.endsWith('.json'))
-  .map(f => require(path.join(__dirname, 'mock-devices', f)));
+  .map(f => JSON.parse(readFileSync(new URL(`./mock-devices/${f}`, import.meta.url), 'utf8')));
 
 allDevices.forEach(startDevice);
 
@@ -37,7 +41,7 @@ function enableDeviceAPI(device, connection, key) {
         case 'set-state': 
           const [leadId, brightness] = request.data.split('=');
           device[`lead${leadId}`] = brightness;
-          logInfo(`Updating ${leadId} with ${brightness} for ${device.name}`);
+          logInfo(`Updating lead${leadId} with ${brightness} for ${device.name}`);
           break;
         case 'get-state':
           const payload = {
@@ -88,8 +92,8 @@ function startDevice(device) {
 }
 
 function saveDevice(device) {
-  fs.writeFileSync(
-    path.join(__dirname, 'mock-devices', `${device.name}.json`), 
+  writeFileSync(
+    new URL(`./mock-devices/${device.name}.json`, import.meta.url), 
     JSON.stringify(device, null, 2)
   );
 }

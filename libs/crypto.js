@@ -1,14 +1,18 @@
 'use strict';
-const util = require('util');
-const crypto = require('crypto');
-const crRandomBytes = util.promisify(crypto.randomBytes);
+import { promisify } from 'util';
+import {
+  randomBytes,
+  createCipheriv,
+  createDecipheriv,
+} from 'crypto';
+const crRandomBytes = promisify(randomBytes);
 
 /**
  * 
  * @param {Number} len : Number of random bytes required
  * @param {String} encoding : Format to return the bytes in. Falsey to return buffer.
  */
-function randomBytes(len, encoding) {
+function randomBytesStr(len, encoding) {
   return crRandomBytes(len)
     .then(bytes => (encoding ? bytes.toString(encoding) : bytes));
 }
@@ -25,8 +29,8 @@ function encrypt(plainText, key) {
   // }
   
   const secret = Buffer.from(key, 'hex');
-  const IV = crypto.randomBytes(16);
-  const cipher = crypto.createCipheriv('aes-128-ctr', secret, IV);
+  const IV = randomBytes(16);
+  const cipher = createCipheriv('aes-128-ctr', secret, IV);
   let encrypted = cipher.update(plainText);
   encrypted = Buffer.concat([encrypted, cipher.final()]);
   return IV.toString('hex') + '-' + encrypted.toString('hex');
@@ -37,14 +41,14 @@ function decrypt(cipherText, key, encoding) {
   iv = Buffer.from(iv, 'hex');
   encrypted = Buffer.from(encrypted, 'hex');
   const secret = Buffer.from(key, 'hex');
-  const deCipher = crypto.createDecipheriv('aes-128-ctr', secret, iv);
+  const deCipher = createDecipheriv('aes-128-ctr', secret, iv);
   let decrypted = deCipher.update(encrypted);
   decrypted = Buffer.concat([decrypted, deCipher.final()]);
   return encoding ? decrypted.toString(encoding) : decrypted;
 }
 
-module.exports = {
-  randomBytes,
+export {
+  randomBytesStr as randomBytes,
   encrypt,
   decrypt
 };

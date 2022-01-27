@@ -1,27 +1,30 @@
 'use strict';
-const WebsocketServer = require('websocket').server;
-const _get = require('lodash/get');
-const EventEmitter = require('events');
-const {
+import { server as WebsocketServer } from 'websocket';
+import _get from 'lodash/get.js';
+import EventEmitter from 'events';
+
+import {
   confirmSessionKeyToDevice,
   refreshKeyForDevice,
   updateUserName,
-  onConnect: onDeviceConnect
-} = require('../controllers/ws/devices');
-const onHubConnect = require('../controllers/ws/devices/hub');
+  onConnect as onDeviceConnect
+} from '../controllers/ws/devices/index.js';
+import onHubConnect from '../controllers/ws/devices/hub.js';
+import {
+  validateHubCreds,
+  validateDeviceCreds
+} from './ws-helpers.js';
+import DeviceSetupModel from '../models/device-setup.js';
+import { logError } from './logger.js';
 
-const { validateHubCreds, validateDeviceCreds } = require('./ws-helpers');
-const DeviceSetupModel = require('../models/device-setup');
-const { logError } = require('./logger');
 const JSON_TYPE = 'application/json';
-
 const emitter = new EventEmitter();
 
-module.exports.isDevOnline = function (name) {
+const isDevOnline = (name) => {
   return emitter.listenerCount(name) > 0;
 }
 
-module.exports.requestToDevice = function (name, obj) {
+const requestToDevice = (name, obj) => {
   return new Promise((resolve, reject) => {
     emitter.emit(name, {
       ...obj,
@@ -33,7 +36,7 @@ module.exports.requestToDevice = function (name, obj) {
   })
 }
 
-module.exports.proxy = function(req, res) {
+const proxy = (req, res) => {
   const hubClientId = _get(req, 'user.hubClientId') || 
     _get(res, 'locals.oauth.token.user.hubClientId');
 
@@ -57,7 +60,7 @@ module.exports.proxy = function(req, res) {
   });
 };
 
-module.exports.start = httpServer => {
+const start = httpServer => {
   const wsServer = new WebsocketServer({
     httpServer,
     autoAcceptConnections: false
@@ -141,4 +144,11 @@ module.exports.start = httpServer => {
         return request.reject();
       })
   });
+};
+
+export {
+  isDevOnline,
+  requestToDevice,
+  proxy,
+  start,
 };

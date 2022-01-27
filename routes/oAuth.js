@@ -1,14 +1,14 @@
 'use strict';
-const { authorize } = require('../libs/passport');
-const {
+import { authorize } from '../libs/passport.js';
+import {
   getExistingClientsForUser,
   createNewClient,
   deleteClientCreds,
   renderAuthForm,
   getAuthMiddleware
-} = require('../controllers/oAuth');
+} from '../controllers/oAuth.js';
 
-module.exports = app => {
+const setupoAuthRoutes = app => {
   app.get('/authorize', renderAuthForm);
   app.post('/authorize', authorize, getAuthMiddleware(app.oAuth));
   app.post('/token', app.oAuth.token());
@@ -16,3 +16,5 @@ module.exports = app => {
   app.get('/existing-clients', authorize, getExistingClientsForUser);
   app.post('/delete-client', authorize, deleteClientCreds);
 };
+
+export default setupoAuthRoutes;

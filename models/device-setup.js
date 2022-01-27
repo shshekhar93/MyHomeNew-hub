@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const DeviceSetupSchema = new Schema({
@@ -9,4 +9,5 @@ const DeviceSetupSchema = new Schema({
   user: { type: String, require: true } // _id from user model
 });
 
-module.exports = mongoose.model('DeviceSetup', DeviceSetupSchema);
+const DeviceSetupModel = mongoose.model('DeviceSetup', DeviceSetupSchema);
+export default DeviceSetupModel;

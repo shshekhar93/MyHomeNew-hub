@@ -1,13 +1,19 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
+import { promisify } from 'util';
+import bcrypt from 'bcrypt';
+import _get from 'lodash/get.js';
+import _cloneDeep from 'lodash/cloneDeep.js';
+
+import UserModel from './users.js';
+import {
+  logInfo,
+  logError
+} from '../libs/logger.js';
+
 const {
   Schema
 } = mongoose;
-const {promisify} = require('util');
-const compare = promisify(require('bcrypt').compare);
-const UserModel = require('./users');
-const _cloneDeep = require('lodash/cloneDeep');
-const _get = require('lodash/get');
-const { logError, logInfo } = require('../libs/logger');
+const compare = promisify(bcrypt.compare);
 
 /**
  * Auth codes.
@@ -196,7 +202,7 @@ function getRefreshToken(refreshToken) {
     ));
 }
 
-module.exports = {
+export {
   saveAuthorizationCode,
   getAuthorizationCode,
   revokeAuthorizationCode,

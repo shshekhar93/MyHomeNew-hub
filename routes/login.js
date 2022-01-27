@@ -1,11 +1,10 @@
 'use strict';
-const fs = require('fs');
-const path = require('path');
-const { authMiddleware } = require('../libs/passport');
+import { readFileSync } from 'fs';
+import { authMiddleware } from '../libs/passport.js';
 
-const LOGIN_HTML = fs.readFileSync(path.join(__dirname, '../src/login.html'), 'utf8');
+const LOGIN_HTML = readFileSync(new URL('../src/login.html', import.meta.url), 'utf8');
 
-module.exports = (app) => {
+const setupLoginRoutes = (app) => {
     app.get('/login', (req, res) => {
         const redirectTo = req.query.redirectTo;
         res.type('html').send(LOGIN_HTML.replace('{redirectTo}', redirectTo));
@@ -17,3 +16,5 @@ module.exports = (app) => {
         res.status(200).json({});
     });
 };
+
+export default setupLoginRoutes;

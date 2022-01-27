@@ -1,14 +1,13 @@
 'use strict';
 
-const path = require('path');
-const { logError } = require('../libs/logger');
-const fs = require('fs').promises;
+import { readFile, stat } from 'fs/promises';
+import { logError } from '../libs/logger.js';
 
 const APK_REGEX = /^myhomenew-app-\d+\.\d+\.\d+.apk$/i;
 
 async function appManifest(req, res) {
     try {
-        const manifestStr = await fs.readFile(path.join(__dirname, '../app/manifest.json'), 'utf8');
+        const manifestStr = await readFile(new URL('../app/manifest.json', import.meta.url), 'utf8');
         const manifest = JSON.parse(manifestStr);
         res.json(manifest);
     }
@@ -25,18 +24,18 @@ async function downloadApp(req, res) {
         return res.status(403).end();
     }
 
-    const fullPath = path.join(__dirname, `../app/${fileName}`);
+    const fullURL = new URL(`../app/${fileName}`, import.meta.url);
     try {
-        await fs.stat(fullPath)
+        await stat(fullURL)
     }
     catch(e) {
         return res.status(404).end();
     }
 
-    res.sendFile(fullPath);
+    res.sendFile(fullURL.pathname);
 }
 
-module.exports = {
+export {
     appManifest,
     downloadApp
 };

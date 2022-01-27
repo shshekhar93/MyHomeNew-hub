@@ -1,22 +1,36 @@
 'use strict';
-const fs = require('fs');
-const path = require('path');
+import {createReadStream} from 'fs';
+import setupAPIRoutes from './api.js';
+import setupAssistantRoutes from './assistant.js';
+import setupDevicesRoutes from './devices.js';
+import setupLoginRoutes from './login.js';
+import setupoAuthRoutes from './oAuth.js';
+import setupUserRoutes from './users.js';
 
-module.exports.setupRoutes = (app) => {
-    fs.readdirSync(__dirname)
-        .filter(name => name.endsWith('.js') && name != __filename)
-        .map(routeFile => require(path.join(__dirname, routeFile)))
-        .filter(route => typeof route === 'function')
-        .forEach(route => route(app));
+const RouteSetupFunctions = [
+  setupAPIRoutes,
+  setupAssistantRoutes,
+  setupDevicesRoutes,
+  setupLoginRoutes,
+  setupoAuthRoutes,
+  setupUserRoutes,
+]
 
-    app.get('/watch', (req, res) => {
-        fs.createReadStream (
-            path.join(__dirname, '..', 'src', 'watch.html')
-        ).pipe(res.type('html'))
-    });
+const setupRoutes = (app) => {
+  RouteSetupFunctions.forEach(fn => fn(app));
 
-    app.use((req, res) => 
-        fs.createReadStream (
-            path.join(__dirname, '..', 'src', 'index.html')
-        ).pipe(res.type('html')));
+  app.get('/watch', (req, res) => {
+    createReadStream (
+      new URL('../src/watch.html', import.meta.url)
+    ).pipe(res.type('html'))
+  });
+
+  app.use((req, res) => 
+    createReadStream (
+      new URL('../src/index.html', import.meta.url)
+    ).pipe(res.type('html')));
+};
+
+export {
+  setupRoutes
 };

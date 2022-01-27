@@ -1,13 +1,14 @@
 'use strict';
-const path = require('path');
-const fs = require('fs');
-const DeviceModel = require('../models/devices');
-const { decrypt } = require('../libs/crypto');
-const crypto = require('crypto');
-const { logError } = require('../libs/logger');
 
-module.exports = function (req, res) {
-  // if current version same return 304
+import crypto from 'crypto';
+import { readFile } from 'fs';
+
+import DeviceModel from '../models/devices.js';
+import { decrypt } from '../libs/crypto.js';
+import { logError } from '../libs/logger.js';
+
+const firmwareController = (req, res) => {
+  // TODO: if current version same return 304
 
   const { name, id } = req.params;
 
@@ -24,8 +25,8 @@ module.exports = function (req, res) {
         throw new Error('INVALID_ID_IN_REQ');
       }
 
-      const fullPath = path.join(__dirname, '..', filePath);
-      fs.readFile(fullPath, function(err, buffer) {
+      const fullURL = new URL(`../${filePath}`, import.meta.url);
+      readFile(fullURL, function(err, buffer) {
         if(err) {
           logError(err);
           return;
@@ -46,3 +47,5 @@ module.exports = function (req, res) {
       res.status(400).json({ error: err.message });
     });
 };
+
+export default firmwareController;

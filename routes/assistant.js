@@ -1,13 +1,19 @@
 'use strict';
-const _get = require('lodash/get');
-const { isDevOnline, proxy } = require('../libs/ws-server');
-const {
-  syncDevices, queryStatus, execute
-} = require('../controllers/assistant');
-const {
-  revokeToken
-} = require('../models/oAuth');
-const { logInfo, logError } = require('../libs/logger');
+import _get from 'lodash/get.js';
+import {
+  logInfo,
+  logError
+} from '../libs/logger.js';
+import {
+  isDevOnline,
+  proxy
+} from '../libs/ws-server.js';
+import {
+  syncDevices,
+  queryStatus,
+  execute
+} from '../controllers/assistant.js';
+import { revokeToken } from '../models/oAuth.js';
 
 function oAuthAuthenticate(req, res, next) {
   if(req.isAuthenticated()) {
@@ -16,7 +22,7 @@ function oAuthAuthenticate(req, res, next) {
   return req.app.oAuth.authenticate()(req, res, next);
 }
 
-module.exports =  app => {
+const setupAssistantRoutes =  app => {
   app.post('/assistant/fullfill', oAuthAuthenticate, (req, res) => {
     logInfo(`Assistant req ${JSON.stringify(req.body)}`);
 
@@ -51,3 +57,5 @@ module.exports =  app => {
     return res.status(400).json({});
   });
 }
+
+export default setupAssistantRoutes;

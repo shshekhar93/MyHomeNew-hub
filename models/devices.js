@@ -1,9 +1,9 @@
 'use strict';
 
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
+import mongoose from 'mongoose';
+import { transformer } from '../libs/helpers.js';
 
-const { transformer } = require('../libs/helpers');
+const { Schema } = mongoose;
 
 const DeviceInteractionUnitSchema = new Schema({
     devId: Number,
@@ -24,4 +24,5 @@ const DeviceSchema = new Schema({
     leads: [DeviceInteractionUnitSchema]
 }, transformer);
 
-module.exports = mongoose.model('Devices', DeviceSchema);
+const DeviceModel = mongoose.model('Devices', DeviceSchema);
+export default DeviceModel;

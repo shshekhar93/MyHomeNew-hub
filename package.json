@@ -1,7 +1,8 @@
 {
-  "name": "react-boiler-plate",
+  "name": "myhomenew-hub",
+  "type": "module",
   "version": "0.0.1",
-  "description": "boiler plate code required for starting react library project",
+  "description": "Smart home hub for Home Applyed devices.",
   "main": "index.js",
   "scripts": {
     "start": "mode=development node .",
@@ -16,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/shashi20008/react-boiler-plate.git"
+    "url": "git+ssh://git@github.com/shshekhar/MyHomeNew-hub.git"
   },
   "keywords": [
     "React",
@@ -29,9 +30,9 @@
   "author": "Shashi Shekhar (shashi20008@gmail.com)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/shashi20008/react-boiler-plate/issues"
+    "url": "https://github.com/shshekhar93/MyHomeNew-hub/issues"
   },
-  "homepage": "https://github.com/shashi20008/react-boiler-plate#readme",
+  "homepage": "https://github.com/shshekhar93/MyHomeNew-hub#readme",
   "dependencies": {
     "bcrypt": "^5.0.0",
     "body-parser": "^1.18.3",
@@ -39,6 +40,7 @@
     "express": "^4.16.4",
     "express-oauth-server": "^2.0.0",
     "express-session": "^1.15.6",
+    "express-winston": "^4.2.0",
     "ip": "^1.1.5",
     "lodash": "^4.17.11",
     "mongoose": "^5.11.13",

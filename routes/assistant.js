@@ -7,6 +7,7 @@ const {
 const {
   revokeToken
 } = require('../models/oAuth');
+const { logInfo, logError } = require('../libs/logger');
 
 function oAuthAuthenticate(req, res, next) {
   if(req.isAuthenticated()) {
@@ -17,7 +18,7 @@ function oAuthAuthenticate(req, res, next) {
 
 module.exports =  app => {
   app.post('/assistant/fullfill', oAuthAuthenticate, (req, res) => {
-    console.log('Assistant req', JSON.stringify(req.body, null, 2));
+    logInfo(`Assistant req ${JSON.stringify(req.body)}`);
 
     const hubClientId = _get(res,
       'locals.oauth.token.user.hubClientId',
@@ -42,7 +43,7 @@ module.exports =  app => {
 
     if(type === 'action.devices.DISCONNECT') {
       return revokeToken(_get(res, 'locals.oauth.token.refreshToken'))
-        .catch(err => {console.error('could not revoke refresh token', err)})
+        .catch(logError)
         .then(() => res.send({}));
     }
 

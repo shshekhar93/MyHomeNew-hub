@@ -4,10 +4,10 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const _pick = require('lodash/pick');
 const bcrypt = require('bcrypt');
-const Bluebird = require('bluebird');
+const Util = require('util');
 const UserModel = require('../models/users');
 
-const compare = Bluebird.promisify(bcrypt.compare, {context: bcrypt});
+const compare = Util.promisify(bcrypt.compare.bind(bcrypt));
 const USER_FIELDS = ['_id', 'email', 'name', 'hubClientId'];
 
 passport.use(new LocalStrategy(

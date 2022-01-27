@@ -7,6 +7,7 @@ const compare = promisify(require('bcrypt').compare);
 const UserModel = require('./users');
 const _cloneDeep = require('lodash/cloneDeep');
 const _get = require('lodash/get');
+const { logError, logInfo } = require('../libs/logger');
 
 /**
  * Auth codes.
@@ -91,11 +92,11 @@ function getClient(id, secret) {
       if(isSame) {
         return client;
       }
-      console.log('wrong secret provided for', id);
+      logInfo(`wrong secret provided for ${id}`);
       return null;
     })
     .catch(err => {
-      console.log('client fetch failed', err.stack);
+      logError(err);
       return null;
     });
 }
@@ -114,7 +115,7 @@ function getUserFromClient({ id }) {
 function getAllClientsForUser(userId) {
   return OAuthClientsModel.find({ userId }).lean()
     .catch(err => {
-      console.error('Query error', err.stack);
+      logError(err);
       return [];
     });
 }
@@ -166,7 +167,7 @@ function getAccessToken (bearerToken) {
       return Object.assign(token.toJSON(), { client, user });
     })
     .catch(err => {
-      console.log(err.stack);
+      logError(err);
       return null;
     });
 };

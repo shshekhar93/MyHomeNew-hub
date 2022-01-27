@@ -12,6 +12,7 @@ const DeviceModel = require('../models/devices');
 const DeviceSetupModel = require('../models/device-setup');
 const schemaTransformer = require('../libs/helpers').schemaTransformer.bind(null, null);
 const { isDevOnline, requestToDevice } = require('../libs/ws-server');
+const { logError, logInfo } = require('../libs/logger');
 
 module.exports.getAvailableDevices = (req, res) => {
   const user = _get(req, 'user._id');
@@ -22,7 +23,7 @@ module.exports.getAvailableDevices = (req, res) => {
       res.json(availableDevs);
     })
     .catch(err => {
-      console.error('failed to find pending devices', err.stack);
+      logError(err);
       res.status(400).json({});
     })
 };
@@ -86,7 +87,7 @@ module.exports.getDevState = async (device, retries = 2) => {
       leads: device.leads.map(schemaTransformer).map(mapBrightness.bind(null, resp))
     }))
     .catch(err => {
-      console.error('getDevState failed', err);
+      logError(err);
       return {
         ..._omit(device, 'encryptionKey'),
         isActive: false
@@ -142,7 +143,7 @@ module.exports.switchDeviceState = (req, res) => {
       success: true
     }))
     .catch(err => {
-      console.log(err);
+      logError(err);
       res.status(400).json({ success: false, err });
     });
 };
@@ -172,7 +173,8 @@ module.exports.generateOTK = (req, res) => {
       });
     })
     .catch(err => {
-      console.log('OTK generation failed!', err.stack);
+      logError('OTK generation failed!')
+      logError(err);
       res.status(400).json({
         error: err.message
       });
@@ -207,12 +209,13 @@ module.exports.triggerFirmwareUpdate = (req, res) => {
           });
         })
         .then(resp => {
-          console.log(resp);
+          logInfo(`Firmware update response: ${JSON.stringify(resp)}`);
           res.json({ succes: true });
         });
     })
     .catch(err => {
-      console.error('TRIGGER_UPDATE_FAILED', err.message);
+      logError('TRIGGER_UPDATE_FAILED')
+      logError(err);
       res.status(400).json({ error: err.message });
     });
 };

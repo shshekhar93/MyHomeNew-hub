@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('path');
+const { logError } = require('../libs/logger');
 const fs = require('fs').promises;
 
 const APK_REGEX = /^myhomenew-app-\d+\.\d+\.\d+.apk$/i;
@@ -12,7 +13,8 @@ async function appManifest(req, res) {
         res.json(manifest);
     }
     catch(e) {
-        console.error('Manifest doesnot exist');
+        logError('Manifest doesnot exist');
+        logError(e);
         res.json({});
     } 
 }

@@ -12,6 +12,7 @@ const onHubConnect = require('../controllers/ws/devices/hub');
 
 const { validateHubCreds, validateDeviceCreds } = require('./ws-helpers');
 const DeviceSetupModel = require('../models/device-setup');
+const { logError } = require('./logger');
 const JSON_TYPE = 'application/json';
 
 const emitter = new EventEmitter();
@@ -66,7 +67,7 @@ module.exports.start = httpServer => {
     const auth = _get(request, 'httpRequest.headers.authorization', '');
     const [username, password] = auth.split(':');
     if(!username || !password) {
-      console.error('either id or secret missing in hub WS Req');
+      logError('Either client id or secret missing in hub WS Req');
       return request.reject();
     }
 
@@ -81,7 +82,7 @@ module.exports.start = httpServer => {
 
           // Event emitters must have an error event handler.
           connection.on('error', err => {
-            console.error('Hub connection error', err.message);
+            logError(`Hub connection error ${err.message}`);
           });
 
           return confirmSessionKeyToDevice(connection, obj.sessionKey)
@@ -120,7 +121,8 @@ module.exports.start = httpServer => {
           }
         })
         .catch(err => {
-          console.log('device setup sequence failed', err.stack || err);
+          logError('device setup sequence failed');
+          logError(err);
         });
     }
 
@@ -131,7 +133,7 @@ module.exports.start = httpServer => {
 
           // Event emitters must have an error event handler.
           connection.on('error', err => {
-            console.error('Hub connection error', err.message);
+            logError(`Hub connection error ${err.message}`);
           });
 
           return onHubConnect(connection, emitter, user);

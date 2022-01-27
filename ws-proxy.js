@@ -1,6 +1,7 @@
 'use strict';
 const WSClient = require('websocket').client;
 const request = require('request');
+const { logError, logInfo } = require('./libs/logger');
 
 const client = new WSClient({
   keepalive: true,
@@ -11,17 +12,18 @@ const client = new WSClient({
 });
 
 client.on('connectFailed', function(err) {
-  console.log('err', err.stack || err);
+  logError(err);
   process.exit(1);
 });
 
 client.on('connect', function(connection) {
   connection.on('error', function(err) {
-    console.log('WS Conn error', err);
+    logError('WS Conn error');
+    logError(err);
   });
 
   connection.on('close', function() {
-    console.log('connection closed!');
+    logInfo('connection closed!');
 //    process.exit(1);
     setTimeout(connect, 1000); // delay reconnect by a second.
   });
@@ -29,9 +31,10 @@ client.on('connect', function(connection) {
   connection.on('message', message => {
     if(message.type === 'utf8') {
       try {
+        logInfo(`Relaying request: ${message.utf8Data}`);
         const data = JSON.parse(message.utf8Data);
         handleMessage(data, resp => connection.send(JSON.stringify(resp)));
-      } catch(e) { console.log('message parse failed', e) }
+      } catch(e) { logError(e) }
     }
   });
 });
@@ -44,7 +47,7 @@ process.on('message', message => {
 
 function connect() {
   if(!options || !options.server || !options.id || !options.secret) {
-    console.log('options not received yet from parent!');
+    logError('options not received yet from parent!');
     return;
   }
   const {
@@ -54,7 +57,6 @@ function connect() {
 }
 
 function handleMessage(data, send) {
-  console.log('handling', data);
   request({
     url: `${options.localhost}${data.url}`,
     method: data.method,
@@ -65,8 +67,10 @@ function handleMessage(data, send) {
     json: true
   }, function(err, resp, body){
     if(err) {
-      console.error('WS Proxy request err', err);
+      logError('WS Proxy request err');
+      logError(err);
     }
+
     const status = (resp && resp.statusCode) || 500;
     
     send({

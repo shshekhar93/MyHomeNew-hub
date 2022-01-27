@@ -1,11 +1,12 @@
 'use strict';
 const uuid = require('uuid/v4');
+const { logError } = require('../../../libs/logger');
 
 function onConnect (connection, emitter, user) {
   const hubClientId = user.hubClientId;
 
   if(emitter.listenerCount(hubClientId) > 0) {
-    console.error('already have a hub attached for account');
+    logError('Already have a hub attached for account');
     return connection.close();
   }
 
@@ -32,13 +33,15 @@ function onConnect (connection, emitter, user) {
 
         cb(null, payload);
       } catch(e) {
-        console.error('could not parse message', message.utf8Data);
+        logError(`could not parse message ${message.utf8Data}`);
+        logError(e);
         return cb(e);
       }
     }
 
     cleanupTimeoutId = setTimeout(() => {
       connection.removeListener('message', onResponse);
+      logError('Request timed out!');
       cb(new Error('ETIMEOUT'));
     }, 5000);
 

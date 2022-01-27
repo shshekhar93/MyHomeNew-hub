@@ -3,6 +3,7 @@ const path = require('path');
 const { spawn } = require('child_process');
 const uuid = require('uuid/v4');
 const UserModel = require('../models/users');
+const { logError } = require('../libs/logger');
 
 const PROXY_SCRIPT_PATH = path.resolve(__dirname, '../ws-proxy.js');
 
@@ -32,7 +33,7 @@ module.exports.proxyRequestsSetup = function(options) {
     }
 
     if(reqSecret !== cpSecret){
-      console.error('Got CP request with wrong secret');
+      logError('Got CP request with wrong secret');
       return next();
     }
 
@@ -42,7 +43,8 @@ module.exports.proxyRequestsSetup = function(options) {
         next();
       })
       .catch(err => {
-        console.error('Error finding default hub user', err.stack || err);
+        logError('Error finding default hub user');
+        logError(err);
         next(err);
       })
   }

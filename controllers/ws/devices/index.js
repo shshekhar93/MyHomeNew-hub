@@ -1,6 +1,7 @@
 'use strict';
 const uuid = require('uuid/v4');
 const { encrypt, decrypt } = require('../../../libs/crypto');
+const { logInfo, logError } = require('../../../libs/logger');
 
 function sendMessageToDevice(conn, obj, key, decryptionKey) {
   return new Promise((resolve, reject) => {
@@ -42,7 +43,7 @@ function confirmSessionKeyToDevice(conn, sessionKey) {
   };
   return sendMessageToDevice(conn, request, sessionKey)
     .catch(e => {
-      console.error('DEV_SESS_KEY_CONF', e.message);
+      logError(`Device session key confirmation failed ${e.message}`);
       throw new Error('SESS_KEY_CONF_FAILED');
     });
 }
@@ -56,7 +57,7 @@ function refreshKeyForDevice(conn, newKey, sessionKey) {
 
   return sendMessageToDevice(conn, request, sessionKey)
     .catch(e => {
-      console.error('DEV_KEY_UPDATE', e.message);
+      logError(`Device key update failed ${e.message}`);
       throw new Error('DEVICE_KEY_UPDATE_FAILED');
     });
 }
@@ -69,14 +70,14 @@ function updateUserName(conn, newUsername, encryptionKey) {
   };
   return sendMessageToDevice(conn, request, encryptionKey)
     .catch(e => {
-      console.error('DEV_USER_UPDATE', e.message);
+      logError(`Device username update failed ${e.message}`);
       throw new Error('DEVICE_USERNAME_UPDATE_FAILED');
     });
 }
 
 function onConnect(connection, sessionKey, emitter, device) {
   if(emitter.listenerCount(device.name) > 0) {
-    console.error('device is already connected!');
+    logError(`${device.name} is already connected!`);
     return connection.close();
   }
 
@@ -102,11 +103,11 @@ function onConnect(connection, sessionKey, emitter, device) {
 
   // Clean up on socket disconnect.
   connection.on('close', () => {
-    console.log(new Date(), 'device disconnected!');
+    logInfo(`${device.name} disconnected!`);
     emitter.removeListener(device.name, onRequest);
   });
 
-  console.log(new Date(), 'device connected!');
+  logInfo(`${device.name} connected!`);
 }
 
 module.exports = {

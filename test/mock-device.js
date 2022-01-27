@@ -3,6 +3,7 @@ const path = require('path');
 
 const nodeCrypto = require('crypto');
 const Crypto = require('../libs/crypto');
+const { logInfo, logError } = require('../libs/logger');
 const WebSocketClient = require('websocket').client;
 
 const allDevices = fs.readdirSync(path.join(__dirname, 'mock-devices'))
@@ -27,16 +28,16 @@ function enableDeviceAPI(device, connection, key) {
           break;
         case 'update-key': 
           device.encryptionKey = request.data;
-          console.log('updating key for', device.name);
+          logInfo(`Updating key for ${device.name}`);
           break;
         case 'update-username': 
           device.username = request.data;
-          console.log('updating username for', device.name);
+          logInfo(`Updating username for ${device.name}`);
           break;
         case 'set-state': 
           const [leadId, brightness] = request.data.split('=');
           device[`lead${leadId}`] = brightness;
-          console.log('updating', leadId, 'with', brightness);
+          logInfo(`Updating ${leadId} with ${brightness} for ${device.name}`);
           break;
         case 'get-state':
           const payload = {
@@ -50,13 +51,11 @@ function enableDeviceAPI(device, connection, key) {
       }
       sendJSON(connection, { status: 'OK' }, key);
     } catch(e) {
-      console.log('Failed to process server req', e.stack || e);
+      logError(e);
     }
   });
 
-  connection.on('error', e => {
-    console.error('connection error', e.stack || e);
-  });
+  connection.on('error', logError);
 
   connection.on('close', () => {
     setTimeout(startDevice.bind(null, device), 1000);
@@ -69,12 +68,12 @@ function startDevice(device) {
   const wsClient = new WebSocketClient();
 
   wsClient.on('connect', connection => {
-    console.log('connected');
+    logInfo('connected');
     enableDeviceAPI(device, connection, key);
   });
 
   wsClient.on('connectFailed', err => {
-    console.error('connection failed', err.stack || err);
+    logError(err);
   });
 
   wsClient.connect(

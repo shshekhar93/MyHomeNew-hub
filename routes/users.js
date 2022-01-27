@@ -1,13 +1,15 @@
 'use strict';
 
-const { authorize } = require('../libs/passport');
-const { logError } = require('../libs/logger');
-const { promisify } = require('util');
-const hash = promisify(require('bcrypt').hash);
-const uuid = require('uuid/v4');
-const UserModel = require('../models/users');
+import bcrypt from 'bcrypt';
+import uuid from 'uuid/v4.js';
+import { promisify } from 'util';
+import { authorize } from '../libs/passport.js';
+import { logError } from '../libs/logger.js';
+import UserModel from '../models/users.js';
 
-module.exports = app => {
+const hash = promisify(bcrypt.hash);
+
+const setupUserRoutes = app => {
   app.get('/user/@me', authorize, (req, res) => {
     res.json(req.user);
   });
@@ -56,3 +58,5 @@ module.exports = app => {
       });
   });
 };
+
+export default setupUserRoutes;

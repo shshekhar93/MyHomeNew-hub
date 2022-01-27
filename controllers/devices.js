@@ -1,20 +1,20 @@
 'use strict';
-const path = require('path');
-const fs = require('fs');
+import { readFileSync } from 'fs';
+import semver from 'semver';
+import _get from 'lodash/get.js';
+import  _omit from 'lodash/omit.js';
+import  _pickBy from 'lodash/pickBy.js';
+import  {randomBytes, encrypt} from '../libs/crypto.js';
 
-const semver = require('semver');
-const _get = require('lodash/get');
-const _omit = require('lodash/omit');
-const _pickBy = require('lodash/pickBy');
-const {randomBytes, encrypt} = require('../libs/crypto');
+import DeviceModel from '../models/devices.js';
+import DeviceSetupModel from '../models/device-setup.js';
+import { isDevOnline, requestToDevice } from '../libs/ws-server.js';
+import { logError, logInfo } from '../libs/logger.js';
+import * as helpers from '../libs/helpers.js';
 
-const DeviceModel = require('../models/devices');
-const DeviceSetupModel = require('../models/device-setup');
-const schemaTransformer = require('../libs/helpers').schemaTransformer.bind(null, null);
-const { isDevOnline, requestToDevice } = require('../libs/ws-server');
-const { logError, logInfo } = require('../libs/logger');
+const schemaTransformer = helpers.schemaTransformer.bind(null, null);
 
-module.exports.getAvailableDevices = (req, res) => {
+const getAvailableDevices = (req, res) => {
   const user = _get(req, 'user._id');
   DeviceSetupModel.find({ user }).lean()
     .then(pendingDevices => {
@@ -28,7 +28,7 @@ module.exports.getAvailableDevices = (req, res) => {
     })
 };
 
-module.exports.saveNewDeviceForUser = (req, res) => {
+const saveNewDeviceForUser = (req, res) => {
   return DeviceSetupModel.findOne({
     user: _get(req, 'user._id'),
     name: _get(req, 'body.name')
@@ -67,7 +67,7 @@ function mapBrightness(devConfig, lead) {
   }
 }
 
-module.exports.queryDevice = (req, res) => {
+const queryDevice = (req, res) => {
   DeviceModel.find({ name: req.params.name }).lean()
     .then(module.exports.getDevState)
     .then(resp => res.json(resp))
@@ -77,7 +77,7 @@ module.exports.queryDevice = (req, res) => {
     }));
 };
 
-module.exports.getDevState = async (device, retries = 2) => {
+const getDevState = async (device, retries = 2) => {
   return requestToDevice(device.name, {
     action: 'get-state'
   })
@@ -95,7 +95,7 @@ module.exports.getDevState = async (device, retries = 2) => {
     });
 }
 
-module.exports.getAllDevicesForUser = (req, res) => {
+const getAllDevicesForUser = (req, res) => {
   // Get list of devices for current user
   return DeviceModel.find({user: req.user.email}).lean()
     .then(devices => {
@@ -113,7 +113,7 @@ module.exports.getAllDevicesForUser = (req, res) => {
     }));
 };
 
-const updateDeviceState = module.exports.updateDeviceState = (user, devName, switchId, newState) => {
+const updateDeviceState = (user, devName, switchId, newState) => {
   return DeviceModel.findOne({ name: devName, user })
     .then(device => {
       if(!device) {
@@ -134,7 +134,7 @@ const updateDeviceState = module.exports.updateDeviceState = (user, devName, swi
     });
 }
 
-module.exports.switchDeviceState = (req, res) => {
+const switchDeviceState = (req, res) => {
   const devName = req.params.name;
   const { switchId, newState } = req.body;
 
@@ -148,7 +148,7 @@ module.exports.switchDeviceState = (req, res) => {
     });
 };
 
-module.exports.getDeviceConfig = (req, res) => {
+const getDeviceConfig = (req, res) => {
   return requestToDevice(req.params.name, {
     action: 'get-state'
   })
@@ -161,7 +161,7 @@ module.exports.getDeviceConfig = (req, res) => {
     });
 };
 
-module.exports.generateOTK = (req, res) => {
+const generateOTK = (req, res) => {
   randomBytes(16, 'hex')
     .then(encryptionKey => {
       const user = _get(req, 'user._id');
@@ -181,7 +181,7 @@ module.exports.generateOTK = (req, res) => {
     })
 };
 
-module.exports.triggerFirmwareUpdate = (req, res) => {
+const triggerFirmwareUpdate = (req, res) => {
   const { name } = req.params;
 
   DeviceModel.findOne({name}).lean()
@@ -195,7 +195,7 @@ module.exports.triggerFirmwareUpdate = (req, res) => {
         .then(resp => {
           const { version = '' } = resp;
           const [hardwareVer, softwareVer] = version.split('-');
-          const latestFirmWare = fs.readFileSync(path.join(__dirname, `../firmwares/${hardwareVer}.latest`), 'utf8');
+          const latestFirmWare = readFileSync(new URL(`../firmwares/${hardwareVer}.latest`, import.meta.url), 'utf8');
 
           const updateRequired = semver.gt(latestFirmWare, softwareVer);
           if(!updateRequired) {
@@ -218,4 +218,17 @@ module.exports.triggerFirmwareUpdate = (req, res) => {
       logError(err);
       res.status(400).json({ error: err.message });
     });
+};
+
+export {
+  getAvailableDevices,
+  saveNewDeviceForUser,
+  queryDevice,
+  getDevState,
+  getAllDevicesForUser,
+  updateDeviceState,
+  switchDeviceState,
+  getDeviceConfig,
+  generateOTK,
+  triggerFirmwareUpdate,
 };

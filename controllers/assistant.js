@@ -1,14 +1,14 @@
 'use strict';
-const _get = require('lodash/get');
-const { logError } = require('../libs/logger');
-const deviceModel = require('../models/devices');
-const { getDevState, updateDeviceState } = require('./devices');
+import _get from 'lodash/get.js';
+import { logError } from '../libs/logger.js';
+import DeviceModel from '../models/devices.js';
+import { getDevState, updateDeviceState } from './devices.js';
 
 function syncDevices(req, res) {
   const userEmail = _get(res, 'locals.oauth.token.user.email', _get(req, 'user.email'));
   const agentUserId = _get(res, 'locals.oauth.token.user._id', _get(req, 'user._id'));
   
-  deviceModel.find({user: userEmail})
+  DeviceModel.find({user: userEmail})
     .then(devices => {
       res.send({
         requestId: req.body.requestId,
@@ -71,7 +71,7 @@ function queryStatus(req, res) {
   const devicesToQuery = _get(req.body, 'inputs[0].payload.devices', []);
   Promise.all(devicesToQuery.map(dev => {
     const [ id ] = dev.id.split('-');
-    return deviceModel.findById(id).lean()
+    return DeviceModel.findById(id).lean()
       .then(dbDev => getDevState(dbDev));
   }))
     .then(allDeviceStates => {
@@ -96,7 +96,7 @@ function execute(req, res) {
     return Promise.all(devices.map(dev => {
       const [id, devId] = dev.id.split('-');
 
-      return deviceModel.findById(id).lean()
+      return DeviceModel.findById(id).lean()
         .then(device => {
           if(!device) {
             throw new Error('Device does not exist');
@@ -107,7 +107,7 @@ function execute(req, res) {
           return updateDeviceState(device.user, device.name, devId, (isOn? 100 : 0))
         })
         .then(() => {
-          return deviceModel.update({
+          return DeviceModel.update({
             _id: id,
             'leads.devId': devId
           }, {
@@ -163,7 +163,7 @@ function execute(req, res) {
     });
 }
 
-module.exports = {
+export {
   syncDevices,
   queryStatus,
   execute

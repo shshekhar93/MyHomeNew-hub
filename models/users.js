@@ -1,9 +1,9 @@
 'use strict';
 
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
+import mongoose from 'mongoose';
+import { transformer } from '../libs/helpers.js';
 
-const { transformer } = require('../libs/helpers');
+const { Schema } = mongoose;
 
 const UserSchema = new Schema({
   name: String,
@@ -20,4 +20,5 @@ const UserSchema = new Schema({
   updatedDate: { type: Date, default: Date.now }
 }, transformer);
 
-module.exports = mongoose.model('Users', UserSchema);
+const UserModel = mongoose.model('Users', UserSchema);
+export default UserModel;

@@ -1,11 +1,18 @@
 'use strict';
-const uuid = require('uuid/v4');
-const _omit = require('lodash/omit');
-const _get = require('lodash/get');
-const { promisify } = require('util');
-const hash = promisify(require('bcrypt').hash);
-const { createClient, getUserFromClient, deleteClient } = require('../models/oAuth');
-const { getAllClientsForUser } = require('../models/oAuth');
+import bcrypt from 'bcrypt';
+import { promisify } from 'util';
+import uuid from 'uuid/v4.js';
+import _omit from 'lodash/omit.js';
+import _get from 'lodash/get.js';
+
+import { getAllClientsForUser } from '../models/oAuth.js';
+import {
+  createClient,
+  getUserFromClient,
+  deleteClient
+} from '../models/oAuth.js';
+
+const hash = promisify(bcrypt.hash);
 
 function getExistingClientsForUser(req, res) {
   if(!req.user._id) {
@@ -85,14 +92,6 @@ function getAuthMiddleware(oAuth) {
   });
 }
 
-module.exports = {
-  createNewClient,
-  deleteClientCreds,
-  getExistingClientsForUser,
-  renderAuthForm,
-  getAuthMiddleware
-};
-
 const AUTH_FORM_PREFIX = `<!DOCTYPE html>
   <html>
     <head>
@@ -111,3 +110,11 @@ const AUTH_FORM_SUFFIX = `
       </div>
     </body>
   </html>`;
+
+  export {
+    createNewClient,
+    deleteClientCreds,
+    getExistingClientsForUser,
+    renderAuthForm,
+    getAuthMiddleware
+  };

@@ -1,17 +1,19 @@
 'use strict';
-const _set = require('lodash/set');
-const _get = require('lodash/get');
-
-const { isDevOnline, proxy } = require('../libs/ws-server');
-const { 
+import _get from 'lodash/get.js';
+import _set from 'lodash/set.js';
+import {
+  isDevOnline,
+  proxy
+} from '../libs/ws-server.js';
+import { 
     appManifest,
     downloadApp
-} = require('../controllers/app');
-const { 
+} from '../controllers/app.js';
+import { 
   switchDeviceState,
   getAllDevicesForUser,
   queryDevice
-} = require('../controllers/devices');
+} from '../controllers/devices.js';
 
 function applyReqUser(req, res, next) {
   const user = _get(res, 'locals.oauth.token.user');
@@ -24,7 +26,7 @@ function applyReqUser(req, res, next) {
   return next();
 }
 
-module.exports = app => {
+const setupAPIRoutes = (app) => {
   const oAuthenticate = app.oAuth.authenticate();
 
   const oAuth = (req, res, next) => {
@@ -42,3 +44,5 @@ module.exports = app => {
   app.get('/v1/app/latest-manifest', appManifest);
   app.get('/v1/app/download/:apk', downloadApp);
 };
+
+export default setupAPIRoutes;

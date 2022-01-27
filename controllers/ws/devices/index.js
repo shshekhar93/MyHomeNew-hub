@@ -1,7 +1,12 @@
 'use strict';
-const uuid = require('uuid/v4');
-const { encrypt, decrypt } = require('../../../libs/crypto');
-const { logInfo, logError } = require('../../../libs/logger');
+import {
+  encrypt,
+  decrypt
+} from '../../../libs/crypto.js';
+import {
+  logInfo,
+  logError
+} from '../../../libs/logger.js';
 
 function sendMessageToDevice(conn, obj, key, decryptionKey) {
   return new Promise((resolve, reject) => {
@@ -110,7 +115,7 @@ function onConnect(connection, sessionKey, emitter, device) {
   logInfo(`${device.name} connected!`);
 }
 
-module.exports = {
+export {
   onConnect,
   confirmSessionKeyToDevice,
   refreshKeyForDevice,

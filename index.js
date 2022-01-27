@@ -1,22 +1,22 @@
-const http = require('http');
-const express = require('express');
-const bodyParser = require('body-parser');
-const Redis = require('./libs/redis');
-const session = require('express-session');
-const RedisStore = require('connect-redis')(session);
-const passport = require('passport');
-const OAuthServer = require('express-oauth-server');
-const morgan = require('morgan');
+import http from 'http';
+import express from 'express';
+import bodyParser from 'body-parser';
+import session from 'express-session';
+import ConnectRedis from 'connect-redis';
+import passport from 'passport';
+import OAuthServer from 'express-oauth-server';
+import _get from 'lodash/get.js';
 
-const routes = require('./routes');
-const DB = require('./libs/db');
-const OAuthModel = require('./models/oAuth');
-const { proxyRequestsSetup } = require('./controllers/proxy');
-const WSServer = require('./libs/ws-server');
+import { setupRoutes } from './routes/index.js';
+import * as Redis from './libs/redis.js';
+import * as DB from './libs/db.js';
+import * as OAuthModel from './models/oAuth.js';
+import { proxyRequestsSetup } from './controllers/proxy.js';
+import { start as startWSServer } from './libs/ws-server.js';
+import config from './libs/config.js';
+import { logMiddleware } from './libs/logger.js';
 
-const _get = require('lodash/get');
-const config = require('./config/config.json');
-
+const RedisStore = ConnectRedis(session);
 const app = express();
 app.oAuth = new OAuthServer({
     debug: true,
@@ -39,7 +39,7 @@ app.use(express.static('./public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.use(morgan('tiny'));
+app.use(logMiddleware);
 
 app.use(session({ 
     secret: 'keyboard cat',
@@ -78,11 +78,11 @@ app.use(function(req, res, next) {
     next();
 });
 
-routes.setupRoutes(app);
+setupRoutes(app);
 
 DB.connect();
 Redis.connect();
 
 const server =  http.createServer(app);
-WSServer.start(server);
+startWSServer(server);
 server.listen(process.env.PORT || 8020);

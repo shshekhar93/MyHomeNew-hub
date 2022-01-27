@@ -1,11 +1,13 @@
-const UserModel = require('../models/users');
-const DeviceModel = require('../models/devices');
-const DeviceSetupModel = require('../models/device-setup');
-const Crypto = require('./crypto');
+import { promisify } from 'util';
+import bcrypt from 'bcrypt';
 
-const { promisify } = require('util');
-const { logError } = require('./logger');
-const compare = promisify(require('bcrypt').compare);
+import UserModel from '../models/users.js';
+import DeviceModel from '../models/devices.js';
+import DeviceSetupModel from '../models/device-setup.js';
+import * as Crypto from './crypto.js';
+import { logError } from './logger.js';
+
+const compare = promisify(bcrypt.compare);
 
 function validateHubCreds (hubClientId, hubClientSecret) {
   return UserModel.findOne({ hubClientId })
@@ -83,7 +85,7 @@ function validateDeviceCreds(username, password) {
     });
 }
 
-module.exports = {
+export {
   validateHubCreds,
   validateDeviceCreds
 };

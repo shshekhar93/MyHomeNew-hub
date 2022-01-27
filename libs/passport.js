@@ -1,13 +1,13 @@
 'use strict';
 
-const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
-const _pick = require('lodash/pick');
-const bcrypt = require('bcrypt');
-const Util = require('util');
-const UserModel = require('../models/users');
+import passport from 'passport';
+import { Strategy as LocalStrategy } from 'passport-local';
+import _pick from 'lodash/pick.js';
+import bcrypt from 'bcrypt';
+import { promisify } from 'util';
+import UserModel from '../models/users.js';
 
-const compare = Util.promisify(bcrypt.compare.bind(bcrypt));
+const compare = promisify(bcrypt.compare.bind(bcrypt));
 const USER_FIELDS = ['_id', 'email', 'name', 'hubClientId'];
 
 passport.use(new LocalStrategy(
@@ -36,7 +36,7 @@ passport.deserializeUser(function(email, done) {
     .catch(done);
 });
 
-module.exports.authMiddleware = (req, res, next) => {
+const authMiddleware = (req, res, next) => {
   passport.authenticate('local', function(err, user, info) {
     if(err) {
       return next(err);
@@ -56,11 +56,16 @@ module.exports.authMiddleware = (req, res, next) => {
   })(req, res, next);
 };
 
-module.exports.authorize = (req, res, next) => {
+const authorize = (req, res, next) => {
   if(!req.isAuthenticated() || !req.user){
     return res.status(401).json({
       error: 'UNAUTHORIZED'
     });
   }
   next();
+};
+
+export {
+  authMiddleware,
+  authorize,
 };

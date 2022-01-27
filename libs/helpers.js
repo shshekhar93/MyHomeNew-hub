@@ -1,12 +1,12 @@
 'use strict';
-const _omit = require('lodash/omit');
+import _omit from 'lodash/omit.js';
 
 const IGNORED_KEYS = ['__v'];
-const schemaTransformer = module.exports.schemaTransformer = (doc, ret) => {
+export const schemaTransformer = (doc, ret) => {
     return _omit(ret, IGNORED_KEYS);
 };
 
-module.exports.trasformer = {
+export const transformer = {
     toObject: {
         transform: schemaTransformer
     },

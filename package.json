@@ -88,6 +88,7 @@
     "promise-polyfill": "^8.1.0",
     "prop-types": "^15.7.2",
     "rc-slider": "^8.6.5",
+    "react-accessible-accordion": "^4.0.0",
     "react-bootstrap": "^1.0.0-beta.5",
     "react-router-dom": "^6.2.1",
     "style-loader": "^0.23.1",

@@ -5,6 +5,7 @@ import SigninPage from '../pages/signin.js';
 import { Navbar } from './navbar.js';
 import { SideBar } from './sidebar.js';
 import SignupPage from '../pages/signup.js';
+import DevicePage from '../pages/devices.js';
 
 function RootContainer({ children }) {
   const [css] = useStyletron();
@@ -38,7 +39,14 @@ function RootContainer({ children }) {
             flex: 1,
             padding: '1rem'
           })}>
-            { children }
+            <Routes>
+              <Route
+                path="/"
+                element={<DevicePage />} />
+              <Route
+                path="*"
+                element={<Navigate to="/" />} />
+            </Routes>
           </div>
         </div>
       }

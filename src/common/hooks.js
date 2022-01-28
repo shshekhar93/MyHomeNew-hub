@@ -1,5 +1,8 @@
-import { useEffect, useState } from "react";
-import { getCurrentUserDetails, logout, UNAUTHORIZED } from "./api.js";
+import { useCallback, useEffect, useState } from "react";
+import _groupBy from 'lodash/groupBy.js';
+
+import { getExistingDevices, getCurrentUserDetails, logout, UNAUTHORIZED } from "./api.js";
+import { deviceMapper } from "./mappers.js";
 import { useStore } from "./store.js";
 
 function hookUserDetails(store) {
@@ -21,6 +24,37 @@ function hookUserDetails(store) {
     store.subscribe('user', handler);
     return () => store.unsubscribe('user', handler);
   }, []);
+}
+
+function hookUserDevices() {
+  const store = useStore();
+  const [, rerender] = useState(0);
+
+  const reloadDevices = useCallback(async () => {
+    try {
+      const allDevices = (await getExistingDevices())
+        .flatMap(deviceMapper);
+      const groupedDevices = _groupBy(allDevices, 'room');
+      store.set('devices', groupedDevices);
+    } catch(e) {
+      if(e !== UNAUTHORIZED) {
+        store.set('user', null);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    reloadDevices();
+    const handler = () => rerender(Date.now());
+    store.subscribe('devices', handler);
+    return () => store.unsubscribe('devices', handler);
+  }, []);
+
+  const devices = store.get('devices');
+  return {
+    devices,
+    reloadDevices
+  };
 }
 
 function hookStoreUpdates(keys, store) {
@@ -50,6 +84,7 @@ function useLogout() {
 
 export {
   hookUserDetails,
+  hookUserDevices,
   hookStoreUpdates,
   useLogout,
 };

@@ -16,3 +16,8 @@ a {
 a:hover {
   text-decoration: underline;
 }
+
+/* Hack for styletron limitations */
+.accordion-btn[aria-expanded='true']::after {
+  transform: rotate(45deg) translate(-3px, -3px);
+}

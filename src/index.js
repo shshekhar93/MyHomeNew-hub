@@ -1,10 +1,9 @@
 'use strict';
-import 'promise-polyfill/src/polyfill';
+import 'promise-polyfill/src/polyfill.js';
 import 'whatwg-fetch';
 
-import React from 'react';
 import ReactDom from 'react-dom';
 
-import PageContainer from './containers/PageContainer';
+import App from './app.js';
 
-ReactDom.render(<PageContainer />, document.getElementById('root'));
+ReactDom.render(<App />, document.getElementById('root'));

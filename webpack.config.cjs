@@ -2,6 +2,7 @@
 const webpack = require('webpack');
 
 module.exports = {
+  mode: 'production',
   entry: {
     bundle: './src/index.js',
     watch: './src/watch.js'
@@ -24,7 +25,11 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['*', '.js', '.jsx']
+    extensions: ['*', '.js', '.jsx'],
+    alias: {
+      "react/jsx-dev-runtime": "react/jsx-dev-runtime.js",
+      "react/jsx-runtime": "react/jsx-runtime.js"
+    }
   },
   output: {
     path: __dirname + '/dist/js/',

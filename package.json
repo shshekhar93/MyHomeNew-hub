@@ -7,12 +7,25 @@
   "scripts": {
     "start": "mode=development node .",
     "test": "gurnt test",
-    "webpack": "webpack"
+    "webpack": "webpack --config ./webpack.config.cjs"
   },
   "babel": {
     "presets": [
       "@babel/preset-env",
-      "@babel/preset-react"
+      [
+        "@babel/preset-react",
+        {
+          "runtime": "automatic"
+        }
+      ]
+    ],
+    "plugins": [
+      [
+        "@babel/plugin-transform-runtime",
+        {
+          "regenerator": true
+        }
+      ]
     ]
   },
   "repository": {
@@ -49,8 +62,8 @@
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "qrcode": "^1.4.2",
-    "react": "^16.8.1",
-    "react-dom": "^16.8.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "redis": "^4.0.2",
     "request": "^2.88.0",
     "semver": "^6.3.0",
@@ -60,21 +73,29 @@
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",
+    "@babel/plugin-transform-runtime": "^7.16.10",
     "@babel/preset-env": "^7.3.1",
     "@babel/preset-react": "^7.0.0",
-    "babel-loader": "^8.0.5",
+    "@types/react-router-dom": "^5.3.3",
+    "@types/styletron-engine-atomic": "^1.1.1",
+    "@types/styletron-react": "^5.0.3",
+    "@types/styletron-standard": "^2.0.2",
+    "babel-loader": "^8.2.3",
     "bootstrap": "^4.2.1",
-    "css-loader": "^2.1.0",
+    "css-loader": "^6.5.1",
     "less": "^3.9.0",
-    "less-loader": "^4.1.0",
+    "less-loader": "^10.2.0",
     "promise-polyfill": "^8.1.0",
     "prop-types": "^15.7.2",
     "rc-slider": "^8.6.5",
     "react-bootstrap": "^1.0.0-beta.5",
+    "react-router-dom": "^6.2.1",
     "style-loader": "^0.23.1",
-    "webpack": "^4.29.3",
-    "webpack-cli": "^3.2.3",
-    "webpack-dev-middleware": "^3.7.1",
+    "styletron-engine-atomic": "^1.4.8",
+    "styletron-react": "^6.0.2",
+    "webpack": "^5.67.0",
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-middleware": "^5.3.0",
     "whatwg-fetch": "^3.0.0"
   }
 }

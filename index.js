@@ -6,6 +6,8 @@ import ConnectRedis from 'connect-redis';
 import passport from 'passport';
 import OAuthServer from 'express-oauth-server';
 import _get from 'lodash/get.js';
+import webpack from 'webpack';
+import webpackDevMiddleware from 'webpack-dev-middleware';
 
 import { setupRoutes } from './routes/index.js';
 import * as Redis from './libs/redis.js';
@@ -15,6 +17,7 @@ import { proxyRequestsSetup } from './controllers/proxy.js';
 import { start as startWSServer } from './libs/ws-server.js';
 import config from './libs/config.js';
 import { logMiddleware } from './libs/logger.js';
+import webpackConfig from './webpack.config.cjs';
 
 const RedisStore = ConnectRedis(session);
 const app = express();
@@ -24,13 +27,13 @@ app.oAuth = new OAuthServer({
 });
 
 if(process.env.mode === 'development') {
-  const webpack = require('webpack');
-  const middleware = require('webpack-dev-middleware');
-  const config = require('./webpack.config');
-  config.mode='development';
-  config.devtool = 'cheap-eval-source-map';
-  const compiler = webpack(config);
-  app.use(middleware(compiler, { index: false, lazy: true, publicPath: '/js/' }))
+  webpackConfig.mode='development';
+  webpackConfig.devtool = 'eval-cheap-source-map';
+  const compiler = webpack(webpackConfig);
+  app.use(webpackDevMiddleware(compiler, {
+    index: false,
+    publicPath: '/js/'
+  }));
 }
 
 app.use(express.static('./dist'));

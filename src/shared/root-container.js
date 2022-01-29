@@ -17,7 +17,7 @@ function RootContainer({ children }) {
       display: 'flex',
       flexDirection: 'column',
     })}>
-      <Navbar user={user} />
+      <Navbar />
       {!user?
         <Routes>
           <Route
@@ -31,6 +31,7 @@ function RootContainer({ children }) {
             element={<Navigate to="/signin" />} />
         </Routes> :
         <div className={css({
+          position: 'relative',
           display: 'flex',
           minHeight: 'calc(100vh - 56px)'
         })}>

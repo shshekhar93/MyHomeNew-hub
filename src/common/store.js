@@ -42,7 +42,7 @@ class Store {
   #fireEvents(key) {
     key = pruneKey(key);
     const value = this.get(key);
-    const handlers = this.#eventHandlers[key];
+    const handlers = this.#eventHandlers[key] || [];
     handlers.forEach(f => setTimeout(() => f(value, key), 0));
   }
 }

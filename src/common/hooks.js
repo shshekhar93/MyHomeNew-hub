@@ -3,7 +3,7 @@ import _groupBy from 'lodash/groupBy.js';
 
 import { getExistingDevices, getCurrentUserDetails, logout, UNAUTHORIZED } from "./api.js";
 import { deviceMapper } from "./mappers.js";
-import { useStore } from "./store.js";
+import Store, { useStore } from "./store.js";
 
 function hookUserDetails(store) {
   const [, rerender] = useState(0);
@@ -57,6 +57,12 @@ function hookUserDevices() {
   };
 }
 
+/**
+ * 
+ * @param {Array<string>} keys - List of keys to subscribe to update for.
+ * @param {Store} store - Store on which to subscribe.
+ * @returns {Array<any>} - Value of the keys in store.
+ */
 function hookStoreUpdates(keys, store) {
   const [, rerender] = useState(0);
 
@@ -65,13 +71,15 @@ function hookStoreUpdates(keys, store) {
   }
 
   useEffect(() => {
-    const handler = (value, key) => {
+    const handler = () => {
       rerender(Date.now())
     };
     keys.forEach(key => store.subscribe(key, handler));
 
     return () => keys.forEach(key => store.unsubscribe(key, handler));
   }, []);
+
+  return keys.map(key => store.get(key));
 }
 
 function useLogout() {

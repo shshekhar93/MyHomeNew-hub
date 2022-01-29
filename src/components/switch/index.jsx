@@ -1,6 +1,5 @@
 import React from 'react';
 import { useStyletron } from 'styletron-react';
-import './switch.less';
 
 export default function Switch(props){
   const [css] = useStyletron();

@@ -22,9 +22,12 @@ const DEPENDENT_FIELDS = [
 ]
 function App() {
   hookUserDetails(store);
-  hookStoreUpdates(DEPENDENT_FIELDS, store);
+  const [
+    initialized,
+    // initError,
+  ] = hookStoreUpdates(DEPENDENT_FIELDS, store);
 
-  if(!store.get('initialized')) {
+  if(!initialized) {
     return (
       <StyletronProvider value={engine} debug={debug} debugAfterHydration>
         <LoadingPage />

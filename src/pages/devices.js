@@ -21,6 +21,9 @@ function DevicePage() {
         allowMultipleExpanded={true}
         allowZeroExpanded={true}
         preExpanded={rooms}
+        className={css({
+          maxWidth: '750px'
+        })}
       >
         {rooms.map(room => (
           <DeviceGroup key={room} name={room} devices={devices[room]} />

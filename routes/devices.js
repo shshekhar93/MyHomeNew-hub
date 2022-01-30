@@ -13,7 +13,8 @@ import {
   getDeviceConfig, 
   getAllDevicesForUser,
   generateOTK,
-  triggerFirmwareUpdate
+  triggerFirmwareUpdate,
+  updateExistingDevice
 } from '../controllers/devices.js';
 
 const setupDevicesRoutes = (app) => {
@@ -34,6 +35,7 @@ const setupDevicesRoutes = (app) => {
   
   app.post('/devices/:name', authorize, switchDeviceState);
   app.get('/devices/:name', authorize, getDeviceConfig);
+  app.put('/devices/:name', authorize, updateExistingDevice);
 
   app.post('/devices/:name/update-firmware', authorize, triggerFirmwareUpdate);
   app.get('/v1/:name/get-firmware/:id', streamFirmware);

@@ -11,6 +11,8 @@ import DeviceSetupModel from '../models/device-setup.js';
 import { isDevOnline, requestToDevice } from '../libs/ws-server.js';
 import { logError, logInfo } from '../libs/logger.js';
 import * as helpers from '../libs/helpers.js';
+import { validate } from '../validations/common.js';
+import { DeviceSchema } from '../validations/schemas.js';
 
 const schemaTransformer = helpers.schemaTransformer.bind(null, null);
 
@@ -148,6 +150,51 @@ const switchDeviceState = (req, res) => {
     });
 };
 
+const RETAINED_DEVICE_FIELDS = [
+  'name',
+  'user',
+  'hostname',
+  'port',
+  'encryptionKey',
+];
+
+const RETAINED_LEAD_FIELDS = [
+  'state', 
+  'hasPwm',
+];
+
+
+const updateExistingDevice = async (req, res) => {
+  const { name } = req.params;
+  const device = req.body;
+
+  const errorField = validate(DeviceSchema, device)
+  if(errorField) {
+    return res.status(400).json({
+      success: false,
+      err: 'Invalid object',
+      errorField
+    });
+  }
+
+  const existing = await DeviceModel.findOne({ name });
+  if(!existing) {
+    res.status(404).json({ success: false, err: 'Device not found' });
+  }
+
+  // Overwrite reatined fields.
+  RETAINED_DEVICE_FIELDS.forEach(field => device[field] = existing[field]);
+  (existing.leads || []).forEach(existing => {
+    const lead = device.leads.find(({devId}) => devId === existing.devId);
+    if(lead) {
+      RETAINED_LEAD_FIELDS.forEach(field => lead[field] = existing[field])
+    }
+  });
+
+  await DeviceModel.update({ name }, device);
+  return res.json({ success: true });
+};
+
 const getDeviceConfig = (req, res) => {
   return requestToDevice(req.params.name, {
     action: 'get-state'
@@ -228,6 +275,7 @@ export {
   getAllDevicesForUser,
   updateDeviceState,
   switchDeviceState,
+  updateExistingDevice,
   getDeviceConfig,
   generateOTK,
   triggerFirmwareUpdate,

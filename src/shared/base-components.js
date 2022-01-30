@@ -66,6 +66,11 @@ const Button = withTheme(styled('button', ({$size, $theme, disabled}) => ({
 const StyledAccordionItem = withTheme(styled(AccordionItem, ({ $theme }) => ({
   border: `1px solid ${$theme.border}`,
   padding: '0.5rem 0.75rem',
+  marginBottom: '1rem',
+
+  ':last-child': {
+    marginBottom: 0,
+  },
 })));
 
 const StyledAccordionItemButton = styled(AccordionItemButton, () => ({

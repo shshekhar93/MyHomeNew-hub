@@ -40,10 +40,6 @@ const saveNewDeviceForUser = (req, res) => {
         throw new Error('Device not available to setup')
       }
 
-      // if(!isDevOnline(dev2Setup.name)) {
-      //   throw new Error('Device not online');
-      // }
-
       return DeviceModel.create({
         ...req.body,
         user: req.user.email,

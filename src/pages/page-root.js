@@ -7,6 +7,7 @@ import { SideBar } from '../shared/sidebar.js';
 import SignupPage from './signup.js';
 import ManageDevicesPage from './manage-devices.js';
 import DevicePage from './devices.js';
+import SetupDevice from './setup-device.js';
 
 function PageRoot() {
   const [css] = useStyletron();
@@ -44,13 +45,16 @@ function PageRoot() {
             <Routes>
               <Route
                 path="/"
-                element={<DevicePage key="devices" />} />
+                element={<DevicePage />} />
               <Route
                 path="/manage"
-                element={<ManageDevicesPage key="manage-devices" />} />
+                element={<ManageDevicesPage />} />
+              <Route
+                path="/setup-device"
+                element={<SetupDevice />} />
               <Route
                 path="*"
-                element={<Navigate to="/manage" />} />
+                element={<Navigate to="/" />} />
             </Routes>
           </div>
         </div>

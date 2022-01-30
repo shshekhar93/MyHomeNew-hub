@@ -4,10 +4,10 @@ import _cloneDeep from 'lodash/cloneDeep.js';
 import _set from 'lodash/set.js';
 import { Button, Input, InputLabel, InputLabelText, Select } from '../../shared/base-components.js';
 import { Link } from 'react-router-dom';
-import { updateDevice } from '../../common/api.js';
+import { saveDeviceForUser, updateDevice } from '../../common/api.js';
 import { LoadingSpinner } from '../../shared/loading-spinner.js';
 
-function ManageDeviceInput({ device }) {
+function ManageDeviceInput({ device, isNew, onSave }) {
   const [localDevice, setLocalDevice] = useState(() => _cloneDeep(device));
   const [remainingLeads, setRemaininLeads] = useState([]);
   const [isDirty, setDirty] = useState(false);
@@ -23,7 +23,17 @@ function ManageDeviceInput({ device }) {
       .filter(id => !alreadyConfigured.includes(id));
 
     if(alreadyConfigured.length === 0) {
-      addAnotherLead();
+      const devId = remainingLeads.shift();
+      setLocalDevice(device => ({
+        ...device,
+        leads: device.leads.concat({
+          devId,
+          label: '',
+          type: '',
+          state: '0',
+          brightness: '0'
+        })
+      }));
     }
     setRemaininLeads(remainingLeads);
   }, []);
@@ -69,14 +79,15 @@ function ManageDeviceInput({ device }) {
 
   const onSubmit = useCallback(async (e) => {
     e.preventDefault();
-    console.log('trying to save', localDevice);
 
     setSaving(true);
+    const save = isNew? saveDeviceForUser : updateDevice;
     // TODO: Handle error.
-    await updateDevice(localDevice);
+    await save(localDevice);
     setSaving(false);
     setDirty(false);
-  }, [localDevice]);
+    onSave && onSave();
+  }, [localDevice, isNew, onSave]);
 
   const optClass = css({ color: 'initial' });
 

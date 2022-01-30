@@ -1,13 +1,14 @@
-import {useStyletron} from 'styletron-react';
+import { useStyletron } from 'styletron-react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useStore } from '../common/store.js';
-import SigninPage from '../pages/signin.js';
-import { Navbar } from './navbar.js';
-import { SideBar } from './sidebar.js';
-import SignupPage from '../pages/signup.js';
-import DevicePage from '../pages/devices.js';
+import SigninPage from './signin.js';
+import { Navbar } from '../shared/navbar.js';
+import { SideBar } from '../shared/sidebar.js';
+import SignupPage from './signup.js';
+import ManageDevicesPage from './manage-devices.js';
+import DevicePage from './devices.js';
 
-function RootContainer({ children }) {
+function PageRoot() {
   const [css] = useStyletron();
   const store = useStore();
   const user = store.get('user');
@@ -43,10 +44,13 @@ function RootContainer({ children }) {
             <Routes>
               <Route
                 path="/"
-                element={<DevicePage />} />
+                element={<DevicePage key="devices" />} />
+              <Route
+                path="/manage"
+                element={<ManageDevicesPage key="manage-devices" />} />
               <Route
                 path="*"
-                element={<Navigate to="/" />} />
+                element={<Navigate to="/manage" />} />
             </Routes>
           </div>
         </div>
@@ -55,4 +59,4 @@ function RootContainer({ children }) {
   )
 }
 
-export { RootContainer };
+export { PageRoot };

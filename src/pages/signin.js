@@ -72,7 +72,6 @@ function SigninPage() {
             required
             value={username}
             onChange={onUsernameChange}
-            theme={theme}
             $style={{
               marginBottom: '1rem'
             }} />
@@ -83,14 +82,10 @@ function SigninPage() {
             required
             value={password}
             onChange={onPasswordChange}
-            theme={theme}
             $style={{
               marginBottom: '1rem'
             }} />
-          <Button
-            size="expand"
-            theme={theme}
-          >Login</Button>
+          <Button $size="expand">Login</Button>
           <Link to="/signup" className={css({
             color: theme.link,
             marginTop: '1rem',

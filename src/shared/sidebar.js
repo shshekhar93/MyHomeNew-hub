@@ -51,6 +51,7 @@ function SideBar() {
       '@media only screen and (min-width: 600px)': {
         position: 'static',
         display: 'block',
+        minWidth: '250px',
       },
     })}>
       <li>

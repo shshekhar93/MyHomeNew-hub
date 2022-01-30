@@ -28,13 +28,17 @@ function hookUserDetails(store) {
 
 function hookUserDevices() {
   const store = useStore();
-  const [, rerender] = useState(0);
 
   const reloadDevices = useCallback(async () => {
     try {
-      const allDevices = (await getExistingDevices())
-        .flatMap(deviceMapper);
-      const groupedDevices = _groupBy(allDevices, 'room');
+      store.set('loading-devices', true);
+      store.set('orig-devices', null);
+      store.set('devices', null);
+      const allDevices = await getExistingDevices();
+      const mappedDevices = allDevices.flatMap(deviceMapper);
+      const groupedDevices = _groupBy(mappedDevices, 'room');
+      store.set('loading-devices', false);
+      store.set('orig-devices', allDevices);
       store.set('devices', groupedDevices);
     } catch(e) {
       if(e !== UNAUTHORIZED) {
@@ -43,17 +47,21 @@ function hookUserDevices() {
     }
   }, []);
 
-  useEffect(() => {
-    reloadDevices();
-    const handler = () => rerender(Date.now());
-    store.subscribe('devices', handler);
-    return () => store.unsubscribe('devices', handler);
-  }, []);
+  const [
+    loading,
+    origDevices,
+    devices
+  ] = hookStoreUpdates([
+    'loading-devices',
+    'orig-devices',
+    'devices'
+  ], store, reloadDevices);
 
-  const devices = store.get('devices');
   return {
+    loading,
+    origDevices,
     devices,
-    reloadDevices
+    reloadDevices,
   };
 }
 
@@ -61,9 +69,10 @@ function hookUserDevices() {
  * 
  * @param {Array<string>} keys - List of keys to subscribe to update for.
  * @param {Store} store - Store on which to subscribe.
+ * @param {Function} initFn - Initializer function that will be called on mount.
  * @returns {Array<any>} - Value of the keys in store.
  */
-function hookStoreUpdates(keys, store) {
+function hookStoreUpdates(keys, store, initFn) {
   const [, rerender] = useState(0);
 
   if(!store) {
@@ -71,11 +80,10 @@ function hookStoreUpdates(keys, store) {
   }
 
   useEffect(() => {
-    const handler = () => {
-      rerender(Date.now())
-    };
-    keys.forEach(key => store.subscribe(key, handler));
+    initFn && initFn();
 
+    const handler = () => rerender(Date.now());
+    keys.forEach(key => store.subscribe(key, handler));
     return () => keys.forEach(key => store.unsubscribe(key, handler));
   }, []);
 

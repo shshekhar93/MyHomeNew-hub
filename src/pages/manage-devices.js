@@ -1,14 +1,24 @@
+import { useMemo } from "react";
 import { Accordion } from "react-accessible-accordion";
 import { useStyletron } from "styletron-react";
+import _take from 'lodash/take.js';
 import { hookUserDevices } from "../common/hooks.js";
-import { DeviceGroup } from "../components/devices/group.js";
+import { ManageDeviceListItem } from "../components/manage-devices/list-item.js";
 import { PageHeading } from "../shared/base-components.js";
 import { LoadingSpinner } from "../shared/loading-spinner.js";
 
-function DevicePage() {
-  const { loading, devices, reloadDevices } = hookUserDevices();
+function ManageDevicesPage() {
+  const {
+    loading,
+    origDevices,
+  } = hookUserDevices();
   const [css] = useStyletron();
-  
+
+  const firstDevice = useMemo(() => 
+    _take(origDevices).map(({name}) => name),
+    [origDevices]
+  );
+
   if(loading) {
     return (
       <div className={css({
@@ -19,29 +29,24 @@ function DevicePage() {
       </div>
     );
   }
-
-  const rooms = Object.keys(devices || {});
-  if(rooms.length === 0) {
-    return "No devices added yet.";
-  }
-
+  
   return (
     <>
-      <PageHeading>All Devices</PageHeading>
+      <PageHeading>Manage devices</PageHeading>
       <Accordion
-        allowMultipleExpanded={true}
+        allowMultipleExpanded={false}
         allowZeroExpanded={true}
-        preExpanded={rooms}
+        preExpanded={firstDevice}
         className={css({
           maxWidth: '750px'
         })}
       >
-        {rooms.map(room => (
-          <DeviceGroup key={room} name={room} devices={devices[room]} />
-        ))}
+        {(origDevices || []).map(device => 
+          <ManageDeviceListItem key={device.name} device={device} />)
+        }
       </Accordion>
     </>
   );
 }
 
-export default DevicePage;
+export default ManageDevicesPage;

@@ -94,7 +94,7 @@ function SignupPage() {
                 Client secret: {state.clientSecret}
               </p>
               <div className={css({textAlign: 'center'})}>
-                <Button theme={theme} onClick={goToSignin}>Done</Button>
+                <Button onClick={goToSignin}>Done</Button>
               </div>
             </div> :
             <>
@@ -113,8 +113,7 @@ function SignupPage() {
                 placeholder="Full name"
                 required
                 value={state.name}
-                onChange={onChange}
-                theme={theme} />
+                onChange={onChange} />
               <Input
                 className={rowClassname}
                 name="email"
@@ -122,8 +121,7 @@ function SignupPage() {
                 placeholder="Email address"
                 required
                 value={state.email}
-                onChange={onChange}
-                theme={theme} />
+                onChange={onChange} />
               <div className={rowClassname} style={{ width: '100%' }}>
                 <Input
                   name="username"
@@ -134,8 +132,7 @@ function SignupPage() {
                   value={state.username}
                   hasError={!!state.usernameError}
                   onChange={onChange}
-                  onBlur={checkUserName}
-                  theme={theme} />
+                  onBlur={checkUserName} />
                 {state.usernameError &&
                   <p className={css({
                     color: theme.error,
@@ -149,12 +146,10 @@ function SignupPage() {
                 placeholder="Password"
                 required
                 value={state.password}
-                onChange={onChange}
-                theme={theme} />
+                onChange={onChange} />
               <Button
                 type="submit"
-                className={rowClassname}
-                theme={theme}>Register</Button>
+                className={rowClassname}>Register</Button>
               <Link
                 to="/signin"
                 className={css({

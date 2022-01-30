@@ -3,174 +3,93 @@
 export const UNAUTHORIZED = new Error('UNAUTHORIZED');
 export const SERVER_ERROR = new Error('SERVER_ERROR');
 
-export const logout = () => {
-  return fetch('/logout')
-    .then(resp => {
-      if(!resp.ok) {
-        throw new Error('logout failed!');
-      }
-    });
+const PAYLOAD_HEADERS = {
+  'Content-Type': 'application/json',
+  'Accept': 'application/json',
 };
+const NO_PAYLOAD_METHODS = [ 'GET' ];
+
+const makeHTTPRequest = async (method, url, body = {}, headers = {}) => {
+  const sendPayload = !NO_PAYLOAD_METHODS.includes(method);
+  const resp = await fetch(url, {
+    method,
+    credentials: 'same-origin',
+    headers: {
+      ...(sendPayload? PAYLOAD_HEADERS : {}),
+      ...headers
+    },
+    body: sendPayload? JSON.stringify(body) : undefined,
+  });
+
+  if(resp.ok) {
+    return resp.json();
+  }
+
+  if(resp.status === 401) {
+    throw UNAUTHORIZED;
+  }
+
+  throw SERVER_ERROR;
+}
+
+const makeGetRequest = makeHTTPRequest.bind(null, 'GET');
+const makePostRequest = makeHTTPRequest.bind(null, 'POST');
 
 export const login = (username, password) => {
-  return fetch('/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
-    body: JSON.stringify({
-      username,
-      password
-    })
-  })
-  .then(resp => {
-    if(resp.ok) {
-      return resp.json();
-    }
-    throw SERVER_ERROR;
+  return makePostRequest('/login', {
+    username,
+    password
   });
 };
 
+export const logout = () => {
+  return makeGetRequest('/logout');
+};
+
 export const getCurrentUserDetails = () => {
-  return fetch('/user/@me')
-    .then(resp => {
-      if(resp.ok) {
-        return resp.json();
-      }
-      throw UNAUTHORIZED;
-    });
+  return makeGetRequest('/user/@me');
 };
 
 export const getExistingDevices = () => {
-  return fetch('/devices')
-    .then(resp => {
-      if(resp.status === 401) {
-        throw UNAUTHORIZED;
-      }
-
-      if(resp.ok) {
-        return resp.json();
-      }
-      throw SERVER_ERROR;
-    });
+  return makeGetRequest('/devices');
 };
 
 export const getKnownDeviceList = () => {
-  return fetch('/devices/available')
-    .then(resp => {
-      if(resp.ok) {
-        return resp.json();
-      }
-      throw SERVER_ERROR;
-    });
+  return makeGetRequest('/devices/available');
 };
 
 export const saveDeviceForUser = (body) => {
-  return fetch('/devices', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
-    body: JSON.stringify(body)
-  })
-    .then(resp => {
-      if(resp.ok) {
-        return resp.json();
-      }
-      throw SERVER_ERROR;
-    });
+  return makePostRequest('/devices', body);
 };
 
 export const updateDeviceState = (device, switchId, newState) => {
-  return fetch(`/devices/${device}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
-    body: JSON.stringify({
-      switchId,
-      newState
-    })
-  })
-    .then((resp) => {
-      if(resp.ok) {
-        return resp.json();
-      }
-      throw SERVER_ERROR;
-    });
+  return makePostRequest(`/devices/${device}`, {
+    switchId,
+    newState
+  });
+};
+
+export const updateDevice = (device) => {
+  const { name } = device;
+  return makePostRequest(`/devices/${name}`, device);
 };
 
 export function registerUser (user) {
-  return fetch('/user/register', {
-    method: 'POST',
-    credentials: 'same-origin',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    body: JSON.stringify(user)
-  })
-    .then(resp => {
-      if(resp.ok) {
-        return resp.json();
-      }
-      throw SERVER_ERROR;
-    })
+  return makePostRequest('/user/register', user);
 }
 
 export function generateOTK() {
-  return fetch('/devices/new', { method: 'POST' })
-    .then(resp => {
-      if(resp.ok) {
-        return resp.json();
-      }
-      throw SERVER_ERROR;
-    })
+  return makePostRequest('/devices/new');
 }
 
 export function createClientCreds(req) {
-  return fetch ('/create-client', {
-    method: 'POST',
-    credentials: 'same-origin',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    body: JSON.stringify(req)
-  })
-    .then(resp => {
-      if(resp.ok) {
-        return resp.json();
-      }
-      throw SERVER_ERROR;
-    })
+  return makePostRequest('/create-client', req);
 }
 
 export function getAllAppConnections() {
-  return fetch('/existing-clients')
-    .then(resp => {
-      if(resp.ok) {
-        return resp.json();
-      }
-      throw SERVER_ERROR;
-    });
+  return makeGetRequest('/existing-clients');
 }
 
 export function deleteAppConnection(id) {
-  return fetch('/delete-client', {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/JSON'
-    },
-    body: JSON.stringify({ id })
-  })
-    .then(resp => {
-      if(resp.ok) {
-        return resp.json();
-      }
-      throw SERVER_ERROR;
-    });
+  return makePostRequest('/delete-client', { id });
 }

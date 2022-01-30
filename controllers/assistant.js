@@ -10,7 +10,7 @@ function syncDevices(req, res) {
   
   DeviceModel.find({user: userEmail})
     .then(devices => {
-      res.send({
+      res.json({
         requestId: req.body.requestId,
         payload: {
           agentUserId,

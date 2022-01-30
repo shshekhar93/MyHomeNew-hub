@@ -43,7 +43,10 @@ const authMiddleware = (req, res, next) => {
     }
 
     if(!user) {
-      return res.status(401).json({});
+      return res.status(401).json({
+        success: false,
+        err: 'Invalid credentials.'
+      });
     }
 
     req.login(user, err => {
@@ -59,7 +62,8 @@ const authMiddleware = (req, res, next) => {
 const authorize = (req, res, next) => {
   if(!req.isAuthenticated() || !req.user){
     return res.status(401).json({
-      error: 'UNAUTHORIZED'
+      success: false,
+      err: 'UNAUTHORIZED'
     });
   }
   next();

@@ -41,8 +41,11 @@ const proxy = (req, res) => {
     _get(res, 'locals.oauth.token.user.hubClientId');
 
   if(emitter.listenerCount(hubClientId) === 0) {
-    // We should at least retry once in a second or so!!
-    return res.status(503).end(); // Server is unavailable.
+    // We should at least retry once, after a second or so!!
+    return res.status(503).json({
+      success: false,
+      err: 'Service unavailable'
+    }); // Server is unavailable.
   }
 
   emitter.emit(hubClientId, {
@@ -52,7 +55,10 @@ const proxy = (req, res) => {
     type: req.get('content-type'),
     cb: (err, resp) => {
       if(err) {
-        return res.status(500).end();
+        return res.status(500).json({
+          success: false,
+          err: 'Something went wrong'
+        });
       }
       const respPayload = typeof resp.body !== 'string' ? JSON.stringify(resp.body) : resp.body; 
       res.status(resp.status || 200).type(req.type || JSON_TYPE).end(respPayload);

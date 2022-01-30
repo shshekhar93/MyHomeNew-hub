@@ -50,7 +50,7 @@ const setupAssistantRoutes =  app => {
     if(type === 'action.devices.DISCONNECT') {
       return revokeToken(_get(res, 'locals.oauth.token.refreshToken'))
         .catch(logError)
-        .then(() => res.send({}));
+        .then(() => res.json({}));
     }
 
     // Invalid request

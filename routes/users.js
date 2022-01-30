@@ -15,7 +15,10 @@ const setupUserRoutes = app => {
   });
 
   app.post('/user/@me', authorize, (req, res) => {
-    res.status(400).json({});
+    res.status(400).json({
+      success: false,
+      err: 'Method not implemented'
+    });
   });
 
   app.get('/user/check-user-name', (req, res) => {
@@ -23,13 +26,17 @@ const setupUserRoutes = app => {
       .then(user => !!user)
       .catch(() => false)
       .then((exists) => {
-        res.json({ exists });
+        res.json({ 
+          success: true,
+          exists
+        });
       });
   });
 
   app.post('/user/register', (req, res) => {
     if(!req.body.email || !req.body.name || !req.body.password || !req.body.username) {
       return res.status(400).json({
+        success: false,
         error: 'missing required field'
       });
     }
@@ -48,13 +55,17 @@ const setupUserRoutes = app => {
       })
       .then(() => {
         res.json({
+          success: true,
           hubClientId, 
           hubClientSecret: clientSecret
         });
       })
       .catch(err => {
         logError(err);
-        return res.status(500).json({error: 'Internal server error'});
+        return res.status(500).json({
+          success: false,
+          error: 'Internal server error'
+        });
       });
   });
 };

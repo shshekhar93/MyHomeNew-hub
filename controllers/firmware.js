@@ -44,7 +44,7 @@ const firmwareController = (req, res) => {
     })
     .catch(err => {
       logError(err);
-      res.status(400).json({ error: err.message });
+      res.status(400).json({ success: false, err: err.message });
     });
 };
 

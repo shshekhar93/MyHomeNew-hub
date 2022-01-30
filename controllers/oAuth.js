@@ -57,19 +57,20 @@ async function deleteClientCreds(req, res) {
 
 function createNewClient(req, res) {
   const userId = _get(req, 'user._id');
+  const { name, redirectUri } = req.body;
 
-  if(req.body.name && req.body.redirectUri) {
-    const name = req.body.name;
-    const id = uuid().replace(/-/g, '');
-    const secret = uuid().replace(/-/g, '');
-    const grants = [ 'client_credentials' ];
-    const redirectUris = [ req.body.redirectUri ];
-    return hash(secret, 8)
-      .then(secret => createClient({name, id, secret, grants, redirectUris, userId}))
-      .then(resp => res.json({ ...resp.toJSON(), secret, _id: undefined, __v: undefined }))
-      .catch(err => res.status(500).json({err: err.message}));
+  if(!name || !redirectUri) {
+    return res.status(403).json({ success: false, error: 'Invalid input' });
   }
-  return res.status(403).end();
+
+  const id = uuid().replace(/-/g, '');
+  const secret = uuid().replace(/-/g, '');
+  const grants = [ 'client_credentials' ];
+  const redirectUris = [ redirectUri ];
+  return hash(secret, 8)
+    .then(secret => createClient({name, id, secret, grants, redirectUris, userId}))
+    .then(resp => res.json({ ...resp.toJSON(), secret, _id: undefined, __v: undefined }))
+    .catch(err => res.status(500).json({ success: false, err: err.message }));
 }
 
 function renderAuthForm(req, res) {

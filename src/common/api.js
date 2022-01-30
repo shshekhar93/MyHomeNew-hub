@@ -71,7 +71,7 @@ export const updateDeviceState = (device, switchId, newState) => {
 
 export const updateDevice = (device) => {
   const { name } = device;
-  return makePostRequest(`/devices/${name}`, device);
+  return makeHTTPRequest('PUT', `/devices/${name}`, device);
 };
 
 export function registerUser (user) {

@@ -1,10 +1,10 @@
 import _get from 'lodash/get.js';
 
 const exists = (item) => !item;
-const gt = (limit) => (item) => item > limit;
-const gte = (limit) => (item) => item >= limit;
-const lt = (limit) => (item) => item < limit;
-const lte = (limit) => (item) => item <= limit;
+const gt = (limit) => (item) => item <= limit;
+const gte = (limit) => (item) => item < limit;
+const lt = (limit) => (item) => item >= limit;
+const lte = (limit) => (item) => item > limit;
 
 /**
  * Validates conformance of a provided object to a provided Schema.
@@ -26,15 +26,15 @@ const validate = (schema, object) => {
     let result = false;
     if(Array.isArray(value)) {
       result = value.some((item, idx) => {
-        const result = validate(item, validator);
+        const result = validate(validator, item);
         if(result) {
-          return `[${idx}].${field}`;
+          return `[${idx}].${result}`;
         }
         return false;
       });
     }
     else {
-      result = validate(value, validator);
+      result = validate(validator, value);
     }
     
     if(result) {

@@ -4,11 +4,14 @@ import _cloneDeep from 'lodash/cloneDeep.js';
 import _set from 'lodash/set.js';
 import { Button, Input, InputLabel, InputLabelText, Select } from '../../shared/base-components.js';
 import { Link } from 'react-router-dom';
+import { updateDevice } from '../../common/api.js';
+import { LoadingSpinner } from '../../shared/loading-spinner.js';
 
 function ManageDeviceInput({ device }) {
   const [localDevice, setLocalDevice] = useState(() => _cloneDeep(device));
   const [remainingLeads, setRemaininLeads] = useState([]);
   const [isDirty, setDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [css] = useStyletron();
 
   useEffect(() => {
@@ -64,9 +67,15 @@ function ManageDeviceInput({ device }) {
     ));
   }, []);
 
-  const onSubmit = useCallback((e) => {
+  const onSubmit = useCallback(async (e) => {
     e.preventDefault();
     console.log('trying to save', localDevice);
+
+    setSaving(true);
+    // TODO: Handle error.
+    await updateDevice(localDevice);
+    setSaving(false);
+    setDirty(false);
   }, [localDevice]);
 
   const optClass = css({ color: 'initial' });
@@ -165,7 +174,18 @@ function ManageDeviceInput({ device }) {
             <Link to="#" onClick={addAnotherLead}>+ Configure another switch</Link>
           </div>
         }
-        <Button type="submit" $size="expand" disabled={!isDirty}>Save</Button>
+        <Button
+          type="submit"
+          $size="expand"
+          disabled={!isDirty || saving}
+          className={css({
+            display: 'flex',
+             justifyContent: 'center',
+          })}
+        >{
+          saving?
+            <LoadingSpinner size="1rem" border="3px" color="#ffffff" borderColor="#7c7c7c" /> : 'Save'
+        }</Button>
       </form>
     </div>
   )

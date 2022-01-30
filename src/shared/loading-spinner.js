@@ -1,20 +1,25 @@
 import { useStyletron } from "styletron-react";
 
-function LoadingSpinner({ size, border }) {
+function LoadingSpinner({
+  size='10em',
+  border='1.1em',
+  color='#1d2830',
+  borderColor='rgba(29,40,48, 0.2)'
+}) {
   const [css] = useStyletron();
   return (
     <div className={css({
       fontSize: '10px',
       position: 'relative',
       textIndent: '-9999em',
-      borderTop: `${border || '1.1em'} solid rgba(29,40,48, 0.2)`,
-      borderRight: `${border || '1.1em'} solid rgba(29,40,48, 0.2)`,
-      borderBottom: `${border || '1.1em'} solid rgba(29,40,48, 0.2)`,
-      borderLeft: `${border || '1.1em'} solid #1d2830`,
+      borderTop: `${border} solid ${borderColor}`,
+      borderRight: `${border} solid ${borderColor}`,
+      borderBottom: `${border} solid ${borderColor}`,
+      borderLeft: `${border} solid ${color}`,
       transform: `translateZ(0)`,
       borderRadius: '50%',
-      width: size || '10em',
-      height: size || '10em',
+      width: size,
+      height: size,
       overflow: 'hidden',
 
       animationName: {
@@ -34,8 +39,8 @@ function LoadingSpinner({ size, border }) {
       ':after': {
         content: "''",
         borderRadius: '50%',
-        width: size || '10em',
-        height: size || '10em',
+        width: size,
+        height: size,
       },
     })}>Loading...</div>
   )

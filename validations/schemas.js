@@ -5,8 +5,8 @@ const DeviceSchema = [
   ['label', exists],
   ['leads.length', gt(0)],
   ['leads', [
-    ['name', exists],
     ['label', exists],
+    ['type', exists],
   ]],
 ];
 

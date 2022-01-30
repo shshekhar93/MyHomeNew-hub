@@ -1,18 +1,23 @@
 import {useStyletron} from 'styletron-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../common/theme.js';
 import { useStoreUpdates, useLogout } from '../common/hooks.js';
 import { MenuIcon } from './menu-icon.js';
 import { useStore } from '../common/store.js';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 
 function Navbar() {
   const { theme } = useTheme();
   const [css] = useStyletron();
   const logout = useLogout();
-  const store = useStore();
+  const { pathname } = useLocation();
 
+  const store = useStore();
   const user = store.get('user');
+
+  useEffect(() => {
+    store.set('menu-state', false);
+  }, [ pathname ]);
 
   const toggleMenu = useCallback(() => {
     store.set('menu-state', !store.get('menu-state'));

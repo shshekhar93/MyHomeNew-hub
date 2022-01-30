@@ -8,6 +8,8 @@ import SignupPage from './signup.js';
 import ManageDevicesPage from './manage-devices.js';
 import DevicePage from './devices.js';
 import SetupDevice from './setup-device.js';
+import ConnectAppPage from './connect-app.js';
+import ManageConnectionsPage from './manage-connections.js';
 
 function PageRoot() {
   const [css] = useStyletron();
@@ -52,6 +54,12 @@ function PageRoot() {
               <Route
                 path="/setup-device"
                 element={<SetupDevice />} />
+              <Route
+                path="/connect-app"
+                element={<ConnectAppPage />} />
+              <Route
+                path="/manage-connections"
+                element={<ManageConnectionsPage />} />
               <Route
                 path="*"
                 element={<Navigate to="/" />} />

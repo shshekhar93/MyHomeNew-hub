@@ -29,7 +29,7 @@ const ContainerStyles = {
   height: '24px',
   position: 'relative',
   transform: 'rotate(0deg)',
-  transition: '.5s ease-in-out',
+  transition: '.3s ease-in-out',
   cursor: 'pointer',
 };
 
@@ -43,7 +43,7 @@ const SpanCommonStyles = {
   opacity: 1,
   left: 0,
   transform: 'rotate(0deg)',
-  transition: '.5s ease-in-out',
+  transition: '.3s ease-in-out',
 }
 
 const SpanIndividualStyles = [

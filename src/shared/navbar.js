@@ -1,7 +1,7 @@
 import {useStyletron} from 'styletron-react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../common/theme.js';
-import { hookStoreUpdates, useLogout } from '../common/hooks.js';
+import { useStoreUpdates, useLogout } from '../common/hooks.js';
 import { MenuIcon } from './menu-icon.js';
 import { useStore } from '../common/store.js';
 import { useCallback } from 'react';
@@ -18,7 +18,7 @@ function Navbar() {
     store.set('menu-state', !store.get('menu-state'));
   }, [store]);
   
-  const [menuOpen] = hookStoreUpdates(['menu-state']);
+  const [menuOpen] = useStoreUpdates(['menu-state']);
 
   return (
     <nav className={css({

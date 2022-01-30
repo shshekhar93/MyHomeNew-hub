@@ -1,12 +1,12 @@
 import { Accordion } from "react-accessible-accordion";
 import { useStyletron } from "styletron-react";
-import { hookUserDevices } from "../common/hooks.js";
+import { useUserDevices } from "../common/hooks.js";
 import { DeviceGroup } from "../components/devices/group.js";
 import { PageHeading } from "../shared/base-components.js";
 import { LoadingSpinner } from "../shared/loading-spinner.js";
 
 function DevicePage() {
-  const { loading, devices, reloadDevices } = hookUserDevices();
+  const { loading, devices, reloadDevices } = useUserDevices();
   const [css] = useStyletron();
   
   if(loading) {

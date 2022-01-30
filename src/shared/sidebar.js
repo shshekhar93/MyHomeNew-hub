@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useStyletron } from 'styletron-react';
 import { NavLink } from 'react-router-dom';
 import { useTheme } from "../common/theme.js";
-import { hookStoreUpdates, useLogout } from '../common/hooks.js';
+import { useStoreUpdates, useLogout } from '../common/hooks.js';
 import { useStore } from '../common/store.js';
 
 function SideBar() {
@@ -10,7 +10,7 @@ function SideBar() {
   const [ css ] = useStyletron();
   const logout = useLogout();
 
-  const [menuOpen] = hookStoreUpdates(['menu-state']);
+  const [menuOpen] = useStoreUpdates(['menu-state']);
 
   const navLinkClassName = css({
     display: 'block',

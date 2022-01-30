@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import _groupBy from 'lodash/groupBy.js';
 
-import { getExistingDevices, getCurrentUserDetails, logout, UNAUTHORIZED } from "./api.js";
+import { getExistingDevices, getCurrentUserDetails, logout, UNAUTHORIZED, getKnownDeviceList } from "./api.js";
 import { deviceMapper } from "./mappers.js";
 import Store, { useStore } from "./store.js";
 
-function hookUserDetails(store) {
+function useUserDetails(store) {
   const [, rerender] = useState(0);
 
   useEffect(() => {
@@ -26,7 +26,7 @@ function hookUserDetails(store) {
   }, []);
 }
 
-function hookUserDevices() {
+function useUserDevices() {
   const store = useStore();
 
   const reloadDevices = useCallback(async () => {
@@ -51,7 +51,7 @@ function hookUserDevices() {
     loading,
     origDevices,
     devices
-  ] = hookStoreUpdates([
+  ] = useStoreUpdates([
     'loading-devices',
     'orig-devices',
     'devices'
@@ -65,6 +65,23 @@ function hookUserDevices() {
   };
 }
 
+function usePendingDevices() {
+  const store = useStore();
+  
+  const reloadPendingDevices = async () => {
+    store.set('loading-devices', true);
+    const pendingDevices = await getKnownDeviceList();
+    store.set('pending-devices', pendingDevices);
+    store.set('loading-devices', false);
+  };
+
+  return useStoreUpdates([
+    'loading-devices',
+    'pending-devices'
+  ], store, reloadPendingDevices)
+    .concat(reloadPendingDevices);
+}
+
 /**
  * 
  * @param {Array<string>} keys - List of keys to subscribe to update for.
@@ -72,7 +89,7 @@ function hookUserDevices() {
  * @param {Function} initFn - Initializer function that will be called on mount.
  * @returns {Array<any>} - Value of the keys in store.
  */
-function hookStoreUpdates(keys, store, initFn) {
+function useStoreUpdates(keys, store, initFn) {
   const [, rerender] = useState(0);
 
   if(!store) {
@@ -99,8 +116,9 @@ function useLogout() {
 }
 
 export {
-  hookUserDetails,
-  hookUserDevices,
-  hookStoreUpdates,
+  useUserDetails,
+  useUserDevices,
+  useStoreUpdates,
+  usePendingDevices,
   useLogout,
 };

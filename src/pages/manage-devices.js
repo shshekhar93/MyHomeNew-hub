@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Accordion } from "react-accessible-accordion";
 import { useStyletron } from "styletron-react";
 import _take from 'lodash/take.js';
-import { hookUserDevices } from "../common/hooks.js";
+import { useUserDevices } from "../common/hooks.js";
 import { ManageDeviceListItem } from "../components/manage-devices/list-item.js";
 import { PageHeading } from "../shared/base-components.js";
 import { LoadingSpinner } from "../shared/loading-spinner.js";
@@ -11,7 +11,7 @@ function ManageDevicesPage() {
   const {
     loading,
     origDevices,
-  } = hookUserDevices();
+  } = useUserDevices();
   const [css] = useStyletron();
 
   const firstDevice = useMemo(() => 

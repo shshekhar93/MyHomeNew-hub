@@ -6,7 +6,7 @@ import { Client as Styletron } from 'styletron-engine-atomic';
 import { ThemeProvider } from "./common/theme.js";
 import { PageRoot } from "./pages/page-root.js";
 import Store, { StoreContext } from './common/store.js';
-import { hookStoreUpdates, hookUserDetails } from './common/hooks.js';
+import { useStoreUpdates, useUserDetails } from './common/hooks.js';
 import LoadingPage from './pages/loading.js';
 
 
@@ -19,11 +19,12 @@ const DEPENDENT_FIELDS = [
   'initError',
 ]
 function App() {
-  hookUserDetails(store);
+  useUserDetails(store);
+
   const [
     initialized,
     // initError,
-  ] = hookStoreUpdates(DEPENDENT_FIELDS, store);
+  ] = useStoreUpdates(DEPENDENT_FIELDS, store);
 
   if(!initialized) {
     return (

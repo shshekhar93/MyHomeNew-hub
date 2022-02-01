@@ -68,7 +68,7 @@ function SideBar() {
           to="/manage"
           className={classNameCreator}
         >
-          Manage Devices
+          Manage devices
         </NavLink>
       </li>
       <li>
@@ -84,7 +84,7 @@ function SideBar() {
           to="/connect-app"
           className={classNameCreator}
         >
-          Connect to app
+          Connect app
         </NavLink>
       </li>
       <li>

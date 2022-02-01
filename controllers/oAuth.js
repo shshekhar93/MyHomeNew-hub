@@ -21,7 +21,14 @@ function getExistingClientsForUser(req, res) {
 
   getAllClientsForUser(req.user._id)
     .then(clients => {
-      clients = clients.map(client => _omit(client, 'secret'));
+      clients = clients.map(client => ({
+        ..._omit(client, [
+          '_id',
+          '__v',
+          'secret',
+        ]),
+        createdDate: client.createdDate || '1970-01-01T00:00:00.000Z'
+      }));
       res.json(clients);
     })
     .catch(() => res.json([]));

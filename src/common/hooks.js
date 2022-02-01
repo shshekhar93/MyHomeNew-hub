@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import _groupBy from 'lodash/groupBy.js';
+import QRCode from 'qrcode';
 
-import { getExistingDevices, getCurrentUserDetails, logout, UNAUTHORIZED, getKnownDeviceList } from "./api.js";
+import { getExistingDevices, getCurrentUserDetails, logout, UNAUTHORIZED, getKnownDeviceList, createClientCreds, getAllAppConnections } from "./api.js";
 import { deviceMapper } from "./mappers.js";
 import Store, { useStore } from "./store.js";
 
@@ -82,6 +83,60 @@ function usePendingDevices() {
     .concat(reloadPendingDevices);
 }
 
+function useConnectApp() {
+  const store = useStore();
+
+  const getClientCreds = async () => {
+    store.set('loading-credentials', true);
+    const clientCreds = await createClientCreds({
+      name: 'MyHome App',
+      redirectUri: 'myhomenew://oauthreturn/'
+    });
+
+    store.set('clientId', clientCreds.id);
+    store.set('clientSecret', clientCreds.secret);
+    store.set('QRCodeData', await QRCode.toDataURL(
+      `${clientCreds.id}:${clientCreds.secret}:${window.location.protocol}//${window.location.host}`,
+      { errorCorrectionLevel: 'H' }
+    ));
+    store.set('loading-credentials', false);
+  };
+
+  return useStoreUpdates([
+    'loading-credentials',
+    'clientId',
+    'clientSecret',
+    'QRCodeData',
+  ], store, getClientCreds);
+}
+
+function useClientConnections() {
+  const store = useStore();
+
+  const getExistingClients = async () => {
+    store.set('loading-clietns', true);
+
+    const formatter = new Intl.DateTimeFormat([], {
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+    const clients = (await getAllAppConnections()).
+      map(client => ({
+        ...client,
+        createdDate: formatter.format(new Date(client.createdDate)),
+      }));
+    store.set('client-connections', clients);
+    store.set('loading-clients', false);
+  };
+
+  return useStoreUpdates([
+    'loading-clients',
+    'client-connections',
+  ], store, getExistingClients)
+    .concat(getExistingClients);
+}
+
 /**
  * 
  * @param {Array<string>} keys - List of keys to subscribe to update for.
@@ -120,5 +175,7 @@ export {
   useUserDevices,
   useStoreUpdates,
   usePendingDevices,
+  useConnectApp,
+  useClientConnections,
   useLogout,
 };

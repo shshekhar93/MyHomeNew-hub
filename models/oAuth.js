@@ -23,7 +23,8 @@ const OAuthCodesModel = mongoose.model('OAuthCodes', new Schema({
   expiresAt: Date,
   redirectUri: String,
   client: String, // id from clients model
-  user: String // id from users model
+  user: String, // id from users model
+  createdDate: { type: Date, default: Date.now },
 }));
 
 function saveAuthorizationCode(code, client, user) {
@@ -77,7 +78,8 @@ const OAuthClientsModel = mongoose.model('OauthClients', new Schema({
   secret: String,
   redirectUris: [String],
   grants: [String],
-  userId: String // _id from Users model
+  userId: String, // _id from Users model
+  createdDate: { type: Date, default: Date.now },
 }));
 
 function createClient(clientObj) {
@@ -139,7 +141,8 @@ const OAuthTokensModel = mongoose.model('OauthTokens', new Schema({
   refreshToken: String,
   refreshTokenExpiresAt: Date,
   client: String, // client id from clients model
-  user: String // id from users model
+  user: String, // id from users model
+  createdDate: { type: Date, default: Date.now },
 }));
 
 function saveToken(token, client, user) {

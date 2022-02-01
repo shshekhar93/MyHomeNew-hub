@@ -19,12 +19,6 @@ const RouteSetupFunctions = [
 const setupRoutes = (app) => {
   RouteSetupFunctions.forEach(fn => fn(app));
 
-  app.get('/watch', (req, res) => {
-    createReadStream (
-      new URL('../src/watch.html', import.meta.url)
-    ).pipe(res.type('html'))
-  });
-
   app.use((req, res) => 
     createReadStream (
       new URL('../src/index.html', import.meta.url)

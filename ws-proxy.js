@@ -1,7 +1,9 @@
 'use strict';
-const WSClient = require('websocket').client;
-const request = require('request');
-const { logError, logInfo } = require('./libs/logger');
+import Websocket from 'websocket';
+import request from 'request';
+import { logError, logInfo } from './libs/logger.js';
+
+const WSClient = Websocket.client;
 
 const client = new WSClient({
   keepalive: true,
@@ -12,6 +14,7 @@ const client = new WSClient({
 });
 
 client.on('connectFailed', function(err) {
+  console.log('foooo');
   logError(err);
   process.exit(1);
 });

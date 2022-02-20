@@ -5,6 +5,7 @@ import { logError, logInfo } from './libs/logger.js';
 
 const WSClient = Websocket.client;
 
+/* WS Client setup */
 const client = new WSClient({
   keepalive: true,
   useNativeKeepalive: false,
@@ -41,12 +42,16 @@ client.on('connect', function(connection) {
     }
   });
 });
+/* WS Client setup end */
 
+/* Setup IPC with parent process */
 let options = {};
 process.on('message', message => {
   options = message;
   connect();
 });
+process.send({ state: 'ready' });
+/* IPC setup end */
 
 function connect() {
   if(!options || !options.server || !options.id || !options.secret) {

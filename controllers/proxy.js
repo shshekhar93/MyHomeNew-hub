@@ -3,7 +3,7 @@ import { spawn } from 'child_process';
 import uuid from 'uuid/v4.js';
 
 import UserModel from '../models/users.js';
-import { logError } from '../libs/logger.js';
+import { logInfo, logError } from '../libs/logger.js';
 
 const PROXY_SCRIPT_PATH = new URL('../ws-proxy.js', import.meta.url).pathname;
 
@@ -14,7 +14,11 @@ function createChildProcess(options) {
   // restart the child process if it exits (should never happen)
   child.on('exit', () => createChildProcess(options));
 
-  child.send(options);
+  child.on('message', (message) => {
+    logInfo(`Child process said: ${JSON.stringify(message)}`);
+    // For now we don't care what child said, just that it came online.
+    child.send(options);
+  });
 }
 
 const proxyRequestsSetup = function(options) {

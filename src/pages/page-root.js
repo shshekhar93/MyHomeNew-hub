@@ -1,5 +1,5 @@
 import { useStyletron } from 'styletron-react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useStore } from '../common/store.js';
 import SigninPage from './signin.js';
 import { Navbar } from '../shared/navbar.js';
@@ -10,10 +10,17 @@ import DevicePage from './devices.js';
 import SetupDevice from './setup-device.js';
 import ConnectAppPage from './connect-app.js';
 import ManageConnectionsPage from './manage-connections.js';
+import { getReturnURI } from '../common/helper.js';
+import AuthorizePage from './authorize.js';
+
+const FULL_WIDTH_PAGE = [
+  '/authorize'
+];
 
 function PageRoot() {
   const [css] = useStyletron();
   const store = useStore();
+  const { pathname } = useLocation();
   const user = store.get('user');
 
   return (
@@ -32,14 +39,14 @@ function PageRoot() {
             element={<SignupPage />} />
           <Route
             path="*"
-            element={<Navigate to="/signin" />} />
+            element={<Navigate to={`/signin?return=${getReturnURI()}`} />} />
         </Routes> :
         <div className={css({
           position: 'relative',
           display: 'flex',
           minHeight: 'calc(100vh - 56px)'
         })}>
-          <SideBar />
+          {!FULL_WIDTH_PAGE.includes(pathname) && <SideBar /> }
           <div id="page-container" className={css({
             flex: 1,
             padding: '1rem'
@@ -48,6 +55,9 @@ function PageRoot() {
               <Route
                 path="/"
                 element={<DevicePage />} />
+              <Route
+                path="/authorize"
+                element={<AuthorizePage />} />
               <Route
                 path="/manage"
                 element={<ManageDevicesPage />} />

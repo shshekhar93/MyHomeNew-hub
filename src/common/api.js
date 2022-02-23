@@ -93,3 +93,16 @@ export function getAllAppConnections() {
 export function deleteAppConnection(id) {
   return makePostRequest('/delete-client', { id });
 }
+
+/**
+ * 
+ * @param {string} id Client id of the oauth client to fetch
+ * @param {string} responseType Response type requested by the client.
+ * @param {string} redirectUri Redirect URI provided by client.
+ * @returns 
+ */
+export function getClient(id, responseType, redirectUri) {
+  responseType = encodeURIComponent(responseType);
+  redirectUri = encodeURIComponent(redirectUri);
+  return makeGetRequest(`/client/${id}?responseType=${responseType}&redirectUri=${redirectUri}`);
+}

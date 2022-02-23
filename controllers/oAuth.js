@@ -5,12 +5,13 @@ import uuid from 'uuid/v4.js';
 import _omit from 'lodash/omit.js';
 import _get from 'lodash/get.js';
 
-import { getAllClientsForUser } from '../models/oAuth.js';
+import { getAllClientsForUser, getClient } from '../models/oAuth.js';
 import {
   createClient,
   getUserFromClient,
   deleteClient
 } from '../models/oAuth.js';
+import { errResp, successResp } from '../libs/helpers.js';
 
 const hash = promisify(bcrypt.hash);
 
@@ -79,15 +80,24 @@ function createNewClient(req, res) {
     .then(resp => res.json({ ...resp.toJSON(), secret, _id: undefined, __v: undefined }))
     .catch(err => res.status(500).json({ success: false, err: err.message }));
 }
+/* @TODO: validate the responseType and redirectUri passed in query. */
+async function getPublicClientDetails(req, res) {
+  const { id } = req.params;
+  try {
+    const client = await getClient(id);
 
-function renderAuthForm(req, res) {
-  if(!req.isAuthenticated() || !req.user) {
-    return res.redirect(`/login?redirectTo=${encodeURIComponent(req.originalUrl)}`)
+    if(!client) {
+      return res.status(404).json(errResp({ client: null }));
+    }
+
+    if(!client.grants.includes('authorization_code')) {
+      return res.status(403).json(errResp({ client: null }));
+    }
+
+    res.json(successResp({ client: _omit(client, [ '_id', '__v', 'secret' ]) }));
+  } catch(err) {
+    res.status(500).json(errResp({ err: err.message }));
   }
-
-  const inputs = Object.keys(req.query).reduce((html, key) => 
-    html + `<input type="hidden" name="${key}" value="${req.query[key]}" />`, '');
-  res.type('html').send(`${AUTH_FORM_PREFIX}${inputs}${AUTH_FORM_SUFFIX}`);
 }
 
 function getAuthMiddleware(oAuth) {
@@ -100,29 +110,10 @@ function getAuthMiddleware(oAuth) {
   });
 }
 
-const AUTH_FORM_PREFIX = `<!DOCTYPE html>
-  <html>
-    <head>
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Authorize</title>
-      <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.1.0/dist/css/bootstrap.min.css" crossorigin="anonymous" />
-    </head>
-    <body>
-      <div class="container" style="padding-top: 50px; text-align: center">
-        <form action="/authorize" method="POST">
-          <input type="hidden" name="grant_type" value="code" />
-          <h4>Authorize Google assistant to control your devices</h4>`;
-const AUTH_FORM_SUFFIX = `
-          <button class="btn btn-primary" type="submit" style="margin-top: 30px;">Authorize</button>
-        </form>
-      </div>
-    </body>
-  </html>`;
-
-  export {
-    createNewClient,
-    deleteClientCreds,
-    getExistingClientsForUser,
-    renderAuthForm,
-    getAuthMiddleware
-  };
+export {
+  createNewClient,
+  deleteClientCreds,
+  getExistingClientsForUser,
+  getAuthMiddleware,
+  getPublicClientDetails,
+};

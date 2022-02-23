@@ -15,7 +15,6 @@ const client = new WSClient({
 });
 
 client.on('connectFailed', function(err) {
-  console.log('foooo');
   logError(err);
   process.exit(1);
 });

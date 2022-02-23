@@ -41,7 +41,10 @@ const THEMES = {
 
 const THEME_NAMES = Object.keys(THEMES);
 
-const ThemeContext = React.createContext(THEMES.LIGHT);
+const ThemeContext = React.createContext({
+  theme: THEMES.LIGHT,
+  onThemeChange: () => {}
+});
 
 let selectedTheme = null;
 

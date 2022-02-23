@@ -8,3 +8,10 @@ export function serializeForm(form) {
   }
   return jsonData;
 }
+
+export function getReturnURI() {
+  const {
+    pathname, search, hash
+  } = window.location;
+  return encodeURIComponent(pathname + search + hash);
+}

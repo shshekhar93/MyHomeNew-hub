@@ -4,16 +4,16 @@ import {
   getExistingClientsForUser,
   createNewClient,
   deleteClientCreds,
-  renderAuthForm,
-  getAuthMiddleware
+  getAuthMiddleware,
+  getPublicClientDetails
 } from '../controllers/oAuth.js';
 
 const setupoAuthRoutes = app => {
-  app.get('/authorize', renderAuthForm);
   app.post('/authorize', authorize, getAuthMiddleware(app.oAuth));
   app.post('/token', app.oAuth.token());
   app.post('/create-client', authorize, createNewClient);
   app.get('/existing-clients', authorize, getExistingClientsForUser);
+  app.get('/client/:id', authorize, getPublicClientDetails);
   app.post('/delete-client', authorize, deleteClientCreds);
 };
 

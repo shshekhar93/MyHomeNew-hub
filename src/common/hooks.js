@@ -2,9 +2,11 @@ import { useCallback, useEffect, useState } from "react";
 import _groupBy from 'lodash/groupBy.js';
 import QRCode from 'qrcode';
 
-import { getExistingDevices, getCurrentUserDetails, logout, UNAUTHORIZED, getKnownDeviceList, createClientCreds, getAllAppConnections } from "./api.js";
+import { getExistingDevices, getCurrentUserDetails, logout, UNAUTHORIZED, getKnownDeviceList, createClientCreds, getAllAppConnections, getClient } from "./api.js";
 import { deviceMapper } from "./mappers.js";
 import Store, { useStore } from "./store.js";
+import { useLocation } from "react-router-dom";
+import { AUTH_PAGE_OTHER_PARAMS, AUTH_PAGE_REQUIRED_PARAMS } from "./constants.js";
 
 function useUserDetails(store) {
   const [, rerender] = useState(0);
@@ -139,6 +141,66 @@ function useClientConnections() {
 
 /**
  * 
+ * @returns {[
+ *   boolean,
+ *   string,
+ *   { name: string },
+ *   { [key: string]: string }
+ * ]}
+ */
+function useClientDetails() {
+  const store = useStore();
+  const { search } = useLocation();
+
+  const getClientDetails = async () => {
+    try {
+      store.set('client-details-loading', true);
+
+      /* Extract query params */
+      const queryParams = new URLSearchParams(search);
+      let query = {};
+      for(const param of AUTH_PAGE_REQUIRED_PARAMS) {
+        const val = queryParams.get(param);
+        if(!val) {
+          const err = new Error('Missing required param');
+          err.code = `MISSING_${param.toUpperCase()}`;
+          throw err;
+        }
+        query[param] = val;
+      }
+
+      for(const param of AUTH_PAGE_OTHER_PARAMS) {
+        if(queryParams.has(param)) {
+          query[param] = queryParams.get(param);
+        }
+      }
+      store.set('client-params', query);
+
+      /* Fetch client details */
+      const { client } = await getClient(query.client_id, query.response_type, query.redirect_uri);
+      if(!client) {
+        throw new Error;
+      }
+      store.set('client-details', client);
+    }
+    catch(e) {
+      store.set('client-details-error', e.code || 'Invalid client');
+    }
+    finally {
+      store.set('client-details-loading', false);
+    }
+  };
+
+  return useStoreUpdates([
+    'client-details-loading',
+    'client-details-error',
+    'client-details',
+    'client-params',
+  ], store, getClientDetails);
+}
+
+/**
+ * 
  * @param {Array<string>} keys - List of keys to subscribe to update for.
  * @param {Store} store - Store on which to subscribe.
  * @param {Function} initFn - Initializer function that will be called on mount.
@@ -177,5 +239,6 @@ export {
   usePendingDevices,
   useConnectApp,
   useClientConnections,
+  useClientDetails,
   useLogout,
 };

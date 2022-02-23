@@ -72,9 +72,14 @@ function SignupPage() {
         <div className={css({
           display: 'flex',
           flexDirection: 'column',
-          width: '400px',
+          padding: '0.5rem 1rem',
+          width: '100vw',
           marginTop: '15vh',
-          alignItems: 'center'
+          alignItems: 'center',
+
+          '@media only screen and (min-width: 600px)': {
+            width: '400px',
+          },
         })}>
           {state.clientId? 
             <div className={css({ width: '100%' })}>
@@ -149,6 +154,7 @@ function SignupPage() {
                 onChange={onChange} />
               <Button
                 type="submit"
+                $size="expand"
                 className={rowClassname}>Register</Button>
               <Link
                 to="/signin"

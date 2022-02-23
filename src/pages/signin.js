@@ -53,9 +53,14 @@ function SigninPage() {
         <div className={css({
           display: 'flex',
           flexDirection: 'column',
-          width: '400px',
+          padding: '0.5rem 1rem',
+          width: '100vw',
           marginTop: '15vh',
-          alignItems: 'center'
+          alignItems: 'center',
+
+          '@media only screen and (min-width: 600px)': {
+            width: '400px',
+          },
         })}>
           {error &&
             <p className={css({

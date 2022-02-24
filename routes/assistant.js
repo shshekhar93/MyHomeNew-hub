@@ -7,7 +7,7 @@ import {
 import {
   isDevOnline,
   proxy
-} from '../libs/ws-server.js';
+} from '../controllers/ws/server.js';
 import {
   syncDevices,
   queryStatus,

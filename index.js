@@ -14,7 +14,7 @@ import * as Redis from './libs/redis.js';
 import * as DB from './libs/db.js';
 import * as OAuthModel from './models/oAuth.js';
 import { proxyRequestsSetup } from './controllers/proxy.js';
-import { start as startWSServer } from './libs/ws-server.js';
+import { start as startWSServer } from './controllers/ws/server.js';
 import config from './libs/config.js';
 import { logMiddleware } from './libs/logger.js';
 import webpackConfig from './webpack.config.cjs';

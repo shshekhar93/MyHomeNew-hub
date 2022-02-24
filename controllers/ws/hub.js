@@ -1,6 +1,6 @@
 'use strict';
 import uuid from 'uuid';
-import { logError } from '../../../libs/logger.js';
+import { logError } from '../../libs/logger.js';
 
 function onConnect (connection, emitter, user) {
   const hubClientId = user.hubClientId;
@@ -57,4 +57,4 @@ function onConnect (connection, emitter, user) {
   });
 }
 
-export default onConnect;
+export { onConnect };

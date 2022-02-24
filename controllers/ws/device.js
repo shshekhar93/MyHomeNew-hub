@@ -1,44 +1,13 @@
 'use strict';
 import {
-  encrypt,
-  decrypt
-} from '../../../libs/crypto.js';
+  randomBytes
+} from '../../libs/crypto.js';
 import {
   logInfo,
   logError
-} from '../../../libs/logger.js';
-
-function sendMessageToDevice(conn, obj, key, decryptionKey) {
-  return new Promise((resolve, reject) => {
-    const payload = JSON.stringify(obj);
-    const encryptedPayload = encrypt(payload, key);
-    let cleanupTimeoutId;
-
-    function onMsg(message) {
-      clearTimeout(cleanupTimeoutId);
-      try {
-        const resp = JSON.parse(decrypt(message.utf8Data, decryptionKey || key));
-        if(resp.status === 'OK') {
-          return resolve(resp);
-        }
-        return reject(new Error('DEV_REPORTED_ERR'));
-      } catch(e) {
-        return reject(new Error('COULDNT_PARSE_MSG'));
-      }
-    }
-    
-    function cleanup (shouldReject = true) {
-      conn.removeListener('message', onMsg);
-      if (shouldReject) {
-        return reject(new Error('WS_WAIT_TIMEOUT'));
-      }
-    };
-
-    cleanupTimeoutId = setTimeout(cleanup, 5000);
-    conn.once('message', onMsg);
-    conn.send(encryptedPayload);
-  });
-}
+} from '../../libs/logger.js';
+import DeviceSetupModel from '../../models/device-setup.js';
+import { sendMessageToDevice } from './helpers.js';
 
 function confirmSessionKeyToDevice(conn, sessionKey) {
   const request = {
@@ -80,7 +49,29 @@ function updateUserName(conn, newUsername, encryptionKey) {
     });
 }
 
-function onConnect(connection, sessionKey, emitter, device) {
+async function orchestrateInitialSetup(connection, sessionKey, { _id }, deviceName) {
+  const newKey = await randomBytes(16, 'hex');
+  await refreshKeyForDevice(connection, newKey, sessionKey);
+  await updateUserName(connection, deviceName, sessionKey);
+  await DeviceSetupModel.updateOne({
+    _id
+  }, { 
+    $set: { 
+      name: deviceName,
+      encryptionKey: newKey,
+    }
+  });
+}
+
+async function onConnect(connection, emitter, device, sessionKey, deviceName) {
+  await confirmSessionKeyToDevice(connection, sessionKey);
+
+  // First time device setup
+  if(deviceName && device.name !== deviceName) {
+    await orchestrateInitialSetup(connection, sessionKey, device, deviceName);
+    device.name = deviceName;
+  }
+
   if(emitter.listenerCount(device.name) > 0) {
     logError(`${device.name} is already connected!`);
     return connection.close();
@@ -92,7 +83,7 @@ function onConnect(connection, sessionKey, emitter, device) {
     reqData = {
       ...reqData,
       'frame-num': ++frameNum,
-      cd: undefined
+      cb: undefined
     };
     sendMessageToDevice(connection, reqData, sessionKey)
       .then(cb.bind(null, null))

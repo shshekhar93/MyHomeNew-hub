@@ -4,7 +4,7 @@ import { authorize } from '../libs/passport.js';
 import {
   isDevOnline,
   proxy
-} from '../libs/ws-server.js';
+} from '../controllers/ws/server.js';
 import streamFirmware from '../controllers/firmware.js';
 import { 
   getAvailableDevices, 

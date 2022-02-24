@@ -8,7 +8,7 @@ import  {randomBytes, encrypt} from '../libs/crypto.js';
 
 import DeviceModel from '../models/devices.js';
 import DeviceSetupModel from '../models/device-setup.js';
-import { isDevOnline, requestToDevice } from '../libs/ws-server.js';
+import { isDevOnline, requestToDevice } from './ws/server.js';
 import { logError, logInfo } from '../libs/logger.js';
 import * as helpers from '../libs/helpers.js';
 import { validate } from '../validations/common.js';

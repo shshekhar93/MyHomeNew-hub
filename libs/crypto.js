@@ -9,8 +9,10 @@ const crRandomBytes = promisify(randomBytes);
 
 /**
  * 
- * @param {Number} len : Number of random bytes required
- * @param {String} encoding : Format to return the bytes in. Falsey to return buffer.
+ * @param {Number} len - Number of random bytes required
+ * @param {string} encoding - Format to return the bytes in. Falsey to return buffer.
+ * @return {string} - Buffer containing requested number of bytes, or string 
+ *                    representation of those bytes in provided encoding
  */
 function randomBytesStr(len, encoding) {
   return crRandomBytes(len)
@@ -19,15 +21,11 @@ function randomBytesStr(len, encoding) {
 
 /**
  * 
- * @param {String} plainText : Plain text to be encrypted
- * @param {String} key : Hex encoded key
+ * @param {string} plainText - Plain text to be encrypted
+ * @param {string} key - Hex encoded key
+ * @returns {string} - Hex encoded IV and cipher text separated by hyphen
  */
 function encrypt(plainText, key) {
-  // const paddingLen = plainText.length % 16 === 0 ? 0 : (16 - (plainText.length % 16));
-  // if(paddingLen) {
-  //   plainText = plainText + Array(paddingLen).fill(' ').join('');
-  // }
-  
   const secret = Buffer.from(key, 'hex');
   const IV = randomBytes(16);
   const cipher = createCipheriv('aes-128-ctr', secret, IV);
@@ -36,6 +34,13 @@ function encrypt(plainText, key) {
   return IV.toString('hex') + '-' + encrypted.toString('hex');
 }
 
+/**
+ * 
+ * @param {string} cipherText - Hex encoded IV and cipher text to be decrypted, separated by hyphen
+ * @param {string} key - Hex encoded encryption key
+ * @param {string} encoding - Optional encoding of plain text
+ * @returns {Buffer | string} String is returned if option encoding parameter is provided
+ */
 function decrypt(cipherText, key, encoding) {
   let [iv, encrypted] = cipherText.split('-');
   iv = Buffer.from(iv, 'hex');

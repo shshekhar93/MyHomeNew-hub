@@ -15,6 +15,12 @@ export const transformer = {
   }
 };
 
+/**
+ * 
+ * @param {boolean} success 
+ * @param {{ [key: string]: any }} obj 
+ * @returns {{ success: boolean, [key: string]: any }} - Success value merged in provided object
+ */
 export const resp = (success, obj = {}) => ({
   success,
   ...obj

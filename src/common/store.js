@@ -3,8 +3,8 @@ import _get from 'lodash/get.js';
 import _set from 'lodash/set.js';
 
 class Store {
-  #dataStore
-  #eventHandlers
+  #dataStore;
+  #eventHandlers;
 
   constructor() {
     this.#dataStore = Object.create(null);
@@ -21,13 +21,13 @@ class Store {
   }
 
   /**
-   * 
-   * @param {string} key 
-   * @param {Function} handler 
+   *
+   * @param {string} key
+   * @param {Function} handler
    */
   subscribe(key, handler) {
     key = pruneKey(key);
-    if(this.#eventHandlers[key] === undefined) {
+    if (this.#eventHandlers[key] === undefined) {
       this.#eventHandlers[key] = [];
     }
     this.#eventHandlers[key].push(handler);
@@ -35,20 +35,21 @@ class Store {
 
   unsubscribe(key, handler) {
     key = pruneKey(key);
-    this.#eventHandlers[key] = (this.#eventHandlers[key] || [])
-      .filter(f => f !== handler);
+    this.#eventHandlers[key] = (this.#eventHandlers[key] || []).filter(
+      (f) => f !== handler
+    );
   }
 
   #fireEvents(key) {
     key = pruneKey(key);
     const value = this.get(key);
     const handlers = this.#eventHandlers[key] || [];
-    handlers.forEach(f => setTimeout(() => f(value, key), 0));
+    handlers.forEach((f) => setTimeout(() => f(value, key), 0));
   }
 }
 
 function pruneKey(key) {
-  if(key.includes('.')) {
+  if (key.includes('.')) {
     return key.split('.')[0];
   }
   return key;
@@ -56,15 +57,12 @@ function pruneKey(key) {
 
 const StoreContext = createContext();
 /**
- * 
- * @returns {Store} - returns store object.
+ *
+ * @return {Store} - returns store object.
  */
 const useStore = () => {
   return useContext(StoreContext);
-}
+};
 
 export default Store;
-export {
-  StoreContext,
-  useStore
-};
+export { StoreContext, useStore };

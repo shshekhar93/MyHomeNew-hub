@@ -5,10 +5,10 @@ import {
   createNewClient,
   deleteClientCreds,
   getAuthMiddleware,
-  getPublicClientDetails
+  getPublicClientDetails,
 } from '../controllers/oAuth.js';
 
-const setupoAuthRoutes = app => {
+const setupoAuthRoutes = (app) => {
   app.post('/authorize', authorize, getAuthMiddleware(app.oAuth));
   app.post('/token', app.oAuth.token());
   app.post('/create-client', authorize, createNewClient);

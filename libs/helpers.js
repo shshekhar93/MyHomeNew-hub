@@ -9,40 +9,37 @@ export const schemaTransformer = (doc, ret) => {
 
 export const transformer = {
   toObject: {
-      transform: schemaTransformer
+    transform: schemaTransformer,
   },
   toJSON: {
-    transform: schemaTransformer
-  }
+    transform: schemaTransformer,
+  },
 };
 
-/**
- * 
- * @param {boolean} success 
- * @param {{ [key: string]: any }} obj 
- * @returns {{ success: boolean, [key: string]: any }} - Success value merged in provided object
- */
 export const resp = (success, obj = {}) => ({
   success,
-  ...obj
+  ...obj,
 });
 
 export const errResp = resp.bind(null, false);
 export const successResp = resp.bind(null, true);
 
 /**
- * 
+ *
  * @param {Function} middleware - A promise returning middleware
+ * @return {undefined}
  */
 export const catchAndRespond = (middleware) => {
   return async (req, res, next) => {
     try {
-      middleware(req, res, next)
-    } catch(e) {
+      middleware(req, res, next);
+    } catch (e) {
       logError(e);
-      res.status(500).json(errResp({
-        err: e.message || e
-      }));
+      res.status(500).json(
+        errResp({
+          err: e.message || e,
+        })
+      );
     }
   };
 };

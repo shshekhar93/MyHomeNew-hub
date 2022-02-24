@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { useStyletron } from "styletron-react"
+import { useMemo } from 'react';
+import { useStyletron } from 'styletron-react';
 
 function MenuIcon({ isOpen, onClick }) {
   const [css] = useStyletron();
@@ -8,17 +8,17 @@ function MenuIcon({ isOpen, onClick }) {
     return SpanIndividualStyles.map((style, idx) => ({
       ...SpanCommonStyles,
       ...style,
-      ...(isOpen ? SpanOpenIndividualStyles[idx] : {})
+      ...(isOpen ? SpanOpenIndividualStyles[idx] : {}),
     }));
   }, [isOpen]);
 
   return (
     <div className={css(ContainerStyles)} onClick={onClick}>
-      {spanStyles.map((style, idx) => 
-        <span key={idx} className={css(style)} />)
-      }
+      {spanStyles.map((style, idx) => (
+        <span key={idx} className={css(style)} />
+      ))}
     </div>
-  )
+  );
 }
 
 export { MenuIcon };
@@ -44,7 +44,7 @@ const SpanCommonStyles = {
   left: 0,
   transform: 'rotate(0deg)',
   transition: '.3s ease-in-out',
-}
+};
 
 const SpanIndividualStyles = [
   { top: 0 },

@@ -1,22 +1,18 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState } from 'react';
 import { useStyletron } from 'styletron-react';
 import { Link } from 'react-router-dom';
 
-import Store, { useStore } from "../common/store.js";
-import { useTheme } from "../common/theme.js";
-import { Button, Input } from "../shared/base-components.js";
-import { getCurrentUserDetails, login } from "../common/api.js";
+import { useStore } from '../common/store.js';
+import { useTheme } from '../common/theme.js';
+import { Button, Input } from '../shared/base-components.js';
+import { getCurrentUserDetails, login } from '../common/api.js';
 
-/**
- * 
- * @param {{store: Store}} props 
- */
 function SigninPage() {
   const [error, setError] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [css] = useStyletron();
-  const {theme} = useTheme();
+  const { theme } = useTheme();
   const store = useStore();
 
   const onUsernameChange = useCallback((e) => {
@@ -27,49 +23,57 @@ function SigninPage() {
     setPassword(e.target.value);
   }, []);
 
-  const onSubmit = useCallback(async (e) => {
-    e.preventDefault();
-    setError(false);
+  const onSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      setError(false);
 
-    try {
-      await login(username, password);
-      store.set('user', await getCurrentUserDetails());
-    } catch(e) {
-      setError(true);
-    }
-  }, [
-    store,
-    username,
-    password,
-  ]);
+      try {
+        await login(username, password);
+        store.set('user', await getCurrentUserDetails());
+      } catch (e) {
+        setError(true);
+      }
+    },
+    [store, username, password]
+  );
 
   return (
-    <div className={css({
-      display: 'flex',
-      justifyContent: 'center',
-      minHeight: 'calc(100vh - 56px)',
-    })}>
+    <div
+      className={css({
+        display: 'flex',
+        justifyContent: 'center',
+        minHeight: 'calc(100vh - 56px)',
+      })}
+    >
       <form onSubmit={onSubmit}>
-        <div className={css({
-          display: 'flex',
-          flexDirection: 'column',
-          padding: '0.5rem 1rem',
-          width: '100vw',
-          marginTop: '15vh',
-          alignItems: 'center',
+        <div
+          className={css({
+            display: 'flex',
+            flexDirection: 'column',
+            padding: '0.5rem 1rem',
+            width: '100vw',
+            marginTop: '15vh',
+            alignItems: 'center',
 
-          '@media only screen and (min-width: 600px)': {
-            width: '400px',
-          },
-        })}>
-          {error &&
-            <p className={css({
-              width: '100%',
-              background: theme.errorBackground,
-              color: theme.error,
-              padding: '0.5rem 0.75rem',
-              borderRadius: '5px',
-            })}>Invalid username or password.</p>}
+            '@media only screen and (min-width: 600px)': {
+              width: '400px',
+            },
+          })}
+        >
+          {error && (
+            <p
+              className={css({
+                width: '100%',
+                background: theme.errorBackground,
+                color: theme.error,
+                padding: '0.5rem 0.75rem',
+                borderRadius: '5px',
+              })}
+            >
+              Invalid username or password.
+            </p>
+          )}
           <Input
             type="text"
             name="username"
@@ -78,8 +82,9 @@ function SigninPage() {
             value={username}
             onChange={onUsernameChange}
             $style={{
-              marginBottom: '1rem'
-            }} />
+              marginBottom: '1rem',
+            }}
+          />
           <Input
             type="password"
             name="password"
@@ -88,17 +93,23 @@ function SigninPage() {
             value={password}
             onChange={onPasswordChange}
             $style={{
-              marginBottom: '1rem'
-            }} />
+              marginBottom: '1rem',
+            }}
+          />
           <Button $size="expand">Login</Button>
-          <Link to="/signup" className={css({
-            color: theme.link,
-            marginTop: '1rem',
-          })}>Create an account</Link>
+          <Link
+            to="/signup"
+            className={css({
+              color: theme.link,
+              marginTop: '1rem',
+            })}
+          >
+            Create an account
+          </Link>
         </div>
       </form>
     </div>
-  )
+  );
 }
 
 export default SigninPage;

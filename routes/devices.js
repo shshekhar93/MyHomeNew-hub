@@ -1,26 +1,23 @@
 'use strict';
 import _get from 'lodash/get.js';
 import { authorize } from '../libs/passport.js';
-import {
-  isDevOnline,
-  proxy
-} from '../controllers/ws/server.js';
+import { isDevOnline, proxy } from '../controllers/ws/server.js';
 import streamFirmware from '../controllers/firmware.js';
-import { 
-  getAvailableDevices, 
-  saveNewDeviceForUser, 
-  switchDeviceState, 
-  getDeviceConfig, 
+import {
+  getAvailableDevices,
+  saveNewDeviceForUser,
+  switchDeviceState,
+  getDeviceConfig,
   getAllDevicesForUser,
   generateOTK,
   triggerFirmwareUpdate,
-  updateExistingDevice
+  updateExistingDevice,
 } from '../controllers/devices.js';
 
 const setupDevicesRoutes = (app) => {
-  app.use('/devices', authorize, function(req, res, next) {
+  app.use('/devices', authorize, function (req, res, next) {
     const hubClientId = _get(req, 'user.hubClientId');
-    if(hubClientId && isDevOnline(hubClientId)) {
+    if (hubClientId && isDevOnline(hubClientId)) {
       return proxy(req, res);
     }
     return next();
@@ -32,7 +29,7 @@ const setupDevicesRoutes = (app) => {
   app.get('/devices', authorize, getAllDevicesForUser);
 
   app.post('/devices/new', authorize, generateOTK);
-  
+
   app.post('/devices/:name', authorize, switchDeviceState);
   app.get('/devices/:name', authorize, getDeviceConfig);
   app.put('/devices/:name', authorize, updateExistingDevice);

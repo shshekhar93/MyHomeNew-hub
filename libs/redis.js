@@ -1,16 +1,13 @@
 import redis from 'redis';
 import nconf from 'nconf';
-import {
-  logInfo,
-  logError
-} from './logger.js';
+import { logInfo, logError } from './logger.js';
 
 nconf.env().file({ file: 'config/config.json' });
 const redisUrl = nconf.get('REDIS_CONNECT_STR');
 
 const client = redis.createClient({
   url: redisUrl,
-  legacyMode: true
+  legacyMode: true,
 });
 
 client.once('ready', () => {
@@ -27,7 +24,4 @@ client.on('end', () => {
 
 const connect = async () => await client.connect();
 
-export {
-  client,
-  connect
-};
+export { client, connect };

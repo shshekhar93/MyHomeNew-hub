@@ -1,6 +1,6 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useState } from 'react';
 
-const THEME_PERSIST_KEY = "selected-theme";
+const THEME_PERSIST_KEY = 'selected-theme';
 
 const THEMES = {
   LIGHT: {
@@ -19,7 +19,7 @@ const THEMES = {
     navbarColor: '#ffffff',
     link: '#1e4a6a',
     error: '#d10f22',
-    errorBackground: '#ffcfd3'
+    errorBackground: '#ffcfd3',
   },
   DARK: {
     name: 'dark',
@@ -35,15 +35,15 @@ const THEMES = {
     navbarColor: '#ffffff',
     link: '#88abdb',
     error: '#d10f22',
-    errorBackground: '#ffcfd3'
-  }
+    errorBackground: '#ffcfd3',
+  },
 };
 
 const THEME_NAMES = Object.keys(THEMES);
 
 const ThemeContext = React.createContext({
   theme: THEMES.LIGHT,
-  onThemeChange: () => {}
+  onThemeChange: () => {},
 });
 
 let selectedTheme = null;
@@ -56,13 +56,15 @@ function ThemeProvider({ children }) {
   }, []);
 
   return (
-    <ThemeContext.Provider value={{
-      theme,
-      onThemeChange,
-    }}>
-      { children }
+    <ThemeContext.Provider
+      value={{
+        theme,
+        onThemeChange,
+      }}
+    >
+      {children}
     </ThemeContext.Provider>
-  )
+  );
 }
 
 function useTheme() {
@@ -70,7 +72,7 @@ function useTheme() {
 }
 
 function updateTheme(themeName) {
-  if(!THEME_NAMES.includes(themeName)) {
+  if (!THEME_NAMES.includes(themeName)) {
     throw new Error('IVALID_THEME_SELECTED');
   }
   selectedTheme = themeName;
@@ -78,7 +80,7 @@ function updateTheme(themeName) {
 }
 
 function getSelectedTheme() {
-  if(!selectedTheme) {
+  if (!selectedTheme) {
     const themeName = window.localStorage.getItem(THEME_PERSIST_KEY);
     selectedTheme = themeName || 'LIGHT';
   }
@@ -86,7 +88,4 @@ function getSelectedTheme() {
   return THEMES[selectedTheme];
 }
 
-export {
-  ThemeProvider,
-  useTheme,
-};
+export { ThemeProvider, useTheme };

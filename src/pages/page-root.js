@@ -13,9 +13,7 @@ import ManageConnectionsPage from './manage-connections.js';
 import { getReturnURI } from '../common/helper.js';
 import AuthorizePage from './authorize.js';
 
-const FULL_WIDTH_PAGE = [
-  '/authorize'
-];
+const FULL_WIDTH_PAGE = ['/authorize'];
 
 function PageRoot() {
   const [css] = useStyletron();
@@ -24,61 +22,55 @@ function PageRoot() {
   const user = store.get('user');
 
   return (
-    <div className={css({
-      display: 'flex',
-      flexDirection: 'column',
-    })}>
+    <div
+      className={css({
+        display: 'flex',
+        flexDirection: 'column',
+      })}
+    >
       <Navbar />
-      {!user?
+      {!user ? (
         <Routes>
-          <Route
-            path="/signin"
-            element={<SigninPage />} />
-          <Route
-            path="/signup"
-            element={<SignupPage />} />
+          <Route path="/signin" element={<SigninPage />} />
+          <Route path="/signup" element={<SignupPage />} />
           <Route
             path="*"
-            element={<Navigate to={`/signin?return=${getReturnURI()}`} />} />
-        </Routes> :
-        <div className={css({
-          position: 'relative',
-          display: 'flex',
-          minHeight: 'calc(100vh - 56px)'
-        })}>
-          {!FULL_WIDTH_PAGE.includes(pathname) && <SideBar /> }
-          <div id="page-container" className={css({
-            flex: 1,
-            padding: '1rem'
-          })}>
+            element={<Navigate to={`/signin?return=${getReturnURI()}`} />}
+          />
+        </Routes>
+      ) : (
+        <div
+          className={css({
+            position: 'relative',
+            display: 'flex',
+            minHeight: 'calc(100vh - 56px)',
+          })}
+        >
+          {!FULL_WIDTH_PAGE.includes(pathname) && <SideBar />}
+          <div
+            id="page-container"
+            className={css({
+              flex: 1,
+              padding: '1rem',
+            })}
+          >
             <Routes>
-              <Route
-                path="/"
-                element={<DevicePage />} />
-              <Route
-                path="/authorize"
-                element={<AuthorizePage />} />
-              <Route
-                path="/manage"
-                element={<ManageDevicesPage />} />
-              <Route
-                path="/setup-device"
-                element={<SetupDevice />} />
-              <Route
-                path="/connect-app"
-                element={<ConnectAppPage />} />
+              <Route path="/" element={<DevicePage />} />
+              <Route path="/authorize" element={<AuthorizePage />} />
+              <Route path="/manage" element={<ManageDevicesPage />} />
+              <Route path="/setup-device" element={<SetupDevice />} />
+              <Route path="/connect-app" element={<ConnectAppPage />} />
               <Route
                 path="/manage-connections"
-                element={<ManageConnectionsPage />} />
-              <Route
-                path="*"
-                element={<Navigate to="/" />} />
+                element={<ManageConnectionsPage />}
+              />
+              <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </div>
         </div>
-      }
+      )}
     </div>
-  )
+  );
 }
 
 export { PageRoot };

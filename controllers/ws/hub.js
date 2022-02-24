@@ -2,10 +2,10 @@
 import uuid from 'uuid';
 import { logError } from '../../libs/logger.js';
 
-function onConnect (connection, emitter, user) {
+function onConnect(connection, emitter, user) {
   const hubClientId = user.hubClientId;
 
-  if(emitter.listenerCount(hubClientId) > 0) {
+  if (emitter.listenerCount(hubClientId) > 0) {
     logError('Already have a hub attached for account');
     return connection.close();
   }
@@ -13,18 +13,17 @@ function onConnect (connection, emitter, user) {
   function onRequest(reqData) {
     const { cb } = reqData;
     const reqId = uuid.v4();
-    let cleanupTimeoutId;
 
     reqData = {
-      ...reqData, 
+      ...reqData,
       reqId,
-      cb: undefined
+      cb: undefined,
     };
-    
+
     function onResponse(message) {
       try {
         const payload = JSON.parse(message.utf8Data);
-        if(payload.reqId !== reqId) {
+        if (payload.reqId !== reqId) {
           return; // This message is not for us. Ignore.
         }
 
@@ -32,14 +31,14 @@ function onConnect (connection, emitter, user) {
         connection.removeListener('message', onResponse);
 
         cb(null, payload);
-      } catch(e) {
+      } catch (e) {
         logError(`could not parse message ${message.utf8Data}`);
         logError(e);
         return cb(e);
       }
     }
 
-    cleanupTimeoutId = setTimeout(() => {
+    const cleanupTimeoutId = setTimeout(() => {
       connection.removeListener('message', onResponse);
       logError('Request timed out!');
       cb(new Error('ETIMEOUT'));
@@ -52,7 +51,7 @@ function onConnect (connection, emitter, user) {
   emitter.on(hubClientId, onRequest);
 
   // Clean up on websocket close.
-  connection.on('close', function() {
+  connection.on('close', function () {
     emitter.removeListener(hubClientId, onRequest);
   });
 }

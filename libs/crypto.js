@@ -1,29 +1,26 @@
 'use strict';
 import { promisify } from 'util';
-import {
-  randomBytes,
-  createCipheriv,
-  createDecipheriv,
-} from 'crypto';
+import { randomBytes, createCipheriv, createDecipheriv } from 'crypto';
 const crRandomBytes = promisify(randomBytes);
 
 /**
- * 
+ *
  * @param {Number} len - Number of random bytes required
  * @param {string} encoding - Format to return the bytes in. Falsey to return buffer.
- * @return {string} - Buffer containing requested number of bytes, or string 
+ * @return {string} - Buffer containing requested number of bytes, or string
  *                    representation of those bytes in provided encoding
  */
 function randomBytesStr(len, encoding) {
-  return crRandomBytes(len)
-    .then(bytes => (encoding ? bytes.toString(encoding) : bytes));
+  return crRandomBytes(len).then((bytes) =>
+    encoding ? bytes.toString(encoding) : bytes
+  );
 }
 
 /**
- * 
+ *
  * @param {string} plainText - Plain text to be encrypted
  * @param {string} key - Hex encoded key
- * @returns {string} - Hex encoded IV and cipher text separated by hyphen
+ * @return {string} - Hex encoded IV and cipher text separated by hyphen
  */
 function encrypt(plainText, key) {
   const secret = Buffer.from(key, 'hex');
@@ -35,11 +32,11 @@ function encrypt(plainText, key) {
 }
 
 /**
- * 
+ *
  * @param {string} cipherText - Hex encoded IV and cipher text to be decrypted, separated by hyphen
  * @param {string} key - Hex encoded encryption key
  * @param {string} encoding - Optional encoding of plain text
- * @returns {Buffer | string} String is returned if option encoding parameter is provided
+ * @return {Buffer | string} String is returned if option encoding parameter is provided
  */
 function decrypt(cipherText, key, encoding) {
   let [iv, encrypted] = cipherText.split('-');
@@ -52,8 +49,4 @@ function decrypt(cipherText, key, encoding) {
   return encoding ? decrypted.toString(encoding) : decrypted;
 }
 
-export {
-  randomBytesStr as randomBytes,
-  encrypt,
-  decrypt
-};
+export { randomBytesStr as randomBytes, encrypt, decrypt };

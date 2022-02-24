@@ -1,35 +1,34 @@
-import { useMemo } from "react";
-import { Accordion } from "react-accessible-accordion";
-import { useStyletron } from "styletron-react";
+import { useMemo } from 'react';
+import { Accordion } from 'react-accessible-accordion';
+import { useStyletron } from 'styletron-react';
 import _take from 'lodash/take.js';
-import { useUserDevices } from "../common/hooks.js";
-import { ManageDeviceListItem } from "../components/manage-devices/list-item.js";
-import { PageHeading } from "../shared/base-components.js";
-import { LoadingSpinner } from "../shared/loading-spinner.js";
+import { useUserDevices } from '../common/hooks.js';
+import { ManageDeviceListItem } from '../components/manage-devices/list-item.js';
+import { PageHeading } from '../shared/base-components.js';
+import { LoadingSpinner } from '../shared/loading-spinner.js';
 
 function ManageDevicesPage() {
-  const {
-    loading,
-    origDevices,
-  } = useUserDevices();
+  const { loading, origDevices } = useUserDevices();
   const [css] = useStyletron();
 
-  const firstDevice = useMemo(() => 
-    _take(origDevices).map(({name}) => name),
+  const firstDevice = useMemo(
+    () => _take(origDevices).map(({ name }) => name),
     [origDevices]
   );
 
-  if(loading) {
+  if (loading) {
     return (
-      <div className={css({
-        display: 'flex',
-        justifyContent: 'center',
-      })}>
+      <div
+        className={css({
+          display: 'flex',
+          justifyContent: 'center',
+        })}
+      >
         <LoadingSpinner size="5em" border="0.6em" />
       </div>
     );
   }
-  
+
   return (
     <>
       <PageHeading>Manage devices</PageHeading>
@@ -38,12 +37,12 @@ function ManageDevicesPage() {
         allowZeroExpanded={true}
         preExpanded={firstDevice}
         className={css({
-          maxWidth: '750px'
+          maxWidth: '750px',
         })}
       >
-        {(origDevices || []).map(device => 
-          <ManageDeviceListItem key={device.name} device={device} />)
-        }
+        {(origDevices || []).map((device) => (
+          <ManageDeviceListItem key={device.name} device={device} />
+        ))}
       </Accordion>
     </>
   );

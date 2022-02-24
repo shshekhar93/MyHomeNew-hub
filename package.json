@@ -7,6 +7,7 @@
   "scripts": {
     "start": "mode=development node .",
     "test": "gurnt test",
+    "lint": "eslint --fix ./ && prettier --write ./",
     "webpack": "webpack --config ./webpack.config.cjs"
   },
   "babel": {
@@ -79,6 +80,11 @@
     "@types/styletron-react": "^5.0.3",
     "@types/styletron-standard": "^2.0.2",
     "babel-loader": "^8.2.3",
+    "eslint": "^8.9.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-config-prettier": "^8.4.0",
+    "eslint-plugin-react": "^7.28.0",
+    "prettier": "2.5.1",
     "promise-polyfill": "^8.1.0",
     "react-accessible-accordion": "^4.0.0",
     "react-router-dom": "^6.2.1",

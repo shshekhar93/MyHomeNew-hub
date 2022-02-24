@@ -5,12 +5,14 @@ function LoadingPage() {
   const [css] = useStyletron();
 
   return (
-    <div className={css({
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '100vh',
-    })}>
+    <div
+      className={css({
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+      })}
+    >
       <LoadingSpinner />
     </div>
   );

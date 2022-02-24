@@ -8,47 +8,39 @@ const lte = (limit) => (item) => item > limit;
 
 /**
  * Validates conformance of a provided object to a provided Schema.
- * 
+ *
  * @param {Array} schema - Schema to test the object with.
  * @param {Object} object - Object to run validation against.
- * 
- * @returns {boolean|string} - false if validations passed, errored field name otherwise
+ *
+ * @return {boolean|string} - false if validations passed, errored field name otherwise
  */
 const validate = (schema, object) => {
   return schema.some(([field, validator]) => {
     const value = _get(object, field);
 
-    if(typeof validator === 'function') {
+    if (typeof validator === 'function') {
       return validator(value) && field;
     }
 
     // Composite schema.
     let result = false;
-    if(Array.isArray(value)) {
+    if (Array.isArray(value)) {
       result = value.some((item, idx) => {
         const result = validate(validator, item);
-        if(result) {
+        if (result) {
           return `[${idx}].${result}`;
         }
         return false;
       });
-    }
-    else {
+    } else {
       result = validate(validator, value);
     }
-    
-    if(result) {
+
+    if (result) {
       return `${field}.${result}`;
     }
     return false;
   });
-}
-
-export {
-  exists,
-  gt,
-  gte,
-  lt,
-  lte,
-  validate,
 };
+
+export { exists, gt, gte, lt, lte, validate };

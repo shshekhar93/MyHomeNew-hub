@@ -9,7 +9,7 @@ import UserModel from '../models/users.js';
 
 const hash = promisify(bcrypt.hash);
 
-const setupUserRoutes = app => {
+const setupUserRoutes = (app) => {
   app.get('/user/@me', authorize, (req, res) => {
     res.json(req.user);
   });
@@ -17,27 +17,32 @@ const setupUserRoutes = app => {
   app.post('/user/@me', authorize, (req, res) => {
     res.status(400).json({
       success: false,
-      err: 'Method not implemented'
+      err: 'Method not implemented',
     });
   });
 
   app.get('/user/check-user-name', (req, res) => {
-    UserModel.findOne({username: req.query.username})
-      .then(user => !!user)
+    UserModel.findOne({ username: req.query.username })
+      .then((user) => !!user)
       .catch(() => false)
       .then((exists) => {
-        res.json({ 
+        res.json({
           success: true,
-          exists
+          exists,
         });
       });
   });
 
   app.post('/user/register', (req, res) => {
-    if(!req.body.email || !req.body.name || !req.body.password || !req.body.username) {
+    if (
+      !req.body.email ||
+      !req.body.name ||
+      !req.body.password ||
+      !req.body.username
+    ) {
       return res.status(400).json({
         success: false,
-        error: 'missing required field'
+        error: 'missing required field',
       });
     }
 
@@ -49,22 +54,22 @@ const setupUserRoutes = app => {
           ...req.body,
           password,
           hubClientId,
-          hubClientSecret
+          hubClientSecret,
         });
         return user.save();
       })
       .then(() => {
         res.json({
           success: true,
-          hubClientId, 
-          hubClientSecret: clientSecret
+          hubClientId,
+          hubClientSecret: clientSecret,
         });
       })
-      .catch(err => {
+      .catch((err) => {
         logError(err);
         return res.status(500).json({
           success: false,
-          error: 'Internal server error'
+          error: 'Internal server error',
         });
       });
   });

@@ -7,18 +7,19 @@ import { logInfo, logError } from './logger.js';
 nconf.env().file({ file: 'config/config.json' });
 
 const connect = () => {
-    const connectionStr = nconf.get('MONGO_CONNECT_STR');
+  const connectionStr = nconf.get('MONGO_CONNECT_STR');
 
-    mongoose.connect(connectionStr, {
-        useUnifiedTopology: true,
-        useNewUrlParser: true,
-        autoIndex: false
+  mongoose
+    .connect(connectionStr, {
+      useUnifiedTopology: true,
+      useNewUrlParser: true,
+      autoIndex: false,
     })
     .then(() => {
-        logInfo('Database connected!');
+      logInfo('Database connected!');
     })
-    .catch(err => {
-        logError(`Database connection failed: ${err.message}`);
+    .catch((err) => {
+      logError(`Database connection failed: ${err.message}`);
     });
 };
 

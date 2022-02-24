@@ -5,20 +5,23 @@ import { transformer } from '../libs/helpers.js';
 
 const { Schema } = mongoose;
 
-const UserSchema = new Schema({
-  name: String,
-  email: String,
-  username: {
-    type: String,
-    unique: true,
-    dropDups: true
+const UserSchema = new Schema(
+  {
+    name: String,
+    email: String,
+    username: {
+      type: String,
+      unique: true,
+      dropDups: true,
+    },
+    password: String,
+    hubClientId: String,
+    hubClientSecret: String,
+    createdDate: { type: Date, default: Date.now },
+    updatedDate: { type: Date, default: Date.now },
   },
-  password: String,
-  hubClientId: String,
-  hubClientSecret: String,
-  createdDate: { type: Date, default: Date.now },
-  updatedDate: { type: Date, default: Date.now }
-}, transformer);
+  transformer
+);
 
 const UserModel = mongoose.model('Users', UserSchema);
 export default UserModel;

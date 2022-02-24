@@ -5,6 +5,4 @@ export const AUTH_PAGE_REQUIRED_PARAMS = [
   'state',
 ];
 
-export const AUTH_PAGE_OTHER_PARAMS = [
-  'scope',
-];
+export const AUTH_PAGE_OTHER_PARAMS = ['scope'];

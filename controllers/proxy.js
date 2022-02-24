@@ -9,7 +9,7 @@ const PROXY_SCRIPT_PATH = new URL('../ws-proxy.js', import.meta.url).pathname;
 
 function createChildProcess(options) {
   const child = spawn('node', [PROXY_SCRIPT_PATH], {
-    stdio: [ 'inherit', 'inherit', 'inherit', 'ipc' ]
+    stdio: ['inherit', 'inherit', 'inherit', 'ipc'],
   });
   // restart the child process if it exits (should never happen)
   child.on('exit', () => createChildProcess(options));
@@ -21,23 +21,23 @@ function createChildProcess(options) {
   });
 }
 
-const proxyRequestsSetup = function(options) {
+const proxyRequestsSetup = function (options) {
   const cpSecret = uuid();
   createChildProcess({
-    ...options, 
+    ...options,
     cpSecret,
-    localhost: `http://localhost:${process.env.PORT || 8020}`
+    localhost: `http://localhost:${process.env.PORT || 8020}`,
   });
 
   return async (req, res, next) => {
     const reqSecret = req.get('websocket-proxy-request');
     const { email } = options;
 
-    if(!reqSecret) {
+    if (!reqSecret) {
       return next();
     }
 
-    if(reqSecret !== cpSecret){
+    if (reqSecret !== cpSecret) {
       logError('Got CP request with wrong secret');
       return next();
     }
@@ -45,7 +45,7 @@ const proxyRequestsSetup = function(options) {
     try {
       req.user = await UserModel.findOne({ email });
       next();
-    } catch(e) {
+    } catch (e) {
       logError('Error finding default hub user');
       logError(err);
       next(err);
@@ -53,6 +53,4 @@ const proxyRequestsSetup = function(options) {
   };
 };
 
-export {
-  proxyRequestsSetup
-};
+export { proxyRequestsSetup };

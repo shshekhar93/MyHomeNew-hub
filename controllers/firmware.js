@@ -10,22 +10,21 @@ import { catchAndRespond } from '../libs/helpers.js';
 const firmwareController = catchAndRespond(async (req, res) => {
   const { name, id } = req.params;
 
-  const { encryptionKey } = await DeviceModel.findOne({name}).lean() || {};
-  if(!encryptionKey) {
+  const { encryptionKey } = (await DeviceModel.findOne({ name }).lean()) || {};
+  if (!encryptionKey) {
     throw new Error('DEV_NOT_FOUND');
   }
 
   const decryptedTxt = decrypt(id, encryptionKey, 'utf8');
   const [filePath, frameNum] = decryptedTxt.split('-');
 
-  if(!filePath || isNaN(frameNum)) {
+  if (!filePath || isNaN(frameNum)) {
     throw new Error('INVALID_ID_IN_REQ');
   }
 
   const fullURL = new URL(`../${filePath}`, import.meta.url);
   const buffer = await readFile(fullURL);
-  const md5Hash = crypto.createHash('md5')
-    .update(buffer).digest('hex');
+  const md5Hash = crypto.createHash('md5').update(buffer).digest('hex');
 
   res.setHeader('Content-Type', 'application/octet-stream');
   res.setHeader('Content-Disposition', 'attachment; filename=firmware.bin');

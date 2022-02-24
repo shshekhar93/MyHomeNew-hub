@@ -11,27 +11,27 @@ module.exports = {
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
-        use: ['babel-loader']
+        use: ['babel-loader'],
       },
-    ]
+    ],
   },
   resolve: {
     extensions: ['*', '.js', '.jsx'],
     alias: {
-      "react/jsx-dev-runtime": "react/jsx-dev-runtime.js",
-      "react/jsx-runtime": "react/jsx-runtime.js"
-    }
+      'react/jsx-dev-runtime': 'react/jsx-dev-runtime.js',
+      'react/jsx-runtime': 'react/jsx-runtime.js',
+    },
   },
   output: {
     path: __dirname + '/dist/js/',
     publicPath: '/js/',
-    filename: '[name].js'
+    filename: '[name].js',
   },
   plugins: [
     // new webpack.HotModuleReplacementPlugin()
   ],
   devServer: {
     contentBase: './dist',
-    hot: true
-  }
+    hot: true,
+  },
 };

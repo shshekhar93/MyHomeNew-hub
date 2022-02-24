@@ -6,3 +6,4 @@
 - Migrate existing functionality to be powered by APIs
 - Fix the authorization workflow
 - Download encrypted firmware
+- Use token in auth string

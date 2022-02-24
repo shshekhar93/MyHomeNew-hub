@@ -11,31 +11,29 @@ import {
   getUserFromClient,
   deleteClient
 } from '../models/oAuth.js';
-import { errResp, successResp } from '../libs/helpers.js';
+import { catchAndRespond, errResp, successResp } from '../libs/helpers.js';
 
 const hash = promisify(bcrypt.hash);
+const mapper = client => _omit(client, [ '_id', '__v', 'secret' ]);
 
-function getExistingClientsForUser(req, res) {
+const getExistingClientsForUser = async (req, res) => {
   if(!req.user._id) {
     return res.status(401).json([]);
   }
 
-  getAllClientsForUser(req.user._id)
-    .then(clients => {
-      clients = clients.map(client => ({
-        ..._omit(client, [
-          '_id',
-          '__v',
-          'secret',
-        ]),
+  try {
+    const clients = (await getAllClientsForUser(req.user._id))
+      .map(client => ({
+        ...mapper(client),
         createdDate: client.createdDate || '1970-01-01T00:00:00.000Z'
       }));
-      res.json(clients);
-    })
-    .catch(() => res.json([]));
-}
+    res.json(clients);
+  } catch(e) {
+    res.json([]);
+  }
+};
 
-async function deleteClientCreds(req, res) {
+const deleteClientCreds = catchAndRespond(async (req, res) => {
   if(!req.body.id) {
     return res.status(422).json({
       success: false,
@@ -58,47 +56,54 @@ async function deleteClientCreds(req, res) {
     });
   }
 
-  deleteClient(req.body.id)
-    .then(() => res.json({ success: true }))
-    .catch(() => res.status(500).json({ success: false }));
-}
+  await deleteClient(req.body.id);
+  res.json(successResp());
+});
 
-function createNewClient(req, res) {
+const createNewClient = catchAndRespond(async (req, res) => {
   const userId = _get(req, 'user._id');
   const { name, redirectUri } = req.body;
 
   if(!name || !redirectUri) {
-    return res.status(403).json({ success: false, error: 'Invalid input' });
+    return res.status(403).json(errResp({
+      error: 'Invalid input'
+    }));
   }
 
-  const id = uuid().replace(/-/g, '');
-  const secret = uuid().replace(/-/g, '');
-  const grants = [ 'client_credentials' ];
-  const redirectUris = [ redirectUri ];
-  return hash(secret, 8)
-    .then(secret => createClient({name, id, secret, grants, redirectUris, userId}))
-    .then(resp => res.json({ ...resp.toJSON(), secret, _id: undefined, __v: undefined }))
-    .catch(err => res.status(500).json({ success: false, err: err.message }));
-}
+  const clientObj = {
+    name,
+    id: uuid().replace(/-/g, ''),
+    secret: uuid().replace(/-/g, ''),
+    grants: [ 'client_credentials' ],
+    redirectUris: [ redirectUri ],
+    userId
+  };
+  
+  const hashedSecret = await hash(clientObj.secret, 8);
+  await createClient({
+    ...clientObj,
+    secret: hashedSecret
+  });
+  res.json(clientObj);
+});
+
 /* @TODO: validate the responseType and redirectUri passed in query. */
-async function getPublicClientDetails(req, res) {
+const getPublicClientDetails = catchAndRespond(async (req, res) => {
   const { id } = req.params;
-  try {
-    const client = await getClient(id);
+  const client = await getClient(id);
 
-    if(!client) {
-      return res.status(404).json(errResp({ client: null }));
-    }
-
-    if(!client.grants.includes('authorization_code')) {
-      return res.status(403).json(errResp({ client: null }));
-    }
-
-    res.json(successResp({ client: _omit(client, [ '_id', '__v', 'secret' ]) }));
-  } catch(err) {
-    res.status(500).json(errResp({ err: err.message }));
+  if(!client) {
+    return res.status(404).json(errResp({ client: null }));
   }
-}
+
+  if(!client.grants.includes('authorization_code')) {
+    return res.status(403).json(errResp({ client: null }));
+  }
+
+  res.json(successResp({
+    client: mapper(client)
+  }));
+});
 
 function getAuthMiddleware(oAuth) {
   return oAuth.authorize({

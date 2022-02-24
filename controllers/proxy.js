@@ -29,8 +29,9 @@ const proxyRequestsSetup = function(options) {
     localhost: `http://localhost:${process.env.PORT || 8020}`
   });
 
-  return function(req, res, next) {
+  return async (req, res, next) => {
     const reqSecret = req.get('websocket-proxy-request');
+    const { email } = options;
 
     if(!reqSecret) {
       return next();
@@ -41,17 +42,15 @@ const proxyRequestsSetup = function(options) {
       return next();
     }
 
-    UserModel.findOne({email: options.email})
-      .then(user => {
-        req.user = user;
-        next();
-      })
-      .catch(err => {
-        logError('Error finding default hub user');
-        logError(err);
-        next(err);
-      })
-  }
+    try {
+      req.user = await UserModel.findOne({ email });
+      next();
+    } catch(e) {
+      logError('Error finding default hub user');
+      logError(err);
+      next(err);
+    }
+  };
 };
 
 export {

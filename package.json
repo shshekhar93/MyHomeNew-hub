@@ -8,7 +8,8 @@
     "start": "mode=development node .",
     "test": "gurnt test",
     "lint": "eslint --fix ./ && prettier --write ./",
-    "webpack": "webpack --config ./webpack.config.cjs"
+    "webpack": "webpack --config ./webpack.config.cjs",
+    "prepare": "husky install"
   },
   "babel": {
     "presets": [
@@ -84,6 +85,8 @@
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^8.4.0",
     "eslint-plugin-react": "^7.28.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.3.4",
     "prettier": "2.5.1",
     "promise-polyfill": "^8.1.0",
     "react-accessible-accordion": "^4.0.0",
@@ -94,5 +97,9 @@
     "webpack-cli": "^4.9.2",
     "webpack-dev-middleware": "^5.3.0",
     "whatwg-fetch": "^3.0.0"
+  },
+  "lint-staged": {
+    "*.js": "eslint --cache --fix",
+    "*.{js,css,md}": "prettier --write"
   }
 }

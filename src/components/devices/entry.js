@@ -4,7 +4,7 @@ import { updateDeviceState } from '../../common/api.js';
 import { useStore } from '../../common/store.js';
 import { useTheme } from '../../common/theme.js';
 import { LoadingSpinner } from '../../shared/loading-spinner.js';
-import Switch from '../common/switch.jsx';
+import Switch from '../common/switch.js';
 
 function DeviceEntry({ device }) {
   const { name, label, devId, isActive, state } = device;

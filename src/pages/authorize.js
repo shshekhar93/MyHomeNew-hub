@@ -1,6 +1,6 @@
 import { useStyletron } from 'styletron-react';
 import { useClientDetails } from '../common/hooks.js';
-import { ErrorPage } from '../components/common/error.jsx';
+import { ErrorPage } from '../components/common/error.js';
 import { Button, PageHeading } from '../shared/base-components.js';
 import { LoadingSpinner } from '../shared/loading-spinner.js';
 

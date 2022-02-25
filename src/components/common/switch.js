@@ -1,4 +1,3 @@
-import React from 'react';
 import { useStyletron } from 'styletron-react';
 
 export default function Switch(props) {

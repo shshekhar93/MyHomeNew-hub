@@ -1,5 +1,5 @@
 import { useStyletron } from 'styletron-react';
-import { useTheme } from '../../common/theme';
+import { useTheme } from '../../common/theme.js';
 
 const DEFAULT_TITLE = {
   SERVER_ERROR: 'Something went wrong',

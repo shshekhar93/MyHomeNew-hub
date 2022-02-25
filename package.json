@@ -5,10 +5,11 @@
   "description": "Smart home hub for Home Applyed devices.",
   "main": "index.js",
   "scripts": {
-    "start": "mode=development node .",
+    "start": "node .",
+    "dev": "mode=development node .",
     "test": "gurnt test",
     "lint": "eslint --fix ./ && prettier --write ./",
-    "webpack": "webpack --config ./webpack.config.cjs",
+    "build": "webpack --config ./webpack.config.cjs",
     "prepare": "husky install"
   },
   "babel": {

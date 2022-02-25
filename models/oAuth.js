@@ -77,6 +77,8 @@ const OAuthClientsModel = mongoose.model(
     secret: String,
     redirectUris: [String],
     grants: [String],
+    accessTokenLifetime: { type: Number, default: 0 },
+    refreshTokenLifetime: { type: Number, default: 0 },
     userId: String, // _id from Users model
     createdDate: { type: Date, default: Date.now },
   })

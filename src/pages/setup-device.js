@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useStyletron } from 'styletron-react';
 import { usePendingDevices } from '../common/hooks.js';
+import { useTranslations } from '../common/i18n.js';
 import { useTheme } from '../common/theme.js';
 import { ManageDeviceInput } from '../components/manage-devices/input.js';
 import { OTP } from '../components/manage-devices/otp.js';
@@ -17,6 +18,7 @@ function SetupDevice() {
   const [loading, devices, reload] = usePendingDevices();
 
   const [selectedDevice, selectDevice] = useState('');
+  const translate = useTranslations();
   const [css] = useStyletron();
   const { theme } = useTheme();
 
@@ -64,24 +66,26 @@ function SetupDevice() {
         maxWidth: '750px',
       })}
     >
-      <PageHeading>Setup Devices</PageHeading>
+      <PageHeading>{translate('setup-device.heading')}</PageHeading>
       {devicesArr.length === 0 ? (
         <p>
-          No devices pending setup!&nbsp;
+          {translate('setup-device.none-pending')}&nbsp;
           <Link to="#" onClick={reload}>
-            Check again?
+            {translate('setup-device.check-again')}
           </Link>
         </p>
       ) : (
         <>
           <InputLabel>
-            <InputLabelText>Select a device to setup</InputLabelText>
+            <InputLabelText>
+              {translate('setup-device.select-label')}
+            </InputLabelText>
             <Select
               value={selectedDevice}
               onChange={(e) => selectDevice(e.target.value)}
             >
               <option value="" disabled hidden>
-                -- Select one --
+                {translate('setup-device.select-one')}
               </option>
               {devicesArr.map((device) => (
                 <option key={device} value={device}>

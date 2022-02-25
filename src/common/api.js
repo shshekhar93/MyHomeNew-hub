@@ -46,6 +46,10 @@ export const logout = () => {
   return makeGetRequest('/logout');
 };
 
+export const fetchTranslations = (locale) => {
+  return makeGetRequest(`/translations?locale=${locale}`);
+};
+
 export const getCurrentUserDetails = () => {
   return makeGetRequest('/user/@me');
 };

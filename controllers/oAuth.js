@@ -9,7 +9,7 @@ import { getAllClientsForUser, getClient } from '../models/oAuth.js';
 import {
   createClient,
   getUserFromClient,
-  deleteClient
+  deleteClient,
 } from '../models/oAuth.js';
 import { catchAndRespond, errResp, successResp } from '../libs/helpers.js';
 

@@ -6,8 +6,10 @@ import { useTheme } from '../common/theme.js';
 import { Button, Input } from '../shared/base-components.js';
 import { registerUser } from '../common/api.js';
 import { serializeForm } from '../common/helper.js';
+import { useTranslations } from '../common/i18n.js';
 
 function SignupPage() {
+  const translate = useTranslations();
   const [css] = useStyletron();
   const { theme } = useTheme();
   const [state, setState] = useState({});
@@ -98,21 +100,23 @@ function SignupPage() {
                   borderRadius: '5px',
                 })}
               >
-                Registration complete.
+                {translate('signup-success-heading')}
               </p>
               <p>
-                Take a note of your Hub credentials mentioned here.
+                {translate('signup-hubcreds-instructions-1')}
                 <br />
-                You&apos;d need these to connect your local hub to this account.
+                {translate('signup-hubcreds-instructions-2')}
               </p>
               <p className={css({ fontSize: '1rem', fontFamily: 'monospace' })}>
-                Client id: {state.clientId}
+                {translate('signup-hubcreds-clientid')} {state.clientId}
               </p>
               <p className={css({ fontSize: '1rem', fontFamily: 'monospace' })}>
-                Client secret: {state.clientSecret}
+                {translate('signup-hubcreds-secret')} {state.clientSecret}
               </p>
               <div className={css({ textAlign: 'center' })}>
-                <Button onClick={goToSignin}>Done</Button>
+                <Button onClick={goToSignin}>
+                  {translate('signup=success-cta')}
+                </Button>
               </div>
             </div>
           ) : (
@@ -126,14 +130,14 @@ function SignupPage() {
                     padding: '0.5rem 0.75rem',
                   })}
                 >
-                  Registration failed! Please try again.
+                  {translate('signup-error')}
                 </p>
               )}
               <Input
                 className={rowClassname}
                 name="name"
                 type="text"
-                placeholder="Full name"
+                placeholder={translate('signup-name')}
                 required
                 value={state.name}
                 onChange={onChange}
@@ -142,7 +146,7 @@ function SignupPage() {
                 className={rowClassname}
                 name="email"
                 type="email"
-                placeholder="Email address"
+                placeholder={translate('signup-email')}
                 required
                 value={state.email}
                 onChange={onChange}
@@ -151,7 +155,7 @@ function SignupPage() {
                 <Input
                   name="username"
                   type="text"
-                  placeholder="Username"
+                  placeholder={translate('signup-username')}
                   autoComplete="off"
                   required
                   value={state.username}
@@ -166,7 +170,7 @@ function SignupPage() {
                       margin: '0.5rem 0 0',
                     })}
                   >
-                    This username is already taken.
+                    {translate('signup-username-error')}
                   </p>
                 )}
               </div>
@@ -174,13 +178,13 @@ function SignupPage() {
                 className={rowClassname}
                 name="password"
                 type="password"
-                placeholder="Password"
+                placeholder={translate('password-placeholder')}
                 required
                 value={state.password}
                 onChange={onChange}
               />
-              <Button type="submit" $size="expand" className={rowClassname}>
-                Register
+              <Button $size="expand" type="submit" className={rowClassname}>
+                {translate('signup-cta')}
               </Button>
               <Link
                 to="/signin"
@@ -188,7 +192,7 @@ function SignupPage() {
                   color: theme.link,
                 })}
               >
-                Already have an account? Signin
+                {translate('signuppage-login-cta')}
               </Link>
             </>
           )}

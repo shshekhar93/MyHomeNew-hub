@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useStyletron } from 'styletron-react';
 import { generateOTK } from '../../common/api.js';
+import { useTranslations } from '../../common/i18n.js';
 import { useTheme } from '../../common/theme.js';
 import { LoadingSpinner } from '../../shared/loading-spinner.js';
 
@@ -10,6 +11,7 @@ function OTP() {
   const [otp, setOtp] = useState('');
   const [css] = useStyletron();
   const { theme } = useTheme();
+  const translate = useTranslations();
 
   const generate = useCallback(async () => {
     setOtp('');
@@ -30,8 +32,7 @@ function OTP() {
           })}
         >
           <p className={css({ margin: '0 0 0.5rem' })}>
-            Here&apos;s your temporary password, enter your username and OTP on
-            your device to connect it to your account.
+            {translate('setup-device.otp-instruction')}
           </p>
           <p
             className={css({
@@ -50,9 +51,9 @@ function OTP() {
       ) : (
         <>
           <Link to="#" onClick={generate}>
-            Generate One Time Password (OTP)
+            {translate('setup-device.otp-cta')}
           </Link>
-          &nbsp;to setup a new device.
+          {translate('setup-device.otp-cta-suffix')}
         </>
       )}
     </div>

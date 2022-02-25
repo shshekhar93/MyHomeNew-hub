@@ -3,8 +3,10 @@ import { useStyletron } from 'styletron-react';
 import { NavLink } from 'react-router-dom';
 import { useTheme } from '../common/theme.js';
 import { useStoreUpdates, useLogout } from '../common/hooks.js';
+import { useTranslations } from '../common/i18n.js';
 
 function SideBar() {
+  const translate = useTranslations();
   const { theme } = useTheme();
   const [css] = useStyletron();
   const logout = useLogout();
@@ -58,27 +60,27 @@ function SideBar() {
     >
       <li>
         <NavLink to="/" end className={classNameCreator}>
-          Home
+          {translate('links.home')}
         </NavLink>
       </li>
       <li>
         <NavLink to="/manage" className={classNameCreator}>
-          Manage devices
+          {translate('links.manage-devices')}
         </NavLink>
       </li>
       <li>
         <NavLink to="/setup-device" className={classNameCreator}>
-          Setup new device
+          {translate('links.setup-device')}
         </NavLink>
       </li>
       <li>
         <NavLink to="/connect-app" className={classNameCreator}>
-          Connect app
+          {translate('links.connect-app')}
         </NavLink>
       </li>
       <li>
         <NavLink to="/manage-connections" className={classNameCreator}>
-          Manage connected apps
+          {translate('links.manage-connections')}
         </NavLink>
       </li>
       <li>
@@ -91,7 +93,7 @@ function SideBar() {
           })}`}
           onClick={logout}
         >
-          Logout
+          {translate('links.logout')}
         </NavLink>
       </li>
     </ul>

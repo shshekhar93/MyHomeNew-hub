@@ -6,9 +6,11 @@ import { useUserDevices } from '../common/hooks.js';
 import { ManageDeviceListItem } from '../components/manage-devices/list-item.js';
 import { PageHeading } from '../shared/base-components.js';
 import { LoadingSpinner } from '../shared/loading-spinner.js';
+import { useTranslations } from '../common/i18n.js';
 
 function ManageDevicesPage() {
   const { loading, origDevices } = useUserDevices();
+  const translate = useTranslations();
   const [css] = useStyletron();
 
   const firstDevice = useMemo(
@@ -31,7 +33,7 @@ function ManageDevicesPage() {
 
   return (
     <>
-      <PageHeading>Manage devices</PageHeading>
+      <PageHeading>{translate('manage-devices-heading')}</PageHeading>
       <Accordion
         allowMultipleExpanded={false}
         allowZeroExpanded={true}

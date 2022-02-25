@@ -1,6 +1,7 @@
 'use strict';
 import { createReadStream } from 'fs';
 import setupAPIRoutes from './api.js';
+import setupAppRoutes from './application.js';
 import setupAssistantRoutes from './assistant.js';
 import setupDevicesRoutes from './devices.js';
 import setupLoginRoutes from './login.js';
@@ -8,6 +9,7 @@ import setupoAuthRoutes from './oAuth.js';
 import setupUserRoutes from './users.js';
 
 const RouteSetupFunctions = [
+  setupAppRoutes,
   setupAPIRoutes,
   setupAssistantRoutes,
   setupDevicesRoutes,

@@ -2,12 +2,14 @@ import { useCallback } from 'react';
 import { useStyletron } from 'styletron-react';
 import { deleteAppConnection } from '../common/api.js';
 import { useClientConnections } from '../common/hooks.js';
+import { useTranslations } from '../common/i18n.js';
 import { useTheme } from '../common/theme.js';
 import { PageHeading } from '../shared/base-components.js';
 import { LoadingSpinner } from '../shared/loading-spinner.js';
 
 function ManageConnectionsPage() {
   const { theme } = useTheme();
+  const translate = useTranslations();
   const [css] = useStyletron();
   const [loading, connections = [], reloadConnections] = useClientConnections();
 
@@ -36,14 +38,15 @@ function ManageConnectionsPage() {
         maxWidth: '750px',
       })}
     >
-      <PageHeading>Manage connections</PageHeading>
+      <PageHeading>{translate('manage-connections.heading')}</PageHeading>
       {connections.length > 0 ? (
-        <p>You have the following clients connected to your account.</p>
+        <p>{translate('manage-connections.connected')}</p>
       ) : (
-        <p>You don&apos;t have any clients connected to your account yet.</p>
+        <p>{translate('manage-connections.none-connected')}</p>
       )}
       <div
         className={css({
+          display: connections.length ? 'block' : 'none',
           padding: '1rem',
           border: `1px solid ${theme.border}`,
         })}
@@ -59,6 +62,7 @@ function ManageConnectionsPage() {
 
               ':last-child': {
                 marginBottom: 0,
+                paddingBottom: 0,
                 borderBottom: 'none',
               },
             })}

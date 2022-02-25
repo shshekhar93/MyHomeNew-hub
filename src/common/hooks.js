@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import _groupBy from 'lodash/groupBy.js';
 import QRCode from 'qrcode';
-
 import {
   getExistingDevices,
   getCurrentUserDetails,
@@ -11,6 +10,7 @@ import {
   createClientCreds,
   getAllAppConnections,
   getClient,
+  fetchTranslations,
 } from './api.js';
 import { deviceMapper } from './mappers.js';
 import { useStore } from './store.js';
@@ -20,25 +20,47 @@ import {
   AUTH_PAGE_REQUIRED_PARAMS,
 } from './constants.js';
 
-function useUserDetails(store) {
-  const [, rerender] = useState(0);
+function useLoadTranslations(store) {
+  useEffect(() => {
+    const locale =
+      window.localStorage.getItem('locale') ||
+      window.navigator.language ||
+      window.navigator.userLanguage;
 
+    (async () => {
+      try {
+        store.set('translations', await fetchTranslations(locale));
+      } catch (e) {
+        store.set('init-error', true);
+      }
+      store.set('translations-loaded', true);
+    })();
+  }, []);
+
+  return useStoreUpdates(['translations'], store);
+}
+
+function useLoadUserDetails(store) {
   useEffect(() => {
     (async () => {
       try {
         store.set('user', await getCurrentUserDetails());
       } catch (e) {
         if (e !== UNAUTHORIZED) {
-          store.set('initError', true);
+          store.set('init-error', true);
         }
       }
-      store.set('initialized', true);
+      store.set('user-loaded', true);
     })();
-
-    const handler = () => rerender(Date.now());
-    store.subscribe('user', handler);
-    return () => store.unsubscribe('user', handler);
   }, []);
+
+  return useStoreUpdates(['user'], store);
+}
+
+function useInitialized(store) {
+  return useStoreUpdates(['user-loaded', 'translations-loaded'], store).every(
+    Boolean
+  );
 }
 
 function useUserDevices() {
@@ -239,7 +261,9 @@ function useLogout() {
 }
 
 export {
-  useUserDetails,
+  useLoadTranslations,
+  useLoadUserDetails,
+  useInitialized,
   useUserDevices,
   useStoreUpdates,
   usePendingDevices,

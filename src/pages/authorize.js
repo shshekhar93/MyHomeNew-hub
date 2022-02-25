@@ -1,11 +1,13 @@
 import { useStyletron } from 'styletron-react';
 import { useClientDetails } from '../common/hooks.js';
+import { useTranslations } from '../common/i18n.js';
 import { ErrorPage } from '../components/common/error.js';
 import { Button, PageHeading } from '../shared/base-components.js';
 import { LoadingSpinner } from '../shared/loading-spinner.js';
 
 function AuthorizePage() {
   const [css] = useStyletron();
+  const translate = useTranslations();
   const [loading = true, error, client, params = {}] = useClientDetails();
 
   if (loading) {
@@ -22,8 +24,7 @@ function AuthorizePage() {
   }
 
   if (error) {
-    console.log('error', error);
-    return <ErrorPage message="We received an invalid request." />;
+    return <ErrorPage message={translate('authoize.error_invalid_request')} />;
   }
 
   return (
@@ -39,18 +40,17 @@ function AuthorizePage() {
         },
       })}
     >
-      <PageHeading>Authorize {client.name} to access your account</PageHeading>
-      <p>
-        Once authorized, {client.name} will be able to discover and control the
-        devices that you add to your Home Applyed account.
-      </p>
+      <PageHeading>
+        {translate('authorize.heading', { client: client.name })}
+      </PageHeading>
+      <p>{translate('authorize.instructions', { client: client.name })}</p>
       <form action="/authorize" method="POST">
         <input type="hidden" name="grant_type" value="code" />
         {Object.entries(params).map(([name, value]) => (
           <input key={name} type="hidden" name={name} value={value} />
         ))}
         <Button type="submit" $size="expand">
-          Authorize
+          {translate('authorize.cta')}
         </Button>
       </form>
     </div>

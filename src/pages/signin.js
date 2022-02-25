@@ -6,8 +6,10 @@ import { useStore } from '../common/store.js';
 import { useTheme } from '../common/theme.js';
 import { Button, Input } from '../shared/base-components.js';
 import { getCurrentUserDetails, login } from '../common/api.js';
+import { useTranslations } from '../common/i18n.js';
 
 function SigninPage() {
+  const translate = useTranslations();
   const [error, setError] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -71,13 +73,13 @@ function SigninPage() {
                 borderRadius: '5px',
               })}
             >
-              Invalid username or password.
+              {translate('login-error')}
             </p>
           )}
           <Input
             type="text"
             name="username"
-            placeholder="Email or username"
+            placeholder={translate('username-placeholder')}
             required
             value={username}
             onChange={onUsernameChange}
@@ -88,7 +90,7 @@ function SigninPage() {
           <Input
             type="password"
             name="password"
-            placeholder="Password"
+            placeholder={translate('password-placeholder')}
             required
             value={password}
             onChange={onPasswordChange}
@@ -96,7 +98,7 @@ function SigninPage() {
               marginBottom: '1rem',
             }}
           />
-          <Button $size="expand">Login</Button>
+          <Button $size="expand">{translate('login-cta')}</Button>
           <Link
             to="/signup"
             className={css({
@@ -104,7 +106,7 @@ function SigninPage() {
               marginTop: '1rem',
             })}
           >
-            Create an account
+            {translate('loginpage-signup-cta')}
           </Link>
         </div>
       </form>

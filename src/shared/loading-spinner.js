@@ -1,4 +1,5 @@
 import { useStyletron } from 'styletron-react';
+import { useTranslations } from '../common/i18n.js';
 
 function LoadingSpinner({
   size = '10em',
@@ -6,6 +7,7 @@ function LoadingSpinner({
   color = '#1d2830',
   borderColor = 'rgba(29,40,48, 0.2)',
 }) {
+  const translate = useTranslations();
   const [css] = useStyletron();
   return (
     <div
@@ -45,7 +47,7 @@ function LoadingSpinner({
         },
       })}
     >
-      Loading...
+      {translate('loading') || 'Loading...'}
     </div>
   );
 }

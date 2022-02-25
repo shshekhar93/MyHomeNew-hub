@@ -4,21 +4,23 @@ import { Client as Styletron } from 'styletron-engine-atomic';
 import { ThemeProvider } from './common/theme.js';
 import { PageRoot } from './pages/page-root.js';
 import Store, { StoreContext } from './common/store.js';
-import { useStoreUpdates, useUserDetails } from './common/hooks.js';
+import {
+  useLoadUserDetails,
+  useLoadTranslations,
+  useInitialized,
+} from './common/hooks.js';
 import LoadingPage from './pages/loading.js';
+import { I18nProvider } from './common/i18n.js';
 
 const engine = new Styletron();
 
 const store = (window.store = new Store());
 
-const DEPENDENT_FIELDS = ['initialized', 'initError'];
 function App() {
-  useUserDetails(store);
+  useLoadUserDetails(store);
+  useLoadTranslations(store);
 
-  const [
-    initialized,
-    // initError,
-  ] = useStoreUpdates(DEPENDENT_FIELDS, store);
+  const initialized = useInitialized(store);
 
   if (!initialized) {
     return (
@@ -33,7 +35,9 @@ function App() {
       <StyletronProvider value={engine}>
         <ThemeProvider>
           <StoreContext.Provider value={store}>
-            <PageRoot />
+            <I18nProvider>
+              <PageRoot />
+            </I18nProvider>
           </StoreContext.Provider>
         </ThemeProvider>
       </StyletronProvider>

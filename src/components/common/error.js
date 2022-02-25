@@ -1,20 +1,21 @@
 import { useStyletron } from 'styletron-react';
+import { useTranslations } from '../../common/i18n.js';
 import { useTheme } from '../../common/theme.js';
 
 const DEFAULT_TITLE = {
-  SERVER_ERROR: 'Something went wrong',
-  NOT_FOUND: 'Uh oh! Nothing was found here.',
+  SERVER_ERROR: 'errors.server-error.title',
+  NOT_FOUND: 'errors.not-found.title',
 };
 
 const DEFAULT_MESSAGE = {
-  SERVER_ERROR: 'We could not process your request, please try again.',
-  NOT_FOUND:
-    'You could have followed a broken link. Please return to home page.',
+  SERVER_ERROR: 'errors.server-error.message',
+  NOT_FOUND: 'errors.not-found.message',
 };
 
 function ErrorPage({ type = 'SERVER_ERROR', title, message }) {
   const [css] = useStyletron();
   const { theme } = useTheme();
+  const translate = useTranslations();
 
   return (
     <div
@@ -38,9 +39,9 @@ function ErrorPage({ type = 'SERVER_ERROR', title, message }) {
         >
           !
         </span>
-        {title || DEFAULT_TITLE[type]}
+        {title || translate(DEFAULT_TITLE[type])}
       </h1>
-      <p>{message || DEFAULT_MESSAGE[type]}</p>
+      <p>{message || translate(DEFAULT_MESSAGE[type])}</p>
     </div>
   );
 }

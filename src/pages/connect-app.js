@@ -1,11 +1,13 @@
 import { useStyletron } from 'styletron-react';
 import { useConnectApp } from '../common/hooks.js';
+import { useTranslations } from '../common/i18n.js';
 import { useTheme } from '../common/theme.js';
 import { PageHeading } from '../shared/base-components.js';
 import { LoadingSpinner } from '../shared/loading-spinner.js';
 
 function ConnectAppPage() {
   const { theme } = useTheme();
+  const translate = useTranslations();
   const [css] = useStyletron();
   const [loading, clientId, clientSecret, QRCode] = useConnectApp();
 
@@ -28,11 +30,8 @@ function ConnectAppPage() {
         maxWidth: '750px',
       })}
     >
-      <PageHeading>Connect App</PageHeading>
-      <p>
-        Scan the QR code, or enter the following credentials in the app to
-        connect.
-      </p>
+      <PageHeading>{translate('connect-app.heading')}</PageHeading>
+      <p>{translate('connect-app.instructions')}</p>
       <div
         className={css({
           border: `1px solid ${theme.border}`,
@@ -40,10 +39,10 @@ function ConnectAppPage() {
         })}
       >
         <p className={css({ marginTop: 0 })}>
-          <b>Client ID:</b>&nbsp;{clientId}
+          <b>{translate('connect-app.clientid')}</b>&nbsp;{clientId}
         </p>
         <p className={css({ marginBottom: 0 })}>
-          <b>Client secret:</b>&nbsp;{clientSecret}
+          <b>{translate('connect-app.secret')}</b>&nbsp;{clientSecret}
         </p>
       </div>
       <div

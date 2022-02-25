@@ -5,9 +5,11 @@ import { useStoreUpdates, useLogout } from '../common/hooks.js';
 import { MenuIcon } from './menu-icon.js';
 import { useStore } from '../common/store.js';
 import { useCallback, useEffect } from 'react';
+import { useTranslations } from '../common/i18n.js';
 
 function Navbar() {
   const { theme } = useTheme();
+  const translate = useTranslations();
   const [css] = useStyletron();
   const logout = useLogout();
   const { pathname } = useLocation();
@@ -75,7 +77,7 @@ function Navbar() {
               },
             })}
           >
-            Logout
+            {translate('links.logout')}
           </Link>
           <div
             className={css({

@@ -12,12 +12,14 @@ import {
 import { Link } from 'react-router-dom';
 import { saveDeviceForUser, updateDevice } from '../../common/api.js';
 import { LoadingSpinner } from '../../shared/loading-spinner.js';
+import { useTranslations } from '../../common/i18n.js';
 
 function ManageDeviceInput({ device, isNew, onSave }) {
   const [localDevice, setLocalDevice] = useState(() => _cloneDeep(device));
   const [remainingLeads, setRemaininLeads] = useState([]);
   const [isDirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
+  const translate = useTranslations();
   const [css] = useStyletron();
 
   useEffect(() => {
@@ -111,7 +113,9 @@ function ManageDeviceInput({ device, isNew, onSave }) {
     >
       <form onSubmit={onSubmit}>
         <InputLabel>
-          <InputLabelText>Device name</InputLabelText>
+          <InputLabelText>
+            {translate('manage-devices.device-name')}
+          </InputLabelText>
           <Input
             name="label"
             required
@@ -121,7 +125,7 @@ function ManageDeviceInput({ device, isNew, onSave }) {
           />
         </InputLabel>
         <InputLabel>
-          <InputLabelText>Room</InputLabelText>
+          <InputLabelText>{translate('manage-devices.room')}</InputLabelText>
           <Input
             name="room"
             required
@@ -168,22 +172,22 @@ function ManageDeviceInput({ device, isNew, onSave }) {
                   }}
                 >
                   <option value="" style={{ color: 'gray' }} disabled hidden>
-                    Device type
+                    {translate('manage-devices.device-type')}
                   </option>
                   <option className={optClass} value="switch">
-                    Generic switch
+                    {translate('manage-devices.generic-switch')}
                   </option>
                   <option className={optClass} value="tv">
-                    Television
+                    {translate('manage-devices.tv')}
                   </option>
                   <option className={optClass} value="light">
-                    Light
+                    {translate('manage-devices.light')}
                   </option>
                   <option className={optClass} value="fan">
-                    Fan
+                    {translate('manage-devices.fan')}
                   </option>
                   <option className={optClass} value="ac">
-                    AC
+                    {translate('manage-devices.ac')}
                   </option>
                 </Select>
               </div>
@@ -195,7 +199,7 @@ function ManageDeviceInput({ device, isNew, onSave }) {
               >
                 <Input
                   name={`leads[${idx}].label`}
-                  placeholder="Switch name"
+                  placeholder={translate('manage-devices.switch-name')}
                   required
                   value={lead.label}
                   onChange={onChange}
@@ -223,7 +227,7 @@ function ManageDeviceInput({ device, isNew, onSave }) {
             })}
           >
             <Link to="#" onClick={addAnotherLead}>
-              + Configure another switch
+              {translate('manage-devices.add-switch')}
             </Link>
           </div>
         )}
@@ -244,7 +248,7 @@ function ManageDeviceInput({ device, isNew, onSave }) {
               borderColor="#7c7c7c"
             />
           ) : (
-            'Save'
+            translate('manage-devices.cta')
           )}
         </Button>
       </form>

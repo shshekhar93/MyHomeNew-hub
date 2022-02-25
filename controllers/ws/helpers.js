@@ -1,3 +1,4 @@
+import _get from 'lodash/get.js';
 import { encrypt, decrypt } from '../../libs/crypto.js';
 
 const JSON_TYPE = 'application/json';

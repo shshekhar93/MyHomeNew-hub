@@ -9,11 +9,11 @@ import DeviceSetupModel from '../../models/device-setup.js';
 
 const compare = promisify(bcrypt.compare);
 
-async function authenticateHub(clientId, clientSecret) {
+async function authenticateHub(hubClientId, clientSecret) {
   try {
-    const user = await UserModel.findOne({ clientId });
+    const user = await UserModel.findOne({ hubClientId });
     if (!user) {
-      throw new 'INVALID_HUB_CREDENTIALS'();
+      throw new Error('INVALID_HUB_CREDENTIALS');
     }
 
     const match = compare(clientSecret, user.hubClientSecret);

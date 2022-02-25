@@ -2,12 +2,12 @@
 import uuid from 'uuid';
 import { logError } from '../../libs/logger.js';
 
-function onConnect(connection, emitter, user) {
+async function onConnect(connection, emitter, user) {
   const hubClientId = user.hubClientId;
 
   if (emitter.listenerCount(hubClientId) > 0) {
     logError('Already have a hub attached for account');
-    return connection.close();
+    throw new Error('HUB_ALREADY_CONNECTED');
   }
 
   function onRequest(reqData) {

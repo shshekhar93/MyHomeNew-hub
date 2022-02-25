@@ -4,6 +4,7 @@ import { updateDeviceState } from '../../common/api.js';
 import { useStore } from '../../common/store.js';
 import { useTheme } from '../../common/theme.js';
 import { LoadingSpinner } from '../../shared/loading-spinner.js';
+import { StatusIndicator } from '../common/status-indicator.js';
 import Switch from '../common/switch.js';
 
 function DeviceEntry({ device }) {
@@ -48,18 +49,7 @@ function DeviceEntry({ device }) {
     >
       <div>
         {label}
-        <span
-          className={css({
-            display: 'inline-block',
-            height: '15px',
-            width: '15px',
-            borderRadius: '50%',
-            marginLeft: '15px',
-            marginTop: '-2px',
-            verticalAlign: 'middle',
-            backgroundColor: isActive ? 'darkgreen' : 'darkgray',
-          })}
-        />
+        {!isActive && <StatusIndicator available={false} />}
       </div>
       {updating ? (
         <LoadingSpinner size="24px" border="4px" />

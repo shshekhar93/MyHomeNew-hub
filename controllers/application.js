@@ -18,7 +18,7 @@ async function findFirst(arr, predicate) {
 
 const translationsURL = memoize(
   async (locale = 'en') => {
-    const [lang, country] = locale.split(/_-/);
+    const [lang, country] = locale.split(/[_-]/);
 
     return await findFirst(
       [`${lang}-${country}.json`, `${lang}.json`, 'en.json'].map(

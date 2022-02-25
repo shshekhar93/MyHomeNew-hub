@@ -22,7 +22,9 @@ import {
 
 function useLoadTranslations(store) {
   useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
     const locale =
+      query.get('locale') ||
       window.localStorage.getItem('locale') ||
       window.navigator.language ||
       window.navigator.userLanguage;

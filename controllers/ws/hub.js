@@ -1,6 +1,6 @@
 'use strict';
 import uuid from 'uuid';
-import { logError } from '../../libs/logger.js';
+import { logInfo, logError } from '../../libs/logger.js';
 
 async function onConnect(connection, emitter, user) {
   const hubClientId = user.hubClientId;
@@ -52,7 +52,13 @@ async function onConnect(connection, emitter, user) {
 
   // Clean up on websocket close.
   connection.on('close', function () {
+    logInfo('Cleaned up listener for', hubClientId);
     emitter.removeListener(hubClientId, onRequest);
+  });
+
+  connection.on('error', function () {
+    logError('Connection error', hubClientId);
+    connection.close();
   });
 }
 

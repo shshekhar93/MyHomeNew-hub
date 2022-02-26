@@ -80,6 +80,7 @@ const start = (httpServer) => {
       logError('device setup sequence failed');
       logError(err);
       connection.close();
+      emitter.removeAllListeners(hubClientId);
     });
   });
 };

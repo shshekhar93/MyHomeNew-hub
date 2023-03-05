@@ -6,8 +6,6 @@ import connectRedis from 'connect-redis';
 import passport from 'passport';
 import OAuthServer from 'express-oauth-server';
 import _get from 'lodash/get.js';
-import webpack from 'webpack';
-import webpackDevMiddleware from 'webpack-dev-middleware';
 
 import { setupRoutes } from './routes/index.js';
 import * as Redis from './libs/redis.js';
@@ -17,7 +15,6 @@ import { proxyRequestsSetup } from './controllers/proxy.js';
 import { start as startWSServer } from './controllers/ws/server.js';
 import config from './libs/config.js';
 import { logMiddleware } from './libs/logger.js';
-import webpackConfig from './webpack.config.cjs';
 
 const RedisStore = connectRedis(session);
 const app = express();
@@ -27,15 +24,36 @@ app.oAuth = new OAuthServer({
 });
 
 if (process.env.mode === 'development') {
-  webpackConfig.mode = 'development';
-  webpackConfig.devtool = 'eval-cheap-source-map';
-  const compiler = webpack(webpackConfig);
-  app.use(
-    webpackDevMiddleware(compiler, {
+  let realMiddleware = null;
+
+  (async () => {
+    const webpack = await (await import('webpack')).default;
+    const webpackDevMiddleware = await (
+      await import('webpack-dev-middleware')
+    ).default;
+    const webpackConfig = await (await import('./webpack.config.cjs')).default;
+    webpackConfig.mode = 'development';
+    webpackConfig.devtool = 'eval-cheap-source-map';
+    const compiler = webpack(webpackConfig);
+    realMiddleware = webpackDevMiddleware(compiler, {
       index: false,
       publicPath: '/js/',
-    })
-  );
+    });
+    app.use(
+      webpackDevMiddleware(compiler, {
+        index: false,
+        publicPath: '/js/',
+      })
+    );
+  })();
+
+  app.use((req, res, next) => {
+    if (!realMiddleware) {
+      return next();
+    }
+
+    realMiddleware(req, res, next);
+  });
 }
 
 app.use(express.static('./dist'));

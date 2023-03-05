@@ -1,6 +1,6 @@
 'use strict';
 import Websocket from 'websocket';
-import request from 'request';
+import fetch from 'node-fetch';
 import { logError, logInfo } from './libs/logger.js';
 
 const WSClient = Websocket.client;
@@ -27,16 +27,16 @@ client.on('connect', function (connection) {
 
   connection.on('close', function () {
     logInfo('connection closed!');
-    //    process.exit(1);
     setTimeout(connect, 1000); // delay reconnect by a second.
   });
 
-  connection.on('message', (message) => {
+  connection.on('message', async (message) => {
     if (message.type === 'utf8') {
       try {
         logInfo(`Relaying request: ${message.utf8Data}`);
         const data = JSON.parse(message.utf8Data);
-        handleMessage(data, (resp) => connection.send(JSON.stringify(resp)));
+        const response = await handleMessage(data);
+        connection.send(JSON.stringify(response));
       } catch (e) {
         logError(e);
       }
@@ -65,31 +65,31 @@ function connect() {
   });
 }
 
-function handleMessage(data, send) {
-  request(
-    {
-      url: `${options.localhost}${data.url}`,
+async function handleMessage(data) {
+  try {
+    const url = `${options.localhost}${data.url}`;
+    const resp = await fetch(url, {
       method: data.method,
       headers: {
         'websocket-proxy-request': options.cpSecret,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
       },
-      body: data.body,
-      json: true,
-    },
-    function (err, resp, body) {
-      if (err) {
-        logError('WS Proxy request err');
-        logError(err);
-      }
+      body: JSON.stringify(data.body),
+    });
+    const status = resp.status || 500;
+    const body = await resp.text();
 
-      const status = (resp && resp.statusCode) || 500;
+    return {
+      body,
+      status,
+      reqId: data.reqId,
+      type: resp.headers.get('content-type'),
+    };
+  } catch (err) {
+    logError('WS Proxy request err');
+    logError(err);
+  }
 
-      send({
-        status,
-        body,
-        type: resp.headers['content-type'],
-        reqId: data.reqId,
-      });
-    }
-  );
+  return { status: 500, body: '' };
 }

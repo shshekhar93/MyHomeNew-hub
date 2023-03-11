@@ -3,6 +3,12 @@ import Websocket from 'websocket';
 import fetch from 'node-fetch';
 import { logError, logInfo } from './libs/logger.js';
 
+const PAYLOAD_HEADERS = {
+  'Content-Type': 'application/json',
+  Accept: 'application/json',
+};
+const NO_PAYLOAD_METHODS = ['GET', 'HEAD'];
+
 const WSClient = Websocket.client;
 
 /* WS Client setup */
@@ -68,14 +74,14 @@ function connect() {
 async function handleMessage(data) {
   try {
     const url = `${options.localhost}${data.url}`;
+    const sendBody = !NO_PAYLOAD_METHODS.includes(data.method);
     const resp = await fetch(url, {
       method: data.method,
       headers: {
+        ...(sendBody ? PAYLOAD_HEADERS : {}),
         'websocket-proxy-request': options.cpSecret,
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
       },
-      body: JSON.stringify(data.body),
+      body: sendBody ? JSON.stringify(data.body) : undefined,
     });
     const status = resp.status || 500;
     const body = await resp.text();

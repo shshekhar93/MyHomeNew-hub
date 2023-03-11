@@ -1,8 +1,6 @@
 import mongoose from 'mongoose';
 import { promisify } from 'util';
 import bcrypt from 'bcrypt';
-import _get from 'lodash/get.js';
-import _cloneDeep from 'lodash/cloneDeep.js';
 
 import UserModel from './users.js';
 import { logInfo, logError } from '../libs/logger.js';
@@ -20,12 +18,12 @@ const OAuthCodesModel = mongoose.model(
     expiresAt: Date,
     redirectUri: String,
     client: String, // id from clients model
-    user: String, // id from users model
+    user: String, // email from users model
     createdDate: { type: Date, default: Date.now },
   })
 );
 
-function saveAuthorizationCode(code, client, user) {
+async function saveAuthorizationCode(code, client, user) {
   const { authorizationCode, expiresAt, redirectUri } = code;
   const authCodeDoc = new OAuthCodesModel({
     code: authorizationCode,
@@ -34,28 +32,30 @@ function saveAuthorizationCode(code, client, user) {
     client: client.id,
     user: user.email,
   });
-  return authCodeDoc.save().then((authCode) => {
-    const resp = _cloneDeep(authCode.toJSON());
-    return Object.assign(resp, { authorizationCode }, { client }, { user });
-  });
+  const authCode = await authCodeDoc.save();
+
+  return {
+    ...authCode.toJSON(),
+    authorizationCode,
+    client,
+    user,
+  };
 }
 
-function getAuthorizationCode(authorizationCode) {
-  return OAuthCodesModel.findOne({ code: authorizationCode })
-    .then((authCode) => {
-      if (!authCode) {
-        throw new Error('AUTH_CODE_NOT_FOUND');
-      }
+async function getAuthorizationCode(authorizationCode) {
+  const authCode = await OAuthCodesModel.findOne({ code: authorizationCode });
+  if (!authCode) {
+    throw new Error('AUTH_CODE_NOT_FOUND');
+  }
 
-      return Promise.all([
-        authCode,
-        getClient(authCode.client),
-        UserModel.findOne({ email: authCode.user }).lean(),
-      ]);
-    })
-    .then(([authCode, client, user]) =>
-      Object.assign(authCode.toJSON(), { client }, { user })
-    );
+  const client = await getClient(authCode.client);
+  const user = await UserModel.findOne({ email: authCode.user }).lean();
+
+  return {
+    ...authCode.toJSON(),
+    client,
+    user,
+  };
 }
 
 function revokeAuthorizationCode(code) {
@@ -88,52 +88,51 @@ function createClient(clientObj) {
   return new OAuthClientsModel(clientObj).save();
 }
 
-function getClient(id, secret) {
-  return OAuthClientsModel.findOne({ id })
-    .lean()
-    .then((client) => {
-      if (id && !secret) {
-        return [client, true];
-      }
-      return Promise.all([client, compare(secret, client.secret)]);
-    })
-    .then((result) => {
-      const client = result[0];
-      const isSame = result[1];
-      if (isSame) {
-        return client;
-      }
+async function getClient(id, secret) {
+  try {
+    const client = await OAuthClientsModel.findOne({ id }).lean();
+    if (id && !secret) {
+      return client;
+    }
+
+    const isSame = await compare(secret, client.secret);
+
+    if (!isSame) {
       logInfo(`wrong secret provided for ${id}`);
       return null;
-    })
-    .catch((err) => {
-      logError(err);
+    }
+
+    return client;
+  } catch (err) {
+    logError(err);
+    return null;
+  }
+}
+
+async function getUserFromClient({ id }) {
+  try {
+    const client = await OAuthClientsModel.findOne({ id }).lean();
+    if (!client.userId) {
       return null;
-    });
+    }
+
+    return await UserModel.findById(client.userId).lean();
+  } catch (err) {
+    logError(err);
+    return null;
+  }
 }
 
-function getUserFromClient({ id }) {
-  return OAuthClientsModel.findOne({ id })
-    .lean()
-    .then((client) => {
-      if (!client.userId) {
-        return null;
-      }
-      return UserModel.findById(client.userId).lean();
-    })
-    .catch(() => null);
+async function getAllClientsForUser(userId) {
+  try {
+    return await OAuthClientsModel.find({ userId }).lean();
+  } catch (err) {
+    logError(err);
+    return [];
+  }
 }
 
-function getAllClientsForUser(userId) {
-  return OAuthClientsModel.find({ userId })
-    .lean()
-    .catch((err) => {
-      logError(err);
-      return [];
-    });
-}
-
-function deleteClient(id) {
+async function deleteClient(id) {
   return OAuthClientsModel.findOneAndRemove({ id }).lean();
 }
 
@@ -153,41 +152,46 @@ const OAuthTokensModel = mongoose.model(
   })
 );
 
-function saveToken(token, client, user) {
+async function saveToken(token, client, user) {
   const tokenDoc = new OAuthTokensModel({
     ...token,
     client: client.id,
     user: user.email,
   });
 
-  return tokenDoc.save().then((token) => {
-    const resp = _cloneDeep(token.toJSON());
-    return Object.assign(resp, { client }, { user });
-  });
+  const tokenResp = await tokenDoc.save();
+  return {
+    ...tokenResp.toJSON(),
+    client,
+    user,
+  };
 }
 
-function getAccessToken(bearerToken) {
-  return OAuthTokensModel.findOne({
-    accessToken: bearerToken,
-  })
-    .then((token) =>
-      Promise.all([
-        token,
-        _get(token, 'client') && getClient(token.client),
-        _get(token, 'user') && UserModel.findOne({ email: token.user }).lean(),
-      ])
-    )
-    .then(([token, client, user]) => {
-      if (!token || !client || !user) {
-        return null;
-      }
-
-      return Object.assign(token.toJSON(), { client, user });
-    })
-    .catch((err) => {
-      logError(err);
+async function getAccessToken(accessToken) {
+  try {
+    const token = await OAuthTokensModel.findOne({ accessToken });
+    if (!token || !token.client || !token.user) {
+      logError(`Invalid token provided ${accessToken}.`);
       return null;
-    });
+    }
+
+    const client = await getClient(token.client);
+    const user = await UserModel.findOne({ email: token.user }).lean();
+
+    if (!client || !user) {
+      logError('unable to find token owner.');
+      return null;
+    }
+
+    return {
+      ...token.toJSON(),
+      client,
+      user,
+    };
+  } catch (err) {
+    logError(err);
+    return null;
+  }
 }
 
 function revokeToken({ refreshToken }) {
@@ -203,20 +207,29 @@ function revokeToken({ refreshToken }) {
   );
 }
 
-function getRefreshToken(refreshToken) {
-  return OAuthTokensModel.findOne({
-    refreshToken,
-  })
-    .then((token) =>
-      Promise.all([
-        token,
-        _get(token, 'client') && getClient(token.client),
-        _get(token, 'user') && UserModel.findOne({ email: token.user }).lean(),
-      ])
-    )
-    .then(([token, client, user]) =>
-      Object.assign(token && token.toJSON(), { client }, { user })
-    );
+async function getRefreshToken(refreshToken) {
+  try {
+    const token = await OAuthTokensModel.findOne({ refreshToken });
+    if (!token || !token.client || !token.user) {
+      return null;
+    }
+
+    const client = await getClient(token.client);
+    const user = await UserModel.findOne({ email: token.user }).lean();
+
+    if (!client || !user) {
+      return null;
+    }
+
+    return {
+      ...token.toJSON(),
+      client,
+      user,
+    };
+  } catch (err) {
+    logError(err);
+    return null;
+  }
 }
 
 export {

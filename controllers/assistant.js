@@ -1,30 +1,31 @@
 'use strict';
 import _get from 'lodash/get.js';
 import { logError } from '../libs/logger.js';
+import { getCurrentUser } from '../libs/utils.js';
 import DeviceModel from '../models/devices.js';
 import { getDevState, updateDeviceState } from './devices.js';
 
-function syncDevices(req, res) {
-  const userEmail = _get(
-    res,
-    'locals.oauth.token.user.email',
-    _get(req, 'user.email')
-  );
-  const agentUserId = _get(
-    res,
-    'locals.oauth.token.user._id',
-    _get(req, 'user._id')
-  );
+async function syncDevices(req, res) {
+  const user = getCurrentUser(req, res);
+  const userEmail = user?.email;
+  const agentUserId = user?._id;
 
-  DeviceModel.find({ user: userEmail }).then((devices) => {
+  try {
+    const devices = await DeviceModel.find({ user: userEmail });
+
     res.json({
       requestId: req.body.requestId,
       payload: {
         agentUserId,
-        devices: devices.map(deviceMapper).reduce((a, t) => [...a, ...t]),
+        devices: devices.map(deviceMapper).flat(),
       },
     });
-  });
+  } catch (err) {
+    logError(err);
+    res.status(500).json({
+      message: 'something went wrong, try again later',
+    });
+  }
 }
 
 function getDeviceType(dbType) {
@@ -73,122 +74,135 @@ function reduceDevsToQueryResp(allDeviceStates) {
   };
 }
 
-function queryStatus(req, res) {
-  const devicesToQuery = _get(req.body, 'inputs[0].payload.devices', []);
-  Promise.all(
-    devicesToQuery.map((dev) => {
-      const [id] = dev.id.split('-');
-      return DeviceModel.findById(id)
-        .lean()
-        .then((dbDev) => getDevState(dbDev));
-    })
-  ).then((allDeviceStates) => {
+async function queryStatus(req, res) {
+  try {
+    const devicesToQuery = (req?.body?.inputs?.[0]?.payload?.devices ?? []).map(
+      (dev) => dev?.id?.split('-') ?? []
+    );
+
+    const allDeviceStates = await Promise.all(
+      devicesToQuery
+        .map((arr) => arr[0])
+        .map(async (devId) => getDevState(await DeviceModel.findById(devId)))
+    );
+    const devices = devicesToQuery.reduce(
+      reduceDevsToQueryResp(allDeviceStates)
+    );
+
     res.json({
       requestId: req.body.requestId,
       payload: {
-        devices: devicesToQuery
-          .map(({ id }) => id.split('-'))
-          .reduce(reduceDevsToQueryResp(allDeviceStates), {}),
+        devices,
       },
     });
-  });
+  } catch (err) {
+    logError(err);
+    res.status(500).json({
+      message: 'Something went wrong, please try again later.',
+    });
+  }
 }
 
-function execute(req, res) {
+async function execute(req, res) {
   const commands = _get(req.body, 'inputs[0].payload.commands', []);
 
-  Promise.all(
-    commands.map((command) => {
-      const devices = _get(command, 'devices', []);
-      const applicableCmd = _get(command, 'execution', []).find(
-        (exec) => exec.command === 'action.devices.commands.OnOff'
-      );
-      const isOn = _get(applicableCmd, 'params.on');
+  try {
+    const allResponses = await Promise.all(
+      commands.map(commandExecutor).flat()
+    );
 
-      return Promise.all(
-        devices.map((dev) => {
-          const [id, devId] = dev.id.split('-');
-
-          return DeviceModel.findById(id)
-            .lean()
-            .then((device) => {
-              if (!device) {
-                throw new Error('Device does not exist');
-              }
-
-              // Match device user first.
-
-              return updateDeviceState(
-                device.user,
-                device.name,
-                devId,
-                isOn ? 100 : 0
-              );
-            })
-            .then(() => {
-              return DeviceModel.update(
-                {
-                  _id: id,
-                  'leads.devId': devId,
-                },
-                {
-                  'leads.$.state': isOn ? 100 : 0,
-                }
-              ).exec();
-            })
-            .then(() => ({ id: dev.id, status: 'SUCCESS', isOn }))
-            .catch((err) => {
-              logError(`Device ${dev.id} state update failed`);
-              logError(err);
-              return { id: dev.id, status: 'ERROR' };
-            });
-        })
-      );
-    })
-  )
-    .then((allResponses) => {
-      allResponses = allResponses.reduce((all, resp) => [...all, ...resp], []);
-      const onSuccessIds = allResponses
-        .filter((r) => r.status === 'SUCCESS' && r.isOn === true)
-        .map((r) => r.id);
-      const offSuccessIds = allResponses
-        .filter((r) => r.status === 'SUCCESS' && r.isOn === false)
-        .map((r) => r.id);
-      const errorIds = allResponses
-        .filter((r) => r.status === 'ERROR')
-        .map((r) => r.id);
-      res.json({
-        requestId: req.body.requestId,
-        payload: {
-          commands: [
-            onSuccessIds.length && {
-              ids: onSuccessIds,
-              status: 'SUCCESS',
-              states: {
-                on: true,
-                online: true,
-              },
-            },
-            offSuccessIds.length && {
-              ids: offSuccessIds,
-              status: 'SUCCESS',
-              states: {
-                on: false,
-                online: true,
-              },
-            },
-            errorIds.length && {
-              ids: errorIds,
-              status: 'ERROR',
-            },
-          ].filter(Boolean),
-        },
-      });
-    })
-    .catch((err) => {
-      logError(err);
-      res.status(400).json({});
+    const resultMap = allResponses.reduce((result, resp) => {
+      const key = resp.status === 'ERROR' ? 'error' : resp.isOn ? 'on' : 'off';
+      return {
+        ...result,
+        [key]: [...result.key, resp.id],
+      };
     });
+
+    res.json({
+      requestId: req.body.requestId,
+      payload: {
+        commands: [
+          resultMap.on.length && {
+            ids: resultMap.on,
+            status: 'SUCCESS',
+            states: {
+              on: true,
+              online: true,
+            },
+          },
+          resultMap.off.length && {
+            ids: resultMap.off,
+            status: 'SUCCESS',
+            states: {
+              on: false,
+              online: true,
+            },
+          },
+          resultMap.error.length && {
+            ids: resultMap.error,
+            status: 'ERROR',
+          },
+        ].filter(Boolean),
+      },
+    });
+  } catch (err) {
+    logError(err);
+    res.status(400).json({});
+  }
+}
+
+async function commandExecutor(command) {
+  const devices = command?.devices ?? [];
+  const applicableCmd = (command?.execution ?? []).find(
+    ({ command }) => command === 'action.devices.commands.OnOff'
+  );
+  const isOn = _get(applicableCmd, 'params.on');
+
+  return Promise.all(devices.map((dev) => executeDeviceCommand(dev.id, isOn)));
+}
+
+async function executeDeviceCommand(id, isOn) {
+  const [devId, devLeadId] = id.split('-');
+
+  try {
+    const device = DeviceModel.findById(devId).lean();
+    if (!device) {
+      throw new Error('Device does not exist');
+    }
+
+    const currentUser = getCurrentUser();
+    if (!device.user || device.user !== currentUser?.email) {
+      throw new Error(`Unauthorized access to ${id} by ${currentUser._id}`);
+    }
+
+    await updateDeviceState(
+      device.user,
+      device.name,
+      devLeadId,
+      isOn ? 100 : 0
+    );
+
+    await DeviceModel.update(
+      {
+        _id: devId,
+        'leads.devId': devLeadId,
+      },
+      {
+        'leads.$.state': isOn ? 100 : 0,
+      }
+    ).exec();
+
+    return {
+      status: 'SUCCESS',
+      id,
+      isOn,
+    };
+  } catch (err) {
+    logError(`Device ${id} state update failed`);
+    logError(err);
+    return { id, status: 'ERROR' };
+  }
 }
 
 export { syncDevices, queryStatus, execute };

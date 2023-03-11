@@ -21,19 +21,20 @@ const setupUserRoutes = (app) => {
     });
   });
 
-  app.get('/user/check-user-name', (req, res) => {
-    UserModel.findOne({ username: req.query.username })
-      .then((user) => !!user)
-      .catch(() => false)
-      .then((exists) => {
-        res.json({
-          success: true,
-          exists,
-        });
+  app.get('/user/check-user-name', async (req, res) => {
+    try {
+      const user = await UserModel.findOne({ username: req.query.username });
+      res.json({
+        success: true,
+        exists: !!user,
       });
+    } catch (err) {
+      logError(err);
+      res.status(500).json({});
+    }
   });
 
-  app.post('/user/register', (req, res) => {
+  app.post('/user/register', async (req, res) => {
     if (
       !req.body.email ||
       !req.body.name ||
@@ -48,30 +49,30 @@ const setupUserRoutes = (app) => {
 
     const hubClientId = uuid().replace(/-/g, '');
     const clientSecret = uuid().replace(/-/g, '');
-    Promise.all([hash(req.body.password, 8), hash(clientSecret, 8)])
-      .then(([password, hubClientSecret]) => {
-        const user = new UserModel({
-          ...req.body,
-          password,
-          hubClientId,
-          hubClientSecret,
-        });
-        return user.save();
-      })
-      .then(() => {
-        res.json({
-          success: true,
-          hubClientId,
-          hubClientSecret: clientSecret,
-        });
-      })
-      .catch((err) => {
-        logError(err);
-        return res.status(500).json({
-          success: false,
-          error: 'Internal server error',
-        });
+
+    try {
+      const password = await hash(req.body.password, 8);
+      const hubClientSecret = await hash(clientSecret, 8);
+      const userDoc = new UserModel({
+        ...req.body,
+        password,
+        hubClientId,
+        hubClientSecret,
       });
+      await userDoc.save();
+
+      res.json({
+        success: true,
+        hubClientId,
+        hubClientSecret: clientSecret,
+      });
+    } catch (err) {
+      logError(err);
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      });
+    }
   });
 };
 

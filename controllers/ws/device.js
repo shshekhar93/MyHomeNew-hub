@@ -78,16 +78,20 @@ async function onConnect(connection, emitter, device, sessionKey, deviceName) {
   }
 
   let frameNum = 10;
-  const onRequest = (reqData) => {
+  const onRequest = async (reqData) => {
     const { cb } = reqData;
     reqData = {
       ...reqData,
       'frame-num': ++frameNum,
       cb: undefined,
     };
-    sendMessageToDevice(connection, reqData, sessionKey)
-      .then(cb.bind(null, null))
-      .catch(cb);
+
+    try {
+      const result = await sendMessageToDevice(connection, reqData, sessionKey);
+      cb(null, result);
+    } catch (err) {
+      cb(err);
+    }
   };
 
   emitter.on(device.name, onRequest);

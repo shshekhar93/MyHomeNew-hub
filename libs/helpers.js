@@ -32,12 +32,12 @@ export const successResp = resp.bind(null, true);
 export const catchAndRespond = (middleware) => {
   return async (req, res, next) => {
     try {
-      middleware(req, res, next);
+      await middleware(req, res, next);
     } catch (e) {
       logError(e);
       res.status(500).json(
         errResp({
-          err: e.message || e,
+          err: e?.message || e,
         })
       );
     }

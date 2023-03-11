@@ -2,10 +2,12 @@ import { stat } from 'fs/promises';
 import { createReadStream } from 'fs';
 import memoize from 'memoizee';
 
-function exists(url) {
-  return stat(url)
-    .then(() => true)
-    .catch(() => false);
+async function exists(url) {
+  try {
+    await stat(url);
+    return true;
+  } catch (_) {}
+  return false;
 }
 
 async function findFirst(arr, predicate) {

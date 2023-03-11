@@ -11,19 +11,22 @@ const compare = promisify(bcrypt.compare.bind(bcrypt));
 const USER_FIELDS = ['_id', 'email', 'name', 'hubClientId'];
 
 passport.use(
-  new LocalStrategy(function (username, password, done) {
-    UserModel.findOne({ email: username })
-      .then((user) => user || UserModel.findOne({ username }))
-      .then((user) => {
-        if (!user) {
-          return done(null, false);
-        }
+  new LocalStrategy(async function (username, password, done) {
+    try {
+      let user = await UserModel.findOne({ email: username });
+      if (!user) {
+        user = await UserModel.findOne({ username });
+      }
 
-        return compare(password, user.password).then((res) =>
-          done(null, res ? _pick(user.toJSON(), USER_FIELDS) : false)
-        );
-      })
-      .catch(done);
+      if (!user) {
+        return done(null, false);
+      }
+
+      const res = await compare(password, user.password);
+      done(null, res ? _pick(user.toJSON(), USER_FIELDS) : false);
+    } catch (err) {
+      done(err);
+    }
   })
 );
 
@@ -31,10 +34,13 @@ passport.serializeUser(function (user, done) {
   done(null, user.email);
 });
 
-passport.deserializeUser(function (email, done) {
-  UserModel.findOne({ email })
-    .then((user) => done(null, _pick(user.toJSON(), USER_FIELDS)))
-    .catch(done);
+passport.deserializeUser(async function (email, done) {
+  try {
+    const user = await UserModel.findOne({ email });
+    done(null, _pick(user.toJSON(), USER_FIELDS));
+  } catch (err) {
+    done(err);
+  }
 });
 
 const authMiddleware = (req, res, next) => {

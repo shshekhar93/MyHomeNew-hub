@@ -10,10 +10,9 @@ const crRandomBytes = promisify(randomBytes);
  * @return {string} - Buffer containing requested number of bytes, or string
  *                    representation of those bytes in provided encoding
  */
-function randomBytesStr(len, encoding) {
-  return crRandomBytes(len).then((bytes) =>
-    encoding ? bytes.toString(encoding) : bytes
-  );
+async function randomBytesStr(len, encoding) {
+  const bytes = await crRandomBytes(len);
+  return encoding ? bytes.toString(encoding) : bytes;
 }
 
 /**

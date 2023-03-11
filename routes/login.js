@@ -1,4 +1,4 @@
-import { successResp } from '../libs/helpers.js';
+import { errResp, successResp } from '../libs/helpers.js';
 import { authMiddleware } from '../libs/passport.js';
 
 const setupLoginRoutes = (app) => {
@@ -7,8 +7,16 @@ const setupLoginRoutes = (app) => {
   );
 
   app.get('/logout', (req, res) => {
-    req.isAuthenticated() && req.logout();
-    res.status(200).json(successResp());
+    if (!req.isAuthenticated()) {
+      res.json(successResp());
+    }
+
+    req.logout((err) => {
+      if (err) {
+        return res.status(500).json(errResp());
+      }
+      return res.json(successResp());
+    });
   });
 };
 

@@ -22,6 +22,6 @@ client.on('end', () => {
   logInfo('Redis client disconnected.. Should we restart server?');
 });
 
-const connect = async () => await client.connect();
+const connect = async () => client.connect();
 
 export { client, connect };

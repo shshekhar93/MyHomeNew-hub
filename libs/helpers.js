@@ -43,3 +43,7 @@ export const catchAndRespond = (middleware) => {
     }
   };
 };
+
+export const getCurrentUser = (req, res) => {
+  return res?.locals?.oauth?.token?.user ?? req?.user;
+};

@@ -1,7 +1,7 @@
 'use strict';
 import _get from 'lodash/get.js';
+import { getCurrentUser } from '../libs/helpers.js';
 import { logError } from '../libs/logger.js';
-import { getCurrentUser } from '../libs/utils.js';
 import DeviceModel from '../models/devices.js';
 import { getDevState, updateDeviceState } from './devices.js';
 

@@ -1,15 +1,10 @@
-import { catchAndRespond, resp, transformer } from '../helpers.js';
-
-function generateExpressRequestMocks() {
-  const req = {};
-  const res = {
-    status: jest.fn(() => res),
-    json: jest.fn(),
-  };
-  const next = jest.fn();
-
-  return [req, res, next];
-}
+import { generateExpressRequestMocks } from '../../test/test-utils.js';
+import {
+  catchAndRespond,
+  getCurrentUser,
+  resp,
+  transformer,
+} from '../helpers.js';
 
 describe('Helpers -- Catch and Respond tests', () => {
   const middleware = jest.fn();
@@ -102,5 +97,40 @@ describe('Helpers -- response tests', () => {
     expect(result).toStrictEqual({
       success: true,
     });
+  });
+});
+
+describe('Helpers -- getCurrentUser tests', () => {
+  it('Should return oauth user if present', () => {
+    const res = {
+      locals: { oauth: { token: { user: { name: 'test' } } } },
+    };
+
+    const currentUser = getCurrentUser(null, res);
+    expect(currentUser).toStrictEqual({ name: 'test' });
+  });
+
+  it('Should return req user is oauth user absent', () => {
+    const req = {
+      user: { name: 'test' },
+    };
+
+    const resScenarios = [
+      null,
+      { locals: null },
+      { locals: { oauth: null } },
+      { locals: { oauth: { token: null } } },
+      { locals: { oauth: { token: { user: null } } } },
+    ];
+
+    resScenarios.forEach((res) => {
+      const currentUser = getCurrentUser(req, res);
+      expect(currentUser).toStrictEqual({ name: 'test' });
+    });
+  });
+
+  it('Should return undefined if no user', () => {
+    const currentUser = getCurrentUser(null, null);
+    expect(currentUser).toBe(undefined);
   });
 });

@@ -1,5 +1,3 @@
-'use strict';
-import { readFileSync } from 'fs';
 import semver from 'semver';
 import _get from 'lodash/get.js';
 import _omit from 'lodash/omit.js';
@@ -18,6 +16,7 @@ import {
 } from '../libs/helpers.js';
 import { validate } from '../validations/common.js';
 import { DeviceSchema } from '../validations/schemas.js';
+import { getFirmwareFile } from '../libs/esm-utils.js';
 
 const transformer = schemaTransformer.bind(null, null);
 
@@ -206,10 +205,7 @@ const triggerFirmwareUpdate = catchAndRespond(async (req, res) => {
 
   const { version = '' } = resp;
   const [hardwareVer, softwareVer] = version.split('-');
-  const latestFirmWare = readFileSync(
-    new URL(`../firmwares/${hardwareVer}.latest`, import.meta.url),
-    'utf8'
-  );
+  const latestFirmWare = await getFirmwareFile(hardwareVer);
 
   const updateRequired = semver.gt(latestFirmWare, softwareVer);
   if (!updateRequired) {

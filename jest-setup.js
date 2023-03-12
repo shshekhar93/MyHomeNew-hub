@@ -16,3 +16,5 @@ jest.mock('nconf', () => {
 
   return nconf;
 });
+
+jest.mock('./libs/esm-utils.js');

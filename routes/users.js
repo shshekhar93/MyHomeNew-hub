@@ -15,7 +15,7 @@ const setupUserRoutes = (app) => {
   });
 
   app.post('/user/@me', authorize, (req, res) => {
-    res.status(400).json({
+    res.status(405).json({
       success: false,
       err: 'Method not implemented',
     });

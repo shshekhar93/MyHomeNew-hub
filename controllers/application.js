@@ -1,6 +1,7 @@
 import { stat } from 'fs/promises';
 import { createReadStream } from 'fs';
 import memoize from 'memoizee';
+import { getTranslationFileURL } from '../libs/esm-utils.js';
 
 async function exists(url) {
   try {
@@ -23,8 +24,8 @@ const translationsURL = memoize(
     const [lang, country] = locale.split(/[_-]/);
 
     return await findFirst(
-      [`${lang}-${country}.json`, `${lang}.json`, 'en.json'].map(
-        (file) => new URL(`../translations/${file}`, import.meta.url)
+      [`${lang}-${country}.json`, `${lang}.json`, 'en.json'].map((file) =>
+        getTranslationFileURL(file)
       ),
       exists
     );

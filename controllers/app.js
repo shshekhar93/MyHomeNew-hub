@@ -1,16 +1,12 @@
-'use strict';
-
-import { readFile, stat } from 'fs/promises';
+import { stat } from 'fs/promises';
+import { getAppFullURL, getManifestFile } from '../libs/esm-utils.js';
 import { logError } from '../libs/logger.js';
 
 const APK_REGEX = /^myhomenew-app-\d+\.\d+\.\d+.apk$/i;
 
 async function appManifest(req, res) {
   try {
-    const manifestStr = await readFile(
-      new URL('../app/manifest.json', import.meta.url),
-      'utf8'
-    );
+    const manifestStr = await getManifestFile();
     const manifest = JSON.parse(manifestStr);
     res.json(manifest);
   } catch (e) {
@@ -26,7 +22,7 @@ async function downloadApp(req, res) {
     return res.status(403).end();
   }
 
-  const fullURL = new URL(`../app/${fileName}`, import.meta.url);
+  const fullURL = getAppFullURL(fileName);
   try {
     await stat(fullURL);
   } catch (e) {

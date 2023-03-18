@@ -13,6 +13,8 @@ export function generateExpressRequestMocks() {
   const res = {
     status: jest.fn(() => res),
     json: jest.fn(),
+    sendFile: jest.fn(),
+    end: jest.fn(),
   };
   const next = jest.fn();
 

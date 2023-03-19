@@ -4,8 +4,9 @@ import uuid from 'uuid/v4.js';
 
 import UserModel from '../models/users.js';
 import { logInfo, logError } from '../libs/logger.js';
+import { getFileURL } from '../libs/esm-utils.js';
 
-const PROXY_SCRIPT_PATH = new URL('../ws-proxy.js', import.meta.url).pathname;
+const PROXY_SCRIPT_PATH = getFileURL('ws-proxy.js').pathname;
 
 function createChildProcess(options) {
   const child = spawn('node', [PROXY_SCRIPT_PATH], {
@@ -45,7 +46,7 @@ const proxyRequestsSetup = function (options) {
     try {
       req.user = await UserModel.findOne({ email });
       next();
-    } catch (e) {
+    } catch (err) {
       logError('Error finding default hub user');
       logError(err);
       next(err);

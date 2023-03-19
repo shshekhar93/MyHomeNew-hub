@@ -3,6 +3,7 @@ export function generateExpressRequestMocks() {
     body: {},
     query: {},
     login: jest.fn(),
+    get: jest.fn(),
   };
 
   Object.defineProperty(req, 'login', {

@@ -22,3 +22,7 @@ export function getTranslationFileURL(file) {
 export function getFirmwareFileURL(filePath) {
   return new URL(`../${filePath}`, import.meta.url);
 }
+
+export function getFileURL(fileRelativeToProjectRoot) {
+  return new URL(`../${fileRelativeToProjectRoot}`, import.meta.url);
+}

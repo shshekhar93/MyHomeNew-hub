@@ -5,8 +5,9 @@ import uuid from 'uuid/v4.js';
 import _omit from 'lodash/omit.js';
 import _get from 'lodash/get.js';
 
-import { getAllClientsForUser, getClient } from '../models/oAuth.js';
 import {
+  getAllClientsForUser,
+  getClient,
   createClient,
   getUserFromClient,
   deleteClient,

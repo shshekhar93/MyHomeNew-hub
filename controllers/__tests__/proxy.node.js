@@ -23,7 +23,9 @@ const MOCK_USER = {
 };
 
 describe('Proxy controller tests', () => {
-  let exitHandler; let messageHandler; let middleware;
+  let exitHandler;
+  let messageHandler;
+  let middleware;
   const send = jest.fn();
   const childProcess = {
     on: (event, handler) => {

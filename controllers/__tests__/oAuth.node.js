@@ -1,5 +1,5 @@
 import _omit from 'lodash/omit';
-import { generateExpressRequestMocks } from "../../test/test-utils.js";
+import { generateExpressRequestMocks } from '../../test/test-utils.js';
 import {
   getAllClientsForUser,
   getClient,
@@ -7,7 +7,13 @@ import {
   getUserFromClient,
   deleteClient,
 } from '../../models/oAuth.js';
-import { createNewClient, deleteClientCreds, getAuthMiddleware, getExistingClientsForUser, getPublicClientDetails } from "../oAuth";
+import {
+  createNewClient,
+  deleteClientCreds,
+  getAuthMiddleware,
+  getExistingClientsForUser,
+  getPublicClientDetails,
+} from '../oAuth';
 
 jest.mock('../../models/oAuth.js', () => ({
   getAllClientsForUser: jest.fn(),
@@ -32,31 +38,36 @@ const MOCK_CLIENT_TWO = {
 };
 
 const MOCK_USER = {
-  _id: 'test-user-id'
+  _id: 'test-user-id',
 };
 
 describe('oAuth Controller Tests -- getExistingClientsForUser', () => {
-  let req; let res;
+  let req;
+  let res;
   beforeEach(() => {
     [req, res] = generateExpressRequestMocks();
     req.user = {};
   });
 
   it('Should return all clients for user', async () => {
-    getAllClientsForUser.mockReturnValueOnce(Promise.resolve([MOCK_CLIENT_ONE, MOCK_CLIENT_TWO]));
+    getAllClientsForUser.mockReturnValueOnce(
+      Promise.resolve([MOCK_CLIENT_ONE, MOCK_CLIENT_TWO])
+    );
     req.user._id = 'test-user-id';
     await getExistingClientsForUser(req, res);
     expect(res.json).toHaveBeenCalledWith([
       _omit(MOCK_CLIENT_ONE, ['_id', '__v', 'secret']),
       {
         ..._omit(MOCK_CLIENT_TWO, ['_id', '__v', 'secret']),
-        createdDate: '1970-01-01T00:00:00.000Z'
+        createdDate: '1970-01-01T00:00:00.000Z',
       },
     ]);
   });
 
   it('Should return empty clients if error', async () => {
-    getAllClientsForUser.mockReturnValueOnce(Promise.reject(new Error('DB unavailble')));
+    getAllClientsForUser.mockReturnValueOnce(
+      Promise.reject(new Error('DB unavailble'))
+    );
     req.user._id = 'test-user-id';
     await getExistingClientsForUser(req, res);
     expect(res.json).toHaveBeenCalledWith([]);
@@ -70,7 +81,8 @@ describe('oAuth Controller Tests -- getExistingClientsForUser', () => {
 });
 
 describe('oAuth Controller Tests -- deleteClientCreds', () => {
-  let req; let res;
+  let req;
+  let res;
   beforeEach(() => {
     [req, res] = generateExpressRequestMocks();
     req.user = {};
@@ -95,7 +107,7 @@ describe('oAuth Controller Tests -- deleteClientCreds', () => {
   });
 
   it('Should fail if no client id to delete', async () => {
-    getUserFromClient.mockResolvedValueOnce(null)
+    getUserFromClient.mockResolvedValueOnce(null);
     req.body = { id: MOCK_CLIENT_ONE.id };
     await deleteClientCreds(req, res);
     expect(res.status).toHaveBeenCalledWith(404);
@@ -119,7 +131,8 @@ describe('oAuth Controller Tests -- deleteClientCreds', () => {
 });
 
 describe('oAuth Controller Tests -- createNewClient', () => {
-  let req; let res;
+  let req;
+  let res;
   beforeEach(() => {
     [req, res] = generateExpressRequestMocks();
     req.user = {};
@@ -145,8 +158,8 @@ describe('oAuth Controller Tests -- createNewClient', () => {
     };
     expect(createClient).toHaveBeenCalledWith({
       ...clientMatcher,
-      secret: expect.stringMatching(/\$2b\$08\$[A-Za-z0-9./]{53}/)
-    })
+      secret: expect.stringMatching(/\$2b\$08\$[A-Za-z0-9./]{53}/),
+    });
     expect(res.json).toHaveBeenCalledWith(clientMatcher);
   });
 
@@ -178,7 +191,8 @@ describe('oAuth Controller Tests -- createNewClient', () => {
 });
 
 describe('oAuth Controller Tests -- getPublicClientDetails', () => {
-  let req; let res;
+  let req;
+  let res;
   beforeEach(() => {
     [req, res] = generateExpressRequestMocks();
     req.user = {};
@@ -223,10 +237,10 @@ describe('oAuth Controller Tests -- getPublicClientDetails', () => {
 describe('oAuth Controller Tests -- getAuthMiddleware', () => {
   it('Should return logged in user', () => {
     const handler = getAuthMiddleware({
-      authorize: (input) => input
+      authorize: (input) => input,
     });
-    expect(
-      handler.authenticateHandler.handle({ user: MOCK_USER })
-    ).toBe(MOCK_USER);
+    expect(handler.authenticateHandler.handle({ user: MOCK_USER })).toBe(
+      MOCK_USER
+    );
   });
 });

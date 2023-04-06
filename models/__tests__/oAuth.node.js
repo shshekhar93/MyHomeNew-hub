@@ -285,7 +285,7 @@ describe('OAuthTokensModel tests', () => {
       },
     ];
 
-    for (let token of mockTokens) {
+    for (const token of mockTokens) {
       OAuthTokensModel.findOne.mockReturnValueOnce(
         Promise.resolve(new OAuthTokensModel(token))
       );
@@ -376,7 +376,7 @@ describe('OAuthTokensModel tests', () => {
       },
     ];
 
-    for (let token of mockTokens) {
+    for (const token of mockTokens) {
       OAuthTokensModel.findOne.mockReturnValueOnce(
         Promise.resolve(new OAuthTokensModel(token))
       );

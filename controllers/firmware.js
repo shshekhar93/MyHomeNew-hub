@@ -6,7 +6,7 @@ import { readFile } from 'fs/promises';
 import DeviceModel from '../models/devices.js';
 import { decrypt } from '../libs/crypto.js';
 import { catchAndRespond } from '../libs/helpers.js';
-import { getFirmwareFileURL } from '../libs/esm-utils.js';
+import { getFileURL } from '../libs/esm-utils.js';
 
 const firmwareController = catchAndRespond(async (req, res) => {
   const { name, id } = req.params;
@@ -23,7 +23,7 @@ const firmwareController = catchAndRespond(async (req, res) => {
     throw new Error('INVALID_ID_IN_REQ');
   }
 
-  const fullURL = getFirmwareFileURL(filePath);
+  const fullURL = getFileURL(filePath);
   const buffer = await readFile(fullURL);
   const md5Hash = crypto.createHash('md5').update(buffer).digest('hex');
 

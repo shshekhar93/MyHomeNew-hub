@@ -12,6 +12,7 @@ export function generateExpressRequestMocks() {
   });
 
   const res = {
+    setHeader: jest.fn(console.log),
     status: jest.fn(() => res),
     type: jest.fn(() => res),
     json: jest.fn(),

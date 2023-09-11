@@ -57,7 +57,7 @@ const start = (httpServer) => {
     const auth = _get(request, 'httpRequest.headers.authorization', '');
     const [username, password] = auth.split(':');
     if (!username || !password) {
-      logError('Either client id or secret missing in hub WS Req');
+      logError('Either client id or secret missing in WS Req');
       return request.reject(401);
     }
 
@@ -72,7 +72,7 @@ const start = (httpServer) => {
     const connection = request.accept(protocol, request.origin);
     connection.on('error', (err) => {
       logError(
-        `Connection error for ${usename} using ${protocol}:\n${err.stack}`
+        `Connection error for ${username} using ${protocol}:\n${err.stack}`
       );
     });
 
@@ -80,7 +80,10 @@ const start = (httpServer) => {
       logError('device setup sequence failed');
       logError(err);
       connection.close();
-      emitter.removeAllListeners(hubClientId);
+      const [device] = result || [];
+      if (device?.name) {
+        emitter.removeAllListeners(device.name);
+      }
     });
   });
 };

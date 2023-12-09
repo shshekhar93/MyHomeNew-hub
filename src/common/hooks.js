@@ -124,7 +124,7 @@ function useConnectApp() {
     store.set('loading-credentials', true);
     const clientCreds = await createClientCreds({
       name: 'MyHome App',
-      redirectUri: 'myhomenew://oauthreturn/',
+      redirectUri: 'homeapplyed://oauthreturn/',
     });
 
     store.set('clientId', clientCreds.id);

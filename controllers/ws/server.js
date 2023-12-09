@@ -17,6 +17,14 @@ const PROTOCOLS = {
     authenticate: authenticateHub,
     orchestrate: onHubConnect,
   },
+  'homeapplyed-device': {
+    authenticate: authenticateDevice,
+    orchestrate: onDeviceConnect,
+  },
+  homeapplyed: {
+    authenticate: authenticateHub,
+    orchestrate: onHubConnect,
+  },
 };
 
 const emitter = new EventEmitter();

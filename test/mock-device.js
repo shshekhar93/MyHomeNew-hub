@@ -85,7 +85,7 @@ function startDevice(device) {
     logError(err);
   });
 
-  wsClient.connect(`ws://${device.host}/v1/ws`, 'myhomenew-device', null, {
+  wsClient.connect(`ws://${device.host}/v1/ws`, 'homeapplyed-device', null, {
     authorization: `${device.username}:${password}`,
     type: 'light',
   });

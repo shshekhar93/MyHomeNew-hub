@@ -6,6 +6,7 @@ import { logError } from '../../libs/logger.js';
 import UserModel from '../../models/users.js';
 import DeviceModel from '../../models/devices.js';
 import DeviceSetupModel from '../../models/device-setup.js';
+import { isValidDeviceName } from '../../libs/helpers.js';
 
 const compare = promisify(bcrypt.compare);
 
@@ -39,7 +40,7 @@ function decrypt(password, devices) {
       [deviceName, sessionKey] = decryptedPayload
         .split('|')
         .map((s) => s.trim());
-      return deviceName.startsWith('myhomenew') && sessionKey.length === 32;
+      return isValidDeviceName(deviceName) && sessionKey.length === 32;
     } catch (e) {
       return false;
     }
@@ -99,7 +100,7 @@ async function authenticateDevice(username, authStr) {
     }
 
     // Pending device
-    if (username.startsWith('myhomenew-')) {
+    if (isValidDeviceName(username)) {
       return authenticatePendingDevice(username, authStr);
     }
 

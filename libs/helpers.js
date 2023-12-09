@@ -47,3 +47,7 @@ export const catchAndRespond = (middleware) => {
 export const getCurrentUser = (req, res) => {
   return res?.locals?.oauth?.token?.user ?? req?.user;
 };
+
+export const isValidDeviceName = (str) => {
+  return str.startsWith('myhomenew-') || str.startsWith('homeapplyed-');
+};

@@ -66,6 +66,7 @@ function connect() {
     return;
   }
   const { server, id, secret } = options;
+  // @TODO: Change this to homeapplyed once public server is updated.
   client.connect(server, 'myhomenew', null, {
     authorization: `${id}:${secret}`,
   });

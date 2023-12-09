@@ -15,7 +15,7 @@ services:
     volumes:
       - mongodb:/data/db
 
-  myhomenew:
+  homeapplyed:
     build: .
     ports:
       - 8020:8020

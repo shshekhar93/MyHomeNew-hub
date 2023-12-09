@@ -20,7 +20,7 @@ import { getFirmwareFile } from '../libs/esm-utils.js';
 
 const transformer = schemaTransformer.bind(null, null);
 
-const getAvailableDevices = catchAndRespond(async (req, res) => {
+export const getAvailableDevices = catchAndRespond(async (req, res) => {
   const user = _get(req, 'user._id');
   const pendingDevices = await DeviceSetupModel.find({ user }).lean();
   const availableDevs = _keyBy(pendingDevices, 'name');
@@ -30,7 +30,7 @@ const getAvailableDevices = catchAndRespond(async (req, res) => {
   res.json(availableDevs);
 });
 
-const saveNewDeviceForUser = catchAndRespond(async (req, res) => {
+export const saveNewDeviceForUser = catchAndRespond(async (req, res) => {
   const dev2Setup = await DeviceSetupModel.findOne({
     user: _get(req, 'user._id'),
     name: _get(req, 'body.name'),
@@ -59,14 +59,14 @@ function mapBrightness(devConfig, lead) {
   };
 }
 
-const queryDevice = catchAndRespond(async (req, res) => {
+export const queryDevice = catchAndRespond(async (req, res) => {
   const device = await DeviceModel.find({
     name: req.params.name,
   }).lean();
   res.json(await getDevState(device));
 });
 
-const getDevState = async (device, retries = 2) => {
+export const getDevState = async (device, retries = 2) => {
   const resFields = {
     ..._omit(device, 'encryptionKey'),
     isActive: false,
@@ -89,7 +89,7 @@ const getDevState = async (device, retries = 2) => {
   }
 };
 
-const getAllDevicesForUser = catchAndRespond(async (req, res) => {
+export const getAllDevicesForUser = catchAndRespond(async (req, res) => {
   const devices = await DeviceModel.find({ user: req.user.email }).lean();
   res.json(
     devices.map(transformer).map((device) => ({
@@ -100,7 +100,7 @@ const getAllDevicesForUser = catchAndRespond(async (req, res) => {
   );
 });
 
-const updateDeviceState = async (user, devName, switchId, newState) => {
+export const updateDeviceState = async (user, devName, switchId, newState) => {
   const device = await DeviceModel.findOne({ name: devName, user });
   if (!device) {
     throw new Error('UNAUTHORIZED');
@@ -122,7 +122,7 @@ const updateDeviceState = async (user, devName, switchId, newState) => {
   );
 };
 
-const switchDeviceState = catchAndRespond(async (req, res) => {
+export const switchDeviceState = catchAndRespond(async (req, res) => {
   const { name } = req.params;
   const { switchId, newState } = req.body;
 
@@ -142,7 +142,7 @@ const RETAINED_DEVICE_FIELDS = [
 
 const RETAINED_LEAD_FIELDS = ['state', 'hasPwm'];
 
-const updateExistingDevice = catchAndRespond(async (req, res) => {
+export const updateExistingDevice = catchAndRespond(async (req, res) => {
   const { name } = req.params;
   const device = req.body;
 
@@ -177,14 +177,14 @@ const updateExistingDevice = catchAndRespond(async (req, res) => {
   return res.json({ success: true });
 });
 
-const getDeviceConfig = catchAndRespond(async (req, res) => {
+export const getDeviceConfig = catchAndRespond(async (req, res) => {
   const state = await requestToDevice(req.params.name, {
     action: 'get-state',
   });
   res.json(_pickBy(state, (_, key) => key.startsWith('lead')));
 });
 
-const generateOTK = catchAndRespond(async (req, res) => {
+export const generateOTK = catchAndRespond(async (req, res) => {
   const user = _get(req, 'user._id');
   const encryptionKey = await randomBytes(16, 'hex');
   await new DeviceSetupModel({ encryptionKey, user }).save();
@@ -193,7 +193,7 @@ const generateOTK = catchAndRespond(async (req, res) => {
   });
 });
 
-const triggerFirmwareUpdate = catchAndRespond(async (req, res) => {
+export const triggerFirmwareUpdate = catchAndRespond(async (req, res) => {
   const { name } = req.params;
   const device = await DeviceModel.findOne({ name }).lean();
   if (!device) {
@@ -223,17 +223,3 @@ const triggerFirmwareUpdate = catchAndRespond(async (req, res) => {
   logInfo(`Firmware update response: ${JSON.stringify(updateResp)}`);
   res.json({ succes: true });
 });
-
-export {
-  getAvailableDevices,
-  saveNewDeviceForUser,
-  queryDevice,
-  getDevState,
-  getAllDevicesForUser,
-  updateDeviceState,
-  switchDeviceState,
-  updateExistingDevice,
-  getDeviceConfig,
-  generateOTK,
-  triggerFirmwareUpdate,
-};

@@ -11,6 +11,9 @@ RUN npm ci --omit="dev"
 # Copy everything else
 COPY . .
 
+# Declare config as volume
+VOLUME /app/config
+
 EXPOSE 8020
 
 # Start the app

@@ -300,3 +300,5 @@ modules.xml
 # Sonarlint plugin
 
 # End of https://www.gitignore.io/api/node,eclipse,webstorm,intellij,visualstudiocode
+
+config/config.json

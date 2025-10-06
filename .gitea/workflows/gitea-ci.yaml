@@ -31,7 +31,7 @@ jobs:
         with:
           buildkitd-config-inline: |
             insecure-entitlements=["network.host", "security.insecure"]
-            [registry."10.1.1.199:8008"]
+            [registry."${{vars.DOCKER_REGISTRY}}"]
               http = true
               insecure = true
             [dns]
@@ -42,4 +42,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: '10.1.1.199:8008/homeapplyed-hub:${{gitea.sha}},10.1.1.199:8008/homeapplyed-hub:latest'
+          tags: '${{vars.DOCKER_REGISTRY}}/homeapplyed-hub:${{gitea.sha}},${{vars.DOCKER_REGISTRY}}/homeapplyed-hub:latest'

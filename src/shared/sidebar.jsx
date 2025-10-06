@@ -33,7 +33,7 @@ function SideBar() {
     ({ isActive }) => {
       return `${navLinkClassName} ${isActive ? activeNavLinkClassName : ''}`;
     },
-    [navLinkClassName, activeNavLinkClassName]
+    [navLinkClassName, activeNavLinkClassName],
   );
 
   return (

@@ -1,10 +1,10 @@
 import _get from 'lodash/get.js';
 
-const exists = (item) => !item;
-const gt = (limit) => (item) => item <= limit;
-const gte = (limit) => (item) => item < limit;
-const lt = (limit) => (item) => item >= limit;
-const lte = (limit) => (item) => item > limit;
+const exists = item => !item;
+const gt = limit => item => item <= limit;
+const gte = limit => item => item < limit;
+const lt = limit => item => item >= limit;
+const lte = limit => item => item > limit;
 
 /**
  * Validates conformance of a provided object to a provided Schema.
@@ -32,7 +32,8 @@ const validate = (schema, object) => {
         }
         return false;
       });
-    } else {
+    }
+    else {
       result = validate(validator, value);
     }
 

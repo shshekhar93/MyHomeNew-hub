@@ -14,7 +14,7 @@ const setupUserRoutes = (app) => {
     res.json(req.user);
   });
 
-  app.post('/user/@me', authorize, (req, res) => {
+  app.post('/user/@me', authorize, (_req, res) => {
     res.status(405).json({
       success: false,
       err: 'Method not implemented',
@@ -28,7 +28,8 @@ const setupUserRoutes = (app) => {
         success: true,
         exists: !!user,
       });
-    } catch (err) {
+    }
+    catch (err) {
       logError(err);
       res.status(500).json({});
     }
@@ -36,10 +37,10 @@ const setupUserRoutes = (app) => {
 
   app.post('/user/register', async (req, res) => {
     if (
-      !req.body.email ||
-      !req.body.name ||
-      !req.body.password ||
-      !req.body.username
+      !req.body.email
+      || !req.body.name
+      || !req.body.password
+      || !req.body.username
     ) {
       return res.status(400).json({
         success: false,
@@ -66,7 +67,8 @@ const setupUserRoutes = (app) => {
         hubClientId,
         hubClientSecret: clientSecret,
       });
-    } catch (err) {
+    }
+    catch (err) {
       logError(err);
       res.status(500).json({
         success: false,

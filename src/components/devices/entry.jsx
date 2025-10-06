@@ -29,7 +29,7 @@ function DeviceEntry({ device }) {
 
       setUpdating(false);
     },
-    [name, devId, device, store]
+    [name, devId, device, store],
   );
 
   return (
@@ -51,11 +51,13 @@ function DeviceEntry({ device }) {
         {label}
         {!isActive && <StatusIndicator available={false} />}
       </div>
-      {updating ? (
-        <LoadingSpinner size="24px" border="4px" />
-      ) : (
-        <Switch checked={state > 0} onChange={onChange} />
-      )}
+      {updating
+        ? (
+            <LoadingSpinner size="24px" border="4px" />
+          )
+        : (
+            <Switch checked={state > 0} onChange={onChange} />
+          )}
     </div>
   );
 }

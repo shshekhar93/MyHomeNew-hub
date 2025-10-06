@@ -109,6 +109,6 @@ export function getClient(id, responseType, redirectUri) {
   responseType = encodeURIComponent(responseType);
   redirectUri = encodeURIComponent(redirectUri);
   return makeGetRequest(
-    `/client/${id}?responseType=${responseType}&redirectUri=${redirectUri}`
+    `/client/${id}?responseType=${responseType}&redirectUri=${redirectUri}`,
   );
 }

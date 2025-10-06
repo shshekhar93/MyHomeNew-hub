@@ -17,7 +17,8 @@ const connect = async (retry = true) => {
     });
 
     logInfo('Database connected!');
-  } catch (err) {
+  }
+  catch (err) {
     logError(`Database connection failed: ${err.message}`);
     if (retry) {
       logInfo('Retrying db connection');

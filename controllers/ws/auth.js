@@ -19,7 +19,8 @@ async function authenticateHub(hubClientId, clientSecret) {
 
     const match = compare(clientSecret, user.hubClientSecret);
     return match ? [user] : null;
-  } catch (err) {
+  }
+  catch (err) {
     logError(err);
     return null;
   }
@@ -39,9 +40,10 @@ function decrypt(password, devices) {
       const decryptedPayload = Crypto.decrypt(password, encryptionKey, 'utf8');
       [deviceName, sessionKey] = decryptedPayload
         .split('|')
-        .map((s) => s.trim());
+        .map(s => s.trim());
       return isValidDeviceName(deviceName) && sessionKey.length === 32;
-    } catch (e) {
+    }
+    catch (_) {
       return false;
     }
   });
@@ -106,7 +108,8 @@ async function authenticateDevice(username, authStr) {
 
     // First connection
     return authenticateNewDevice(username, authStr);
-  } catch (err) {
+  }
+  catch (err) {
     logError(err);
   }
 }

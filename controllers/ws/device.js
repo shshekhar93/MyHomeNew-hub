@@ -45,7 +45,7 @@ async function orchestrateInitialSetup(
   connection,
   sessionKey,
   { _id },
-  deviceName
+  deviceName,
 ) {
   const newKey = await randomBytes(16, 'hex');
   await refreshKeyForDevice(connection, newKey, sessionKey);
@@ -59,7 +59,7 @@ async function orchestrateInitialSetup(
         name: deviceName,
         encryptionKey: newKey,
       },
-    }
+    },
   );
 }
 
@@ -89,7 +89,8 @@ async function onConnect(connection, emitter, device, sessionKey, deviceName) {
     try {
       const result = await sendMessageToDevice(connection, reqData, sessionKey);
       cb(null, result);
-    } catch (err) {
+    }
+    catch (err) {
       cb(err);
     }
   };

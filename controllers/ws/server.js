@@ -80,7 +80,7 @@ const start = (httpServer) => {
     const connection = request.accept(protocol, request.origin);
     connection.on('error', (err) => {
       logError(
-        `Connection error for ${username} using ${protocol}:\n${err.stack}`
+        `Connection error for ${username} using ${protocol}:\n${err.stack}`,
       );
     });
 

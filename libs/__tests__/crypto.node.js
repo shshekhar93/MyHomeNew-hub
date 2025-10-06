@@ -5,12 +5,12 @@ const TEST_KEY = 'd37f4749c02c7e454d43d9a970e55326';
 describe('Crypto -- randomBytes tests', () => {
   it('Should return random bytes as string when encoding provided', async () => {
     const randomStr = await randomBytes(10, 'hex');
-    expect(randomStr.length).toBe(20);
+    expect(randomStr).toHaveLength(20);
   });
 
   it('Should return random bytes as Buffer when encoding not provided', async () => {
     const randomStr = await randomBytes(10);
-    expect(randomStr.length).toBe(10);
+    expect(randomStr).toHaveLength(10);
     expect(Buffer.isBuffer(randomStr)).toBe(true);
   });
 });

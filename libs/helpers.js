@@ -3,7 +3,7 @@ import _omit from 'lodash/omit.js';
 import { logError } from './logger.js';
 
 const IGNORED_KEYS = ['__v'];
-export const schemaTransformer = (doc, ret) => {
+export const schemaTransformer = (_, ret) => {
   return _omit(ret, IGNORED_KEYS);
 };
 
@@ -33,12 +33,13 @@ export const catchAndRespond = (middleware) => {
   return async (req, res, next) => {
     try {
       await middleware(req, res, next);
-    } catch (e) {
+    }
+    catch (e) {
       logError(e);
       res.status(500).json(
         errResp({
           err: e?.message || e,
-        })
+        }),
       );
     }
   };

@@ -37,7 +37,7 @@ const setupAPIRoutes = (app) => {
     '/v1/devices/:name/set-state',
     oAuth,
     applyReqUser,
-    switchDeviceState
+    switchDeviceState,
   );
 
   app.get('/v1/app/latest-manifest', appManifest);

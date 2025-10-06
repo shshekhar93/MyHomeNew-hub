@@ -46,16 +46,18 @@ function OTP() {
           </p>
         </div>
       )}
-      {generating ? (
-        <LoadingSpinner size="2.5em" border="0.3em" />
-      ) : (
-        <>
-          <Link to="#" onClick={generate}>
-            {translate('setup-device.otp-cta')}
-          </Link>
-          {translate('setup-device.otp-cta-suffix')}
-        </>
-      )}
+      {generating
+        ? (
+            <LoadingSpinner size="2.5em" border="0.3em" />
+          )
+        : (
+            <>
+              <Link to="#" onClick={generate}>
+                {translate('setup-device.otp-cta')}
+              </Link>
+              {translate('setup-device.otp-cta-suffix')}
+            </>
+          )}
     </div>
   );
 }

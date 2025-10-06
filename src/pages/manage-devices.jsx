@@ -15,7 +15,7 @@ function ManageDevicesPage() {
 
   const firstDevice = useMemo(
     () => _take(origDevices).map(({ name }) => name),
-    [origDevices]
+    [origDevices],
   );
 
   if (loading) {
@@ -42,7 +42,7 @@ function ManageDevicesPage() {
           maxWidth: '750px',
         })}
       >
-        {(origDevices || []).map((device) => (
+        {(origDevices || []).map(device => (
           <ManageDeviceListItem key={device.name} device={device} />
         ))}
       </Accordion>

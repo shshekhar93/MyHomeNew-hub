@@ -16,7 +16,7 @@ describe('Phone app controller', () => {
   it('Should return manifest', async () => {
     const [req, res] = generateExpressRequestMocks();
     getManifestFile.mockReturnValueOnce(
-      Promise.resolve(JSON.stringify(mockManifest))
+      Promise.resolve(JSON.stringify(mockManifest)),
     );
     await appManifest(req, res);
     expect(res.json).toHaveBeenCalledWith(mockManifest);

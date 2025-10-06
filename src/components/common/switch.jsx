@@ -34,7 +34,7 @@ export default function Switch(props) {
           borderRadius: '15px',
 
           ':before': {
-            content: "''",
+            content: '\'\'',
             position: 'absolute',
             top: '4px',
             left: '4px',
@@ -46,7 +46,8 @@ export default function Switch(props) {
             transform: props.checked ? 'translateX(16px)' : undefined,
           },
         })}
-      ></span>
+      >
+      </span>
     </label>
   );
 }

@@ -7,11 +7,11 @@ import websocket from 'websocket';
 const WebSocketClient = websocket.client;
 
 const allDevices = readdirSync(new URL('./mock-devices', import.meta.url))
-  .filter((f) => f.endsWith('.json'))
-  .map((f) =>
+  .filter(f => f.endsWith('.json'))
+  .map(f =>
     JSON.parse(
-      readFileSync(new URL(`./mock-devices/${f}`, import.meta.url), 'utf8')
-    )
+      readFileSync(new URL(`./mock-devices/${f}`, import.meta.url), 'utf8'),
+    ),
   );
 
 allDevices.forEach(startDevice);
@@ -39,13 +39,15 @@ function enableDeviceAPI(device, connection, key) {
           logInfo(`Updating username for ${device.name}`);
           break;
         case 'set-state':
+          // eslint-disable-next-line no-case-declarations
           const [leadId, brightness] = request.data.split('=');
           device[`lead${leadId}`] = brightness;
           logInfo(
-            `Updating lead${leadId} with ${brightness} for ${device.name}`
+            `Updating lead${leadId} with ${brightness} for ${device.name}`,
           );
           break;
         case 'get-state':
+          // eslint-disable-next-line no-case-declarations
           const payload = {
             status: 'OK',
             lead0: device.lead0,
@@ -56,7 +58,8 @@ function enableDeviceAPI(device, connection, key) {
           return sendJSON(connection, { status: 'FAIL' }, key);
       }
       sendJSON(connection, { status: 'OK' }, key);
-    } catch (e) {
+    }
+    catch (e) {
       logError(e);
     }
   });
@@ -72,7 +75,7 @@ function startDevice(device) {
   const key = nodeCrypto.randomBytes(16).toString('hex');
   const password = Crypto.encrypt(
     `${device.name}|${key}`,
-    device.encryptionKey
+    device.encryptionKey,
   );
   const wsClient = new WebSocketClient();
 
@@ -94,7 +97,7 @@ function startDevice(device) {
 function saveDevice(device) {
   writeFileSync(
     new URL(`./mock-devices/${device.name}.json`, import.meta.url),
-    JSON.stringify(device, null, 2)
+    JSON.stringify(device, null, 2),
   );
 }
 

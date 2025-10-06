@@ -4,12 +4,13 @@ import { logError } from '../libs/logger.js';
 
 const APK_REGEX = /^myhomenew-app-\d+\.\d+\.\d+.apk$/i;
 
-async function appManifest(req, res) {
+async function appManifest(_req, res) {
   try {
     const manifestStr = await getManifestFile();
     const manifest = JSON.parse(manifestStr);
     res.json(manifest);
-  } catch (e) {
+  }
+  catch (e) {
     logError('Manifest doesnot exist');
     logError(e);
     res.json({});
@@ -25,7 +26,8 @@ async function downloadApp(req, res) {
   const fullURL = getAppFullURL(fileName);
   try {
     await stat(fullURL);
-  } catch (e) {
+  }
+  catch (_) {
     return res.status(404).end();
   }
 

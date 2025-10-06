@@ -31,7 +31,8 @@ async function onConnect(connection, emitter, user) {
         connection.removeListener('message', onResponse);
 
         cb(null, payload);
-      } catch (e) {
+      }
+      catch (e) {
         logError(`could not parse message ${message.utf8Data}`);
         logError(e);
         return cb(e);

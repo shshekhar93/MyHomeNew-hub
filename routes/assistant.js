@@ -19,7 +19,7 @@ const setupAssistantRoutes = (app) => {
     const hubClientId = _get(
       res,
       'locals.oauth.token.user.hubClientId',
-      _get(req, 'user.hubClientId')
+      _get(req, 'user.hubClientId'),
     );
     if (hubClientId && isDevOnline(hubClientId)) {
       return proxy(req, res);
@@ -42,7 +42,7 @@ const setupAssistantRoutes = (app) => {
     if (type === 'action.devices.DISCONNECT') {
       return (async () => {
         await revokeToken(_get(res, 'locals.oauth.token.refreshToken')).catch(
-          logError
+          logError,
         );
         return res.json({});
       })();

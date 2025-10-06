@@ -24,10 +24,11 @@ passport.use(
 
       const res = await compare(password, user.password);
       done(null, res ? _pick(user.toJSON(), USER_FIELDS) : false);
-    } catch (err) {
+    }
+    catch (err) {
       done(err);
     }
-  })
+  }),
 );
 
 passport.serializeUser(function (user, done) {
@@ -38,13 +39,14 @@ passport.deserializeUser(async function (email, done) {
   try {
     const user = await UserModel.findOne({ email });
     done(null, _pick(user.toJSON(), USER_FIELDS));
-  } catch (err) {
+  }
+  catch (err) {
     done(err);
   }
 });
 
 const authMiddleware = (req, res, next) => {
-  passport.authenticate('local', function (err, user, info) {
+  passport.authenticate('local', function (err, user, _) {
     if (err) {
       return next(err);
     }

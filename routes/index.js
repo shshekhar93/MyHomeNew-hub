@@ -18,15 +18,15 @@ const RouteSetupFunctions = [
   setupUserRoutes,
 ];
 
-const indexPath =
-  process.env.NODE_ENV === 'production'
+const indexPath
+  = process.env.NODE_ENV === 'production'
     ? new URL('../dist/index.html', import.meta.url)
     : new URL('../index.html', import.meta.url);
 
 const setupRoutes = (app) => {
-  RouteSetupFunctions.forEach((fn) => fn(app));
+  RouteSetupFunctions.forEach(fn => fn(app));
 
-  app.use((req, res) => createReadStream(indexPath).pipe(res.type('html')));
+  app.use((_req, res) => createReadStream(indexPath).pipe(res.type('html')));
 };
 
 export { setupRoutes };

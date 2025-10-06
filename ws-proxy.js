@@ -43,7 +43,8 @@ client.on('connect', function (connection) {
         const data = JSON.parse(message.utf8Data);
         const response = await handleMessage(data);
         connection.send(JSON.stringify(response));
-      } catch (e) {
+      }
+      catch (e) {
         logError(e);
       }
     }
@@ -93,7 +94,8 @@ async function handleMessage(data) {
       reqId: data.reqId,
       type: resp.headers.get('content-type'),
     };
-  } catch (err) {
+  }
+  catch (err) {
     logError('WS Proxy request err');
     logError(err);
   }

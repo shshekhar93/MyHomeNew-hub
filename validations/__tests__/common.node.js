@@ -43,12 +43,12 @@ describe('Comparators tests', () => {
     expect(
       validate(arraySchema, {
         users: [{ name: 'user 1' }, { name: 'user 2' }],
-      })
+      }),
     ).toBe(false);
     expect(
       validate(arraySchema, {
         users: [{ name: 'user 1' }, { id: 'user 2' }],
-      })
+      }),
     ).toBe(true);
   });
 
@@ -58,12 +58,12 @@ describe('Comparators tests', () => {
     expect(
       validate(arraySchema, {
         users: { name: 'user 1' },
-      })
+      }),
     ).toBe(false);
     expect(
       validate(arraySchema, {
         users: { id: 'user 2' },
-      })
+      }),
     ).toBe(true);
   });
 });

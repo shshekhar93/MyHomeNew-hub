@@ -20,7 +20,7 @@ const OAuthCodesModel = mongoose.model(
     client: String, // id from clients model
     user: String, // email from users model
     createdDate: { type: Date, default: Date.now },
-  })
+  }),
 );
 
 async function saveAuthorizationCode(code, client, user) {
@@ -59,10 +59,10 @@ async function getAuthorizationCode(authorizationCode) {
 }
 
 function revokeAuthorizationCode(code) {
-  return new Promise((resolve) =>
+  return new Promise(resolve =>
     OAuthCodesModel.remove({ code: code.code }, (err) => {
       resolve(!err);
-    })
+    }),
   );
 }
 
@@ -81,7 +81,7 @@ const OAuthClientsModel = mongoose.model(
     refreshTokenLifetime: { type: Number, default: 0 },
     userId: String, // _id from Users model
     createdDate: { type: Date, default: Date.now },
-  })
+  }),
 );
 
 function createClient(clientObj) {
@@ -103,7 +103,8 @@ async function getClient(id, secret) {
     }
 
     return client;
-  } catch (err) {
+  }
+  catch (err) {
     logError(err);
     return null;
   }
@@ -117,7 +118,8 @@ async function getUserFromClient({ id }) {
     }
 
     return await UserModel.findById(client.userId).lean();
-  } catch (err) {
+  }
+  catch (err) {
     logError(err);
     return null;
   }
@@ -126,7 +128,8 @@ async function getUserFromClient({ id }) {
 async function getAllClientsForUser(userId) {
   try {
     return await OAuthClientsModel.find({ userId }).lean();
-  } catch (err) {
+  }
+  catch (err) {
     logError(err);
     return [];
   }
@@ -149,7 +152,7 @@ const OAuthTokensModel = mongoose.model(
     client: String, // client id from clients model
     user: String, // id from users model
     createdDate: { type: Date, default: Date.now },
-  })
+  }),
 );
 
 async function saveToken(token, client, user) {
@@ -188,22 +191,23 @@ async function getAccessToken(accessToken) {
       client,
       user,
     };
-  } catch (err) {
+  }
+  catch (err) {
     logError(err);
     return null;
   }
 }
 
 function revokeToken({ refreshToken }) {
-  return new Promise((resolve) =>
+  return new Promise(resolve =>
     OAuthTokensModel.remove(
       {
         refreshToken,
       },
       (err) => {
         resolve(!err);
-      }
-    )
+      },
+    ),
   );
 }
 
@@ -226,7 +230,8 @@ async function getRefreshToken(refreshToken) {
       client,
       user,
     };
-  } catch (err) {
+  }
+  catch (err) {
     logError(err);
     return null;
   }

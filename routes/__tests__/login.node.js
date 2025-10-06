@@ -34,7 +34,7 @@ describe('Login routes tests', () => {
   it('Should logout user if they are logged-in', (done) => {
     const [req, res] = generateExpressRequestMocks();
     req.isAuthenticated = jest.fn(() => true);
-    req.logout = jest.fn((cb) => setTimeout(cb, 0));
+    req.logout = jest.fn(cb => setTimeout(cb, 0));
     const handler = handlers['GET_/logout'];
     handler(req, res);
 
@@ -43,7 +43,8 @@ describe('Login routes tests', () => {
         expect(req.logout).toHaveBeenCalled();
         expect(result).toStrictEqual({ success: true });
         done();
-      } catch (err) {
+      }
+      catch (err) {
         done(err);
       }
     });
@@ -52,8 +53,8 @@ describe('Login routes tests', () => {
   it('Should handle logout error, if any', (done) => {
     const [req, res] = generateExpressRequestMocks();
     req.isAuthenticated = jest.fn(() => true);
-    req.logout = jest.fn((cb) =>
-      setTimeout(() => cb(new Error('logout failed')), 0)
+    req.logout = jest.fn(cb =>
+      setTimeout(() => cb(new Error('logout failed')), 0),
     );
     const handler = handlers['GET_/logout'];
     handler(req, res);
@@ -64,7 +65,8 @@ describe('Login routes tests', () => {
         expect(res.status).toHaveBeenCalledWith(500);
         expect(result).toStrictEqual({ success: false });
         done();
-      } catch (err) {
+      }
+      catch (err) {
         done(err);
       }
     });

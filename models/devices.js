@@ -13,7 +13,7 @@ const DeviceInteractionUnitSchema = new Schema(
     type: String,
     hasPwm: Boolean,
   },
-  transformer
+  transformer,
 );
 
 const DeviceSchema = new Schema(
@@ -27,7 +27,7 @@ const DeviceSchema = new Schema(
     encryptionKey: String,
     leads: [DeviceInteractionUnitSchema],
   },
-  transformer
+  transformer,
 );
 
 const DeviceModel = mongoose.model('Devices', DeviceSchema);

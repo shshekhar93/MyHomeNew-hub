@@ -135,7 +135,7 @@ describe('User route tests', () => {
     };
 
     UserModel.prototype.save.mockImplementation(() =>
-      Promise.reject(new Error('DB unavailable'))
+      Promise.reject(new Error('DB unavailable')),
     );
 
     const handler = handlers['POST_/user/register'];

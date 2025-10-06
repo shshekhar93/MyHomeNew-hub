@@ -17,7 +17,7 @@ function SignupPage() {
 
   const onChange = useCallback((e) => {
     const { name, value } = e.target;
-    setState((old) => ({
+    setState(old => ({
       ...old,
       [name]: value,
     }));
@@ -28,7 +28,7 @@ function SignupPage() {
 
     const resp = await fetch(`/user/check-user-name?username=${username}`);
     const result = await resp.json();
-    setState((old) => ({
+    setState(old => ({
       ...old,
       usernameError: _get(result, 'exists', false),
     }));
@@ -51,11 +51,12 @@ function SignupPage() {
             clientSecret: result.hubClientSecret,
           });
         }
-      } catch (e) {
+      }
+      catch (_) {
         setState({ ...state, error: true });
       }
     },
-    [state]
+    [state],
   );
 
   const goToSignin = useCallback(() => {
@@ -89,113 +90,119 @@ function SignupPage() {
             },
           })}
         >
-          {state.clientId ? (
-            <div className={css({ width: '100%' })}>
-              <p
-                className={css({
-                  textAlign: 'center',
-                  padding: '0.5rem 0.75rem',
-                  color: 'green',
-                  background: 'lightgreen',
-                  borderRadius: '5px',
-                })}
-              >
-                {translate('signup-success-heading')}
-              </p>
-              <p>
-                {translate('signup-hubcreds-instructions-1')}
-                <br />
-                {translate('signup-hubcreds-instructions-2')}
-              </p>
-              <p className={css({ fontSize: '1rem', fontFamily: 'monospace' })}>
-                {translate('signup-hubcreds-clientid')} {state.clientId}
-              </p>
-              <p className={css({ fontSize: '1rem', fontFamily: 'monospace' })}>
-                {translate('signup-hubcreds-secret')} {state.clientSecret}
-              </p>
-              <div className={css({ textAlign: 'center' })}>
-                <Button onClick={goToSignin}>
-                  {translate('signup=success-cta')}
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <>
-              {state.error && (
-                <p
-                  className={css({
-                    width: '100%',
-                    background: theme.errorBackground,
-                    color: theme.error,
-                    padding: '0.5rem 0.75rem',
-                  })}
-                >
-                  {translate('signup-error')}
-                </p>
-              )}
-              <Input
-                className={rowClassname}
-                name="name"
-                type="text"
-                placeholder={translate('signup-name')}
-                required
-                value={state.name}
-                onChange={onChange}
-              />
-              <Input
-                className={rowClassname}
-                name="email"
-                type="email"
-                placeholder={translate('signup-email')}
-                required
-                value={state.email}
-                onChange={onChange}
-              />
-              <div className={rowClassname} style={{ width: '100%' }}>
-                <Input
-                  name="username"
-                  type="text"
-                  placeholder={translate('signup-username')}
-                  autoComplete="off"
-                  required
-                  value={state.username}
-                  hasError={!!state.usernameError}
-                  onChange={onChange}
-                  onBlur={checkUserName}
-                />
-                {state.usernameError && (
+          {state.clientId
+            ? (
+                <div className={css({ width: '100%' })}>
                   <p
                     className={css({
-                      color: theme.error,
-                      margin: '0.5rem 0 0',
+                      textAlign: 'center',
+                      padding: '0.5rem 0.75rem',
+                      color: 'green',
+                      background: 'lightgreen',
+                      borderRadius: '5px',
                     })}
                   >
-                    {translate('signup-username-error')}
+                    {translate('signup-success-heading')}
                   </p>
-                )}
-              </div>
-              <Input
-                className={rowClassname}
-                name="password"
-                type="password"
-                placeholder={translate('password-placeholder')}
-                required
-                value={state.password}
-                onChange={onChange}
-              />
-              <Button $size="expand" type="submit" className={rowClassname}>
-                {translate('signup-cta')}
-              </Button>
-              <Link
-                to="/signin"
-                className={css({
-                  color: theme.link,
-                })}
-              >
-                {translate('signuppage-login-cta')}
-              </Link>
-            </>
-          )}
+                  <p>
+                    {translate('signup-hubcreds-instructions-1')}
+                    <br />
+                    {translate('signup-hubcreds-instructions-2')}
+                  </p>
+                  <p className={css({ fontSize: '1rem', fontFamily: 'monospace' })}>
+                    {translate('signup-hubcreds-clientid')}
+                    {' '}
+                    {state.clientId}
+                  </p>
+                  <p className={css({ fontSize: '1rem', fontFamily: 'monospace' })}>
+                    {translate('signup-hubcreds-secret')}
+                    {' '}
+                    {state.clientSecret}
+                  </p>
+                  <div className={css({ textAlign: 'center' })}>
+                    <Button onClick={goToSignin}>
+                      {translate('signup=success-cta')}
+                    </Button>
+                  </div>
+                </div>
+              )
+            : (
+                <>
+                  {state.error && (
+                    <p
+                      className={css({
+                        width: '100%',
+                        background: theme.errorBackground,
+                        color: theme.error,
+                        padding: '0.5rem 0.75rem',
+                      })}
+                    >
+                      {translate('signup-error')}
+                    </p>
+                  )}
+                  <Input
+                    className={rowClassname}
+                    name="name"
+                    type="text"
+                    placeholder={translate('signup-name')}
+                    required
+                    value={state.name}
+                    onChange={onChange}
+                  />
+                  <Input
+                    className={rowClassname}
+                    name="email"
+                    type="email"
+                    placeholder={translate('signup-email')}
+                    required
+                    value={state.email}
+                    onChange={onChange}
+                  />
+                  <div className={rowClassname} style={{ width: '100%' }}>
+                    <Input
+                      name="username"
+                      type="text"
+                      placeholder={translate('signup-username')}
+                      autoComplete="off"
+                      required
+                      value={state.username}
+                      hasError={!!state.usernameError}
+                      onChange={onChange}
+                      onBlur={checkUserName}
+                    />
+                    {state.usernameError && (
+                      <p
+                        className={css({
+                          color: theme.error,
+                          margin: '0.5rem 0 0',
+                        })}
+                      >
+                        {translate('signup-username-error')}
+                      </p>
+                    )}
+                  </div>
+                  <Input
+                    className={rowClassname}
+                    name="password"
+                    type="password"
+                    placeholder={translate('password-placeholder')}
+                    required
+                    value={state.password}
+                    onChange={onChange}
+                  />
+                  <Button $size="expand" type="submit" className={rowClassname}>
+                    {translate('signup-cta')}
+                  </Button>
+                  <Link
+                    to="/signin"
+                    className={css({
+                      color: theme.link,
+                    })}
+                  >
+                    {translate('signuppage-login-cta')}
+                  </Link>
+                </>
+              )}
         </div>
       </form>
     </div>

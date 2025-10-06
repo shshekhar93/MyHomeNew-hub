@@ -39,11 +39,13 @@ function ManageConnectionsPage() {
       })}
     >
       <PageHeading>{translate('manage-connections.heading')}</PageHeading>
-      {connections.length > 0 ? (
-        <p>{translate('manage-connections.connected')}</p>
-      ) : (
-        <p>{translate('manage-connections.none-connected')}</p>
-      )}
+      {connections.length > 0
+        ? (
+            <p>{translate('manage-connections.connected')}</p>
+          )
+        : (
+            <p>{translate('manage-connections.none-connected')}</p>
+          )}
       <div
         className={css({
           display: connections.length ? 'block' : 'none',
@@ -51,7 +53,7 @@ function ManageConnectionsPage() {
           border: `1px solid ${theme.border}`,
         })}
       >
-        {connections.map((connection) => (
+        {connections.map(connection => (
           <div
             key={connection.id}
             className={css({

@@ -33,11 +33,12 @@ function SigninPage() {
       try {
         await login(username, password);
         store.set('user', await getCurrentUserDetails());
-      } catch (e) {
+      }
+      catch (_) {
         setError(true);
       }
     },
-    [store, username, password]
+    [store, username, password],
   );
 
   return (

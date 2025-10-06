@@ -25,19 +25,19 @@ describe('Api routes -- all tests', () => {
       '/v1/devices',
       anyFn,
       anyFn,
-      anyFn
+      anyFn,
     );
     expect(mockApp.get).toHaveBeenCalledWith(
       '/v1/devices/:name',
       anyFn,
       anyFn,
-      anyFn
+      anyFn,
     );
     expect(mockApp.post).toHaveBeenCalledWith(
       '/v1/devices/:name/set-state',
       anyFn,
       anyFn,
-      anyFn
+      anyFn,
     );
     expect(mockApp.get).toHaveBeenCalledWith('/v1/app/latest-manifest', anyFn);
     expect(mockApp.get).toHaveBeenCalledWith('/v1/app/download/:apk', anyFn);
@@ -53,7 +53,8 @@ describe('Api routes -- all tests', () => {
       try {
         expect(res?.locals?.oauth?.token?.user).toBe(req.user);
         done();
-      } catch (err) {
+      }
+      catch (err) {
         done(err);
       }
     });
@@ -62,7 +63,7 @@ describe('Api routes -- all tests', () => {
   });
 
   it('Should test the oAuth middleware when req.user absent', (done) => {
-    const oAuthAuthenticator = jest.fn((req, res, next) => setTimeout(next, 0));
+    const oAuthAuthenticator = jest.fn((_req, _res, next) => setTimeout(next, 0));
     mockApp.oAuth.authenticate.mockReturnValueOnce(oAuthAuthenticator);
     setupAPIRoutes(mockApp);
 
@@ -72,7 +73,8 @@ describe('Api routes -- all tests', () => {
       try {
         expect(oAuthAuthenticator).toHaveBeenCalledWith(req, res, anyFn);
         done();
-      } catch (err) {
+      }
+      catch (err) {
         done(err);
       }
     });
@@ -91,7 +93,8 @@ describe('Api routes -- all tests', () => {
         expect(req.user).toBe(res.locals.oauth.token.user);
         expect(proxy).not.toHaveBeenCalled();
         done();
-      } catch (err) {
+      }
+      catch (err) {
         done(err);
       }
     });
@@ -109,7 +112,8 @@ describe('Api routes -- all tests', () => {
         expect(req.user).toBe(res.locals.oauth.token.user);
         expect(proxy).not.toHaveBeenCalled();
         done();
-      } catch (err) {
+      }
+      catch (err) {
         done(err);
       }
     });
@@ -129,7 +133,8 @@ describe('Api routes -- all tests', () => {
         expect(req.user).toBe(res.locals.oauth.token.user);
         expect(proxy).not.toHaveBeenCalled();
         done();
-      } catch (err) {
+      }
+      catch (err) {
         done(err);
       }
     });
@@ -147,11 +152,12 @@ describe('Api routes -- all tests', () => {
     proxy.mockImplementation(() => {
       try {
         expect(isDevOnline).toHaveBeenCalledWith(
-          res.locals.oauth.token.user.hubClientId
+          res.locals.oauth.token.user.hubClientId,
         );
         expect(proxy).toHaveBeenCalledWith(req, res);
         done();
-      } catch (err) {
+      }
+      catch (err) {
         done(err);
       }
     });

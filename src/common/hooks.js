@@ -23,16 +23,17 @@ import {
 function useLoadTranslations(store) {
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
-    const locale =
-      query.get('locale') ||
-      window.localStorage.getItem('locale') ||
-      window.navigator.language ||
-      window.navigator.userLanguage;
+    const locale
+      = query.get('locale')
+        || window.localStorage.getItem('locale')
+        || window.navigator.language
+        || window.navigator.userLanguage;
 
     (async () => {
       try {
         store.set('translations', await fetchTranslations(locale));
-      } catch (e) {
+      }
+      catch (_) {
         store.set('init-error', true);
       }
       store.set('translations-loaded', true);
@@ -47,7 +48,8 @@ function useLoadUserDetails(store) {
     (async () => {
       try {
         store.set('user', await getCurrentUserDetails());
-      } catch (e) {
+      }
+      catch (e) {
         if (e !== UNAUTHORIZED) {
           store.set('init-error', true);
         }
@@ -61,7 +63,7 @@ function useLoadUserDetails(store) {
 
 function useInitialized(store) {
   return useStoreUpdates(['user-loaded', 'translations-loaded'], store).every(
-    Boolean
+    Boolean,
   );
 }
 
@@ -79,7 +81,8 @@ function useUserDevices() {
       store.set('loading-devices', false);
       store.set('orig-devices', allDevices);
       store.set('devices', groupedDevices);
-    } catch (e) {
+    }
+    catch (e) {
       if (e !== UNAUTHORIZED) {
         store.set('user', null);
       }
@@ -89,7 +92,7 @@ function useUserDevices() {
   const [loading, origDevices, devices] = useStoreUpdates(
     ['loading-devices', 'orig-devices', 'devices'],
     store,
-    reloadDevices
+    reloadDevices,
   );
 
   return {
@@ -113,7 +116,7 @@ function usePendingDevices() {
   return useStoreUpdates(
     ['loading-devices', 'pending-devices'],
     store,
-    reloadPendingDevices
+    reloadPendingDevices,
   ).concat(reloadPendingDevices);
 }
 
@@ -133,8 +136,8 @@ function useConnectApp() {
       'QRCodeData',
       await QRCode.toDataURL(
         `${clientCreds.id}:${clientCreds.secret}:${window.location.protocol}//${window.location.host}`,
-        { errorCorrectionLevel: 'H' }
-      )
+        { errorCorrectionLevel: 'H' },
+      ),
     );
     store.set('loading-credentials', false);
   };
@@ -142,7 +145,7 @@ function useConnectApp() {
   return useStoreUpdates(
     ['loading-credentials', 'clientId', 'clientSecret', 'QRCodeData'],
     store,
-    getClientCreds
+    getClientCreds,
   );
 }
 
@@ -157,7 +160,7 @@ function useClientConnections() {
       month: 'long',
       day: 'numeric',
     });
-    const clients = (await getAllAppConnections()).map((client) => ({
+    const clients = (await getAllAppConnections()).map(client => ({
       ...client,
       createdDate: formatter.format(new Date(client.createdDate)),
     }));
@@ -168,7 +171,7 @@ function useClientConnections() {
   return useStoreUpdates(
     ['loading-clients', 'client-connections'],
     store,
-    getExistingClients
+    getExistingClients,
   ).concat(getExistingClients);
 }
 
@@ -204,15 +207,17 @@ function useClientDetails() {
       const { client } = await getClient(
         query.client_id,
         query.response_type,
-        query.redirect_uri
+        query.redirect_uri,
       );
       if (!client) {
         throw new Error();
       }
       store.set('client-details', client);
-    } catch (e) {
+    }
+    catch (e) {
       store.set('client-details-error', e.code || 'Invalid client');
-    } finally {
+    }
+    finally {
       store.set('client-details-loading', false);
     }
   };
@@ -225,7 +230,7 @@ function useClientDetails() {
       'client-params',
     ],
     store,
-    getClientDetails
+    getClientDetails,
   );
 }
 
@@ -244,14 +249,14 @@ function useStoreUpdates(keys, store, initFn) {
   }
 
   useEffect(() => {
-    initFn && initFn();
+    initFn?.();
 
     const handler = () => rerender(Date.now());
-    keys.forEach((key) => store.subscribe(key, handler));
-    return () => keys.forEach((key) => store.unsubscribe(key, handler));
+    keys.forEach(key => store.subscribe(key, handler));
+    return () => keys.forEach(key => store.unsubscribe(key, handler));
   }, []);
 
-  return keys.map((key) => store.get(key));
+  return keys.map(key => store.get(key));
 }
 
 function useLogout() {

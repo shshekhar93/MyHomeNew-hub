@@ -21,7 +21,7 @@ describe('Helpers -- Catch and Respond tests', () => {
 
   it('should respond with error on promise fail', async () => {
     middleware.mockReturnValueOnce(
-      Promise.reject(new Error('Middleware failed'))
+      Promise.reject(new Error('Middleware failed')),
     );
     const safeMiddleware = catchAndRespond(middleware);
 
@@ -35,7 +35,6 @@ describe('Helpers -- Catch and Respond tests', () => {
   });
 
   it('should respond with original error obj if its not Error type', async () => {
-    // eslint-disable-next-line prefer-promise-reject-errors
     middleware.mockReturnValueOnce(Promise.reject('Middleware failed'));
     const safeMiddleware = catchAndRespond(middleware);
 
@@ -49,7 +48,6 @@ describe('Helpers -- Catch and Respond tests', () => {
   });
 
   it('should respond with just success false if no error provided', async () => {
-    // eslint-disable-next-line prefer-promise-reject-errors
     middleware.mockReturnValueOnce(Promise.reject());
     const safeMiddleware = catchAndRespond(middleware);
 

@@ -30,7 +30,7 @@ const proxyRequestsSetup = function (options) {
     localhost: `http://localhost:${process.env.PORT || 8020}`,
   });
 
-  return async (req, res, next) => {
+  return async (req, _res, next) => {
     const reqSecret = req.get('websocket-proxy-request');
     const { email } = options;
 
@@ -46,7 +46,8 @@ const proxyRequestsSetup = function (options) {
     try {
       req.user = await UserModel.findOne({ email });
       next();
-    } catch (err) {
+    }
+    catch (err) {
       logError('Error finding default hub user');
       logError(err);
       next(err);

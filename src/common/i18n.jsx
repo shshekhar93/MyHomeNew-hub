@@ -25,12 +25,12 @@ const useTranslations = () => {
         (str, placeholder) =>
           str.replace(
             placeholder,
-            values[placeholder.substring(1, placeholder.length - 1)]
+            values[placeholder.substring(1, placeholder.length - 1)],
           ),
-        translation
+        translation,
       );
     },
-    [translations]
+    [translations],
   );
 };
 

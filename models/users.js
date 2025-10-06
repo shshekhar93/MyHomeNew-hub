@@ -20,7 +20,7 @@ const UserSchema = new Schema(
     createdDate: { type: Date, default: Date.now },
     updatedDate: { type: Date, default: Date.now },
   },
-  transformer
+  transformer,
 );
 
 const UserModel = mongoose.model('Users', UserSchema);

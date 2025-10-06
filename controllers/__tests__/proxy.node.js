@@ -31,7 +31,8 @@ describe('Proxy controller tests', () => {
     on: (event, handler) => {
       if (event === 'exit') {
         exitHandler = handler;
-      } else if (event === 'message') {
+      }
+      else if (event === 'message') {
         messageHandler = handler;
       }
     },

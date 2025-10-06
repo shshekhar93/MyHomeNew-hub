@@ -20,7 +20,7 @@ describe('Application controller tests', () => {
 
   beforeAll(() => {
     getTranslationFileURL.mockImplementation(
-      (file) => `${TRASNLATIONS}${file}`
+      file => `${TRASNLATIONS}${file}`,
     );
   });
 

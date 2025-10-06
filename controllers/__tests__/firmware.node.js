@@ -20,7 +20,7 @@ const MOCK_DEVICE = {
 };
 
 describe('Firmware controller tests', () => {
-  it('Should return error if no encryption key', async () => {
+  it('Should return error if no encryption key in device model', async () => {
     const [req, res] = generateExpressRequestMocks();
     DeviceModel.findOne.mockReturnValueOnce(injectLean(Promise.resolve({})));
     req.params = { name: 'test-device-name' };
@@ -31,7 +31,7 @@ describe('Firmware controller tests', () => {
     });
   });
 
-  it('Should return error if no encryption key', async () => {
+  it('Should return error if no device found', async () => {
     const [req, res] = generateExpressRequestMocks();
     DeviceModel.findOne.mockReturnValueOnce(injectLean(Promise.resolve(null)));
     req.params = { name: 'test-device-name' };
@@ -45,7 +45,7 @@ describe('Firmware controller tests', () => {
   it('Should return error if invalid file', async () => {
     const [req, res] = generateExpressRequestMocks();
     DeviceModel.findOne.mockReturnValueOnce(
-      injectLean(Promise.resolve(MOCK_DEVICE))
+      injectLean(Promise.resolve(MOCK_DEVICE)),
     );
 
     // Invalid file but valid frame num
@@ -63,7 +63,7 @@ describe('Firmware controller tests', () => {
   it('Should return error if valid file but invalid frame number', async () => {
     const [req, res] = generateExpressRequestMocks();
     DeviceModel.findOne.mockReturnValueOnce(
-      injectLean(Promise.resolve(MOCK_DEVICE))
+      injectLean(Promise.resolve(MOCK_DEVICE)),
     );
 
     // Valid file but invalid frame num
@@ -82,7 +82,7 @@ describe('Firmware controller tests', () => {
     const firmwareBuffer = Buffer.from('This is firmware');
     const [req, res] = generateExpressRequestMocks();
     DeviceModel.findOne.mockReturnValueOnce(
-      injectLean(Promise.resolve(MOCK_DEVICE))
+      injectLean(Promise.resolve(MOCK_DEVICE)),
     );
     getFileURL.mockReturnValueOnce('/path/to/file');
     readFile.mockReturnValueOnce(firmwareBuffer);
@@ -95,19 +95,19 @@ describe('Firmware controller tests', () => {
     await firmwareController(req, res);
     expect(res.setHeader).toHaveBeenCalledWith(
       'Content-Disposition',
-      'attachment; filename=firmware.bin'
+      'attachment; filename=firmware.bin',
     );
     expect(res.setHeader).toHaveBeenCalledWith(
       'Content-Type',
-      'application/octet-stream'
+      'application/octet-stream',
     );
     expect(res.setHeader).toHaveBeenCalledWith(
       'Content-Length',
-      firmwareBuffer.length
+      firmwareBuffer.length,
     );
     expect(res.setHeader).toHaveBeenCalledWith(
       'x-MD5',
-      '75d212b1b5a2d1c19167fedc102e6257'
+      '75d212b1b5a2d1c19167fedc102e6257',
     );
     expect(res.end).toHaveBeenCalledWith(firmwareBuffer);
   });

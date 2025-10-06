@@ -41,7 +41,8 @@ describe('Assistant route tests', () => {
       try {
         expect(err).toBe(undefined);
         done();
-      } catch (err) {
+      }
+      catch (err) {
         done(err);
       }
     });
@@ -50,7 +51,7 @@ describe('Assistant route tests', () => {
 
   it('oAuth authenticator should be called for unauthenticated requests', (done) => {
     const [req, res, next] = generateExpressRequestMocks();
-    const authMiddleware = jest.fn((req, res, next) => setTimeout(next, 0));
+    const authMiddleware = jest.fn((_req, _res, next) => setTimeout(next, 0));
     req.app = { oAuth: { authenticate: () => authMiddleware } };
     req.isAuthenticated = jest.fn(() => false);
 
@@ -59,7 +60,8 @@ describe('Assistant route tests', () => {
         expect(err).toBe(undefined);
         expect(authMiddleware).toHaveBeenCalledWith(req, res, next);
         done();
-      } catch (err) {
+      }
+      catch (err) {
         done(err);
       }
     });
@@ -88,7 +90,7 @@ describe('Assistant route tests', () => {
         req.body.inputs = [{ intent }];
         handler(req, res);
         expect(intentHandler).toHaveBeenCalledWith(...args);
-      }
+      },
     );
   });
 
@@ -102,7 +104,8 @@ describe('Assistant route tests', () => {
         expect(result).toEqual({});
         expect(res.status).not.toHaveBeenCalled();
         done();
-      } catch (err) {
+      }
+      catch (err) {
         done(err);
       }
     });
@@ -120,7 +123,8 @@ describe('Assistant route tests', () => {
         expect(result).toEqual({});
         expect(res.status).not.toHaveBeenCalled();
         done();
-      } catch (err) {
+      }
+      catch (err) {
         done(err);
       }
     });

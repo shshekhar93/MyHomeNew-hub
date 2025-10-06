@@ -39,7 +39,7 @@ function LoadingSpinner({
         animationIterationCount: 'infinite',
 
         ':after': {
-          content: "''",
+          content: '\'\'',
           borderRadius: '50%',
           width: size,
           height: size,

@@ -13,8 +13,8 @@ import {
   saveAuthorizationCode,
   saveToken,
 } from '../oAuth';
-require('../users');
 import { injectLean } from '../../test/test-utils';
+// import.require('../users');
 
 const MOCK_USER = {
   id: 'test-user-id',
@@ -80,10 +80,10 @@ describe('OAuthCodesModel tests', () => {
   it('Should handle save authorization code error', async () => {
     const dbError = new Error('db unavailable');
     OAuthCodesModel.prototype.save.mockImplementation(() =>
-      Promise.reject(dbError)
+      Promise.reject(dbError),
     );
     await expect(() =>
-      saveAuthorizationCode(mockCode, mockClient, MOCK_USER)
+      saveAuthorizationCode(mockCode, mockClient, MOCK_USER),
     ).rejects.toThrow(dbError);
   });
 
@@ -97,7 +97,7 @@ describe('OAuthCodesModel tests', () => {
 
     OAuthCodesModel.findOne.mockImplementation(async () => authCode);
     OAuthClientsModel.findOne.mockImplementation(
-      injectLean(async () => mockClient)
+      injectLean(async () => mockClient),
     );
     UserModel.findOne.mockImplementation(injectLean(async () => MOCK_USER));
     const result = await getAuthorizationCode(authCode.authorizationCode);
@@ -111,7 +111,7 @@ describe('OAuthCodesModel tests', () => {
   it('Should handle auth code not found', async () => {
     OAuthCodesModel.findOne.mockImplementation(async () => null);
     await expect(() => getAuthorizationCode('test')).rejects.toThrow(
-      'AUTH_CODE_NOT_FOUND'
+      'AUTH_CODE_NOT_FOUND',
     );
   });
 
@@ -121,7 +121,7 @@ describe('OAuthCodesModel tests', () => {
     expect(successResult).toBe(true);
 
     OAuthCodesModel.remove.mockImplementationOnce((_, cb) =>
-      cb(new Error('something went wrong'))
+      cb(new Error('something went wrong')),
     );
     const failureResult = await revokeAuthorizationCode('test');
     expect(failureResult).toBe(false);
@@ -147,7 +147,7 @@ describe('OAuthClientsModel tests', () => {
 
   it('Should get client by only id', async () => {
     OAuthClientsModel.findOne.mockImplementation(
-      injectLean(async () => mockClient)
+      injectLean(async () => mockClient),
     );
     const result = await getClient(mockClient.id);
     expect(result).toStrictEqual(mockClient);
@@ -155,7 +155,7 @@ describe('OAuthClientsModel tests', () => {
 
   it('Should get client by id and secret with secret is valid', async () => {
     OAuthClientsModel.findOne.mockImplementation(
-      injectLean(async () => mockClient)
+      injectLean(async () => mockClient),
     );
     const result = await getClient(mockClient.id, 'bar');
     expect(result).toStrictEqual(mockClient);
@@ -163,7 +163,7 @@ describe('OAuthClientsModel tests', () => {
 
   it('Should should not return client if secret does not match', async () => {
     OAuthClientsModel.findOne.mockImplementation(
-      injectLean(async () => mockClient)
+      injectLean(async () => mockClient),
     );
     const result = await getClient(mockClient.id, '123');
     expect(result).toBe(null);
@@ -171,7 +171,7 @@ describe('OAuthClientsModel tests', () => {
 
   it('Should swallow error if search fails', async () => {
     OAuthClientsModel.findOne.mockImplementation(
-      injectLean(() => Promise.reject(new Error()))
+      injectLean(() => Promise.reject(new Error())),
     );
     const result = await getClient(mockClient.id);
     expect(result).toBe(null);
@@ -179,7 +179,7 @@ describe('OAuthClientsModel tests', () => {
 
   it('Should get user from client', async () => {
     OAuthClientsModel.findOne.mockImplementation(
-      injectLean(async () => mockClient)
+      injectLean(async () => mockClient),
     );
     UserModel.findById.mockImplementation(injectLean(async () => MOCK_USER));
     const result = await getUserFromClient(mockClient);
@@ -194,7 +194,7 @@ describe('OAuthClientsModel tests', () => {
 
   it('Should gracefully handle find errors', async () => {
     OAuthClientsModel.findOne.mockImplementation(
-      injectLean(() => Promise.reject(new Error()))
+      injectLean(() => Promise.reject(new Error())),
     );
     const result = await getUserFromClient(mockClient);
     expect(result).toBe(null);
@@ -202,7 +202,7 @@ describe('OAuthClientsModel tests', () => {
 
   it('Should get all clients for user', async () => {
     OAuthClientsModel.find.mockImplementation(
-      injectLean(async () => [MOCK_USER, MOCK_USER])
+      injectLean(async () => [MOCK_USER, MOCK_USER]),
     );
     const result = await getAllClientsForUser(MOCK_USER.id);
     expect(result).toStrictEqual([MOCK_USER, MOCK_USER]);
@@ -210,7 +210,7 @@ describe('OAuthClientsModel tests', () => {
 
   it('Should gracefully handle errors', async () => {
     OAuthClientsModel.find.mockImplementation(
-      injectLean(() => Promise.reject(new Error()))
+      injectLean(() => Promise.reject(new Error())),
     );
     const result = await getAllClientsForUser(MOCK_USER.id);
     expect(result).toStrictEqual([]);
@@ -218,7 +218,7 @@ describe('OAuthClientsModel tests', () => {
 
   it('Should delete client', async () => {
     OAuthClientsModel.findOneAndRemove.mockImplementation(
-      injectLean(async () => {})
+      injectLean(async () => {}),
     );
     const result = await deleteClient(mockClient);
     expect(result).toBe(undefined);
@@ -254,13 +254,13 @@ describe('OAuthTokensModel tests', () => {
 
   it('Should get access token', async () => {
     OAuthTokensModel.findOne.mockReturnValueOnce(
-      Promise.resolve(new OAuthTokensModel(mockToken))
+      Promise.resolve(new OAuthTokensModel(mockToken)),
     );
     OAuthClientsModel.findOne.mockReturnValueOnce(
-      injectLean(Promise.resolve(mockClient))
+      injectLean(Promise.resolve(mockClient)),
     );
     UserModel.findOne.mockReturnValueOnce(
-      injectLean(Promise.resolve(MOCK_USER))
+      injectLean(Promise.resolve(MOCK_USER)),
     );
 
     const result = await getAccessToken('test-access-token');
@@ -287,7 +287,7 @@ describe('OAuthTokensModel tests', () => {
 
     for (const token of mockTokens) {
       OAuthTokensModel.findOne.mockReturnValueOnce(
-        Promise.resolve(new OAuthTokensModel(token))
+        Promise.resolve(new OAuthTokensModel(token)),
       );
 
       const result = await getAccessToken('test-access-token');
@@ -297,13 +297,13 @@ describe('OAuthTokensModel tests', () => {
 
   it('Should fail get access token for unkown client', async () => {
     OAuthTokensModel.findOne.mockReturnValueOnce(
-      Promise.resolve(new OAuthTokensModel(mockToken))
+      Promise.resolve(new OAuthTokensModel(mockToken)),
     );
     OAuthClientsModel.findOne.mockReturnValueOnce(
-      injectLean(Promise.resolve(null))
+      injectLean(Promise.resolve(null)),
     );
     UserModel.findOne.mockReturnValueOnce(
-      injectLean(Promise.resolve(MOCK_USER))
+      injectLean(Promise.resolve(MOCK_USER)),
     );
     const result = await getAccessToken('test-access-token');
     expect(result).toBe(null);
@@ -311,10 +311,10 @@ describe('OAuthTokensModel tests', () => {
 
   it('Should fail get access token for unkown user', async () => {
     OAuthTokensModel.findOne.mockReturnValueOnce(
-      Promise.resolve(new OAuthTokensModel(mockToken))
+      Promise.resolve(new OAuthTokensModel(mockToken)),
     );
     OAuthClientsModel.findOne.mockReturnValueOnce(
-      injectLean(Promise.resolve(mockClient))
+      injectLean(Promise.resolve(mockClient)),
     );
     UserModel.findOne.mockReturnValueOnce(injectLean(Promise.resolve(null)));
     const result = await getAccessToken('test-access-token');
@@ -323,7 +323,7 @@ describe('OAuthTokensModel tests', () => {
 
   it('Should fail get access token if find token fails', async () => {
     OAuthTokensModel.findOne.mockReturnValueOnce(
-      Promise.reject(new Error('db unavailable'))
+      Promise.reject(new Error('db unavailable')),
     );
     const result = await getAccessToken('test-access-token');
     expect(result).toBe(null);
@@ -337,7 +337,7 @@ describe('OAuthTokensModel tests', () => {
 
   it('Should handle revoke token error', async () => {
     OAuthTokensModel.remove.mockImplementation((_, cb) =>
-      setTimeout(() => cb(new Error('db unavailable')), 0)
+      setTimeout(() => cb(new Error('db unavailable')), 0),
     );
     const result = await revokeToken(mockToken);
     expect(result).toBe(false);
@@ -345,13 +345,13 @@ describe('OAuthTokensModel tests', () => {
 
   it('Should get refresh token', async () => {
     OAuthTokensModel.findOne.mockReturnValueOnce(
-      Promise.resolve(new OAuthTokensModel(mockToken))
+      Promise.resolve(new OAuthTokensModel(mockToken)),
     );
     OAuthClientsModel.findOne.mockReturnValueOnce(
-      injectLean(Promise.resolve(mockClient))
+      injectLean(Promise.resolve(mockClient)),
     );
     UserModel.findOne.mockReturnValueOnce(
-      injectLean(Promise.resolve(MOCK_USER))
+      injectLean(Promise.resolve(MOCK_USER)),
     );
 
     const result = await getRefreshToken('test-refresh-token');
@@ -378,7 +378,7 @@ describe('OAuthTokensModel tests', () => {
 
     for (const token of mockTokens) {
       OAuthTokensModel.findOne.mockReturnValueOnce(
-        Promise.resolve(new OAuthTokensModel(token))
+        Promise.resolve(new OAuthTokensModel(token)),
       );
 
       const result = await getRefreshToken('test-access-token');
@@ -388,13 +388,13 @@ describe('OAuthTokensModel tests', () => {
 
   it('Should fail get refresh token for unkown client', async () => {
     OAuthTokensModel.findOne.mockReturnValueOnce(
-      Promise.resolve(new OAuthTokensModel(mockToken))
+      Promise.resolve(new OAuthTokensModel(mockToken)),
     );
     OAuthClientsModel.findOne.mockReturnValueOnce(
-      injectLean(Promise.resolve(null))
+      injectLean(Promise.resolve(null)),
     );
     UserModel.findOne.mockReturnValueOnce(
-      injectLean(Promise.resolve(MOCK_USER))
+      injectLean(Promise.resolve(MOCK_USER)),
     );
     const result = await getRefreshToken('test-access-token');
     expect(result).toBe(null);
@@ -402,10 +402,10 @@ describe('OAuthTokensModel tests', () => {
 
   it('Should fail get refresh token for unkown user', async () => {
     OAuthTokensModel.findOne.mockReturnValueOnce(
-      Promise.resolve(new OAuthTokensModel(mockToken))
+      Promise.resolve(new OAuthTokensModel(mockToken)),
     );
     OAuthClientsModel.findOne.mockReturnValueOnce(
-      injectLean(Promise.resolve(mockClient))
+      injectLean(Promise.resolve(mockClient)),
     );
     UserModel.findOne.mockReturnValueOnce(injectLean(Promise.resolve(null)));
     const result = await getRefreshToken('test-access-token');
@@ -414,7 +414,7 @@ describe('OAuthTokensModel tests', () => {
 
   it('Should fail get refresh token if find token fails', async () => {
     OAuthTokensModel.findOne.mockReturnValueOnce(
-      Promise.reject(new Error('db fooo'))
+      Promise.reject(new Error('db fooo')),
     );
     const result = await getRefreshToken('test-access-token');
     expect(result).toBe(null);

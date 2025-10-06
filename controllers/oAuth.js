@@ -15,7 +15,7 @@ import {
 import { catchAndRespond, errResp, successResp } from '../libs/helpers.js';
 
 const hash = promisify(bcrypt.hash);
-const mapper = (client) => _omit(client, ['_id', '__v', 'secret']);
+const mapper = client => _omit(client, ['_id', '__v', 'secret']);
 
 const getExistingClientsForUser = async (req, res) => {
   if (!req.user._id) {
@@ -24,13 +24,14 @@ const getExistingClientsForUser = async (req, res) => {
 
   try {
     const clients = (await getAllClientsForUser(req.user._id)).map(
-      (client) => ({
+      client => ({
         ...mapper(client),
         createdDate: client.createdDate || '1970-01-01T00:00:00.000Z',
-      })
+      }),
     );
     res.json(clients);
-  } catch (e) {
+  }
+  catch (_) {
     res.json([]);
   }
 };
@@ -70,7 +71,7 @@ const createNewClient = catchAndRespond(async (req, res) => {
     return res.status(403).json(
       errResp({
         error: 'Invalid input',
-      })
+      }),
     );
   }
 
@@ -107,14 +108,14 @@ const getPublicClientDetails = catchAndRespond(async (req, res) => {
   res.json(
     successResp({
       client: mapper(client),
-    })
+    }),
   );
 });
 
 function getAuthMiddleware(oAuth) {
   return oAuth.authorize({
     authenticateHandler: {
-      handle: (req, res) => {
+      handle: (req, _res) => {
         return req.user;
       },
     },

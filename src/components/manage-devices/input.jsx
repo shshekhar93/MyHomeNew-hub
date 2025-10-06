@@ -25,15 +25,15 @@ function ManageDeviceInput({ device, isNew, onSave }) {
   useEffect(() => {
     const { leads } = localDevice;
 
-    const alreadyConfigured = leads.map((lead) => lead.devId);
+    const alreadyConfigured = leads.map(lead => lead.devId);
     const remainingLeads = Array(4)
       .fill()
       .map((_, id) => id)
-      .filter((id) => !alreadyConfigured.includes(id));
+      .filter(id => !alreadyConfigured.includes(id));
 
     if (alreadyConfigured.length === 0) {
       const devId = remainingLeads.shift();
-      setLocalDevice((device) => ({
+      setLocalDevice(device => ({
         ...device,
         leads: device.leads.concat({
           devId,
@@ -53,7 +53,7 @@ function ManageDeviceInput({ device, isNew, onSave }) {
     }
 
     const devId = remainingLeads.shift();
-    setLocalDevice((device) => ({
+    setLocalDevice(device => ({
       ...device,
       leads: device.leads.concat({
         devId,
@@ -68,23 +68,23 @@ function ManageDeviceInput({ device, isNew, onSave }) {
 
   const removeLead = useCallback((e) => {
     const devId = +e.target.getAttribute('data-devid');
-    setLocalDevice((localDevice) => ({
+    setLocalDevice(localDevice => ({
       ...localDevice,
-      leads: localDevice.leads.filter((lead) => lead.devId !== devId),
+      leads: localDevice.leads.filter(lead => lead.devId !== devId),
     }));
-    setRemaininLeads((remainingLeads) =>
-      remainingLeads.concat(devId).sort((a, b) => a - b)
+    setRemaininLeads(remainingLeads =>
+      remainingLeads.concat(devId).sort((a, b) => a - b),
     );
   }, []);
 
   const onChange = useCallback((e) => {
-    const { name, value, type } = e.target;
+    const { name, value, checked, type } = e.target;
     setDirty(true);
-    setLocalDevice((device) =>
+    setLocalDevice(device =>
       Object.assign(
         {},
-        _set(device, name, type === 'checkbox' ? checked : value)
-      )
+        _set(device, name, type === 'checkbox' ? checked : value),
+      ),
     );
   }, []);
 
@@ -98,9 +98,9 @@ function ManageDeviceInput({ device, isNew, onSave }) {
       await save(localDevice);
       setSaving(false);
       setDirty(false);
-      onSave && onSave();
+      onSave?.();
     },
-    [localDevice, isNew, onSave]
+    [localDevice, isNew, onSave],
   );
 
   const optClass = css({ color: 'initial' });
@@ -240,16 +240,18 @@ function ManageDeviceInput({ device, isNew, onSave }) {
             justifyContent: 'center',
           })}
         >
-          {saving ? (
-            <LoadingSpinner
-              size="1rem"
-              border="3px"
-              color="#ffffff"
-              borderColor="#7c7c7c"
-            />
-          ) : (
-            translate('manage-devices.cta')
-          )}
+          {saving
+            ? (
+                <LoadingSpinner
+                  size="1rem"
+                  border="3px"
+                  color="#ffffff"
+                  borderColor="#7c7c7c"
+                />
+              )
+            : (
+                translate('manage-devices.cta')
+              )}
         </Button>
       </form>
     </div>

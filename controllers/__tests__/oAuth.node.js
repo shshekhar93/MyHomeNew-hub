@@ -51,7 +51,7 @@ describe('oAuth Controller Tests -- getExistingClientsForUser', () => {
 
   it('Should return all clients for user', async () => {
     getAllClientsForUser.mockReturnValueOnce(
-      Promise.resolve([MOCK_CLIENT_ONE, MOCK_CLIENT_TWO])
+      Promise.resolve([MOCK_CLIENT_ONE, MOCK_CLIENT_TWO]),
     );
     req.user._id = 'test-user-id';
     await getExistingClientsForUser(req, res);
@@ -66,7 +66,7 @@ describe('oAuth Controller Tests -- getExistingClientsForUser', () => {
 
   it('Should return empty clients if error', async () => {
     getAllClientsForUser.mockReturnValueOnce(
-      Promise.reject(new Error('DB unavailble'))
+      Promise.reject(new Error('DB unavailble')),
     );
     req.user._id = 'test-user-id';
     await getExistingClientsForUser(req, res);
@@ -106,7 +106,7 @@ describe('oAuth Controller Tests -- deleteClientCreds', () => {
     });
   });
 
-  it('Should fail if no client id to delete', async () => {
+  it('Should fail if no client id to delete - null', async () => {
     getUserFromClient.mockResolvedValueOnce(null);
     req.body = { id: MOCK_CLIENT_ONE.id };
     await deleteClientCreds(req, res);
@@ -237,10 +237,10 @@ describe('oAuth Controller Tests -- getPublicClientDetails', () => {
 describe('oAuth Controller Tests -- getAuthMiddleware', () => {
   it('Should return logged in user', () => {
     const handler = getAuthMiddleware({
-      authorize: (input) => input,
+      authorize: input => input,
     });
     expect(handler.authenticateHandler.handle({ user: MOCK_USER })).toBe(
-      MOCK_USER
+      MOCK_USER,
     );
   });
 });

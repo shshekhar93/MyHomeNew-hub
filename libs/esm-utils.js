@@ -3,7 +3,7 @@ import { readFile } from 'fs/promises';
 export async function getFirmwareFile(hardwareVer) {
   return readFile(
     new URL(`../firmwares/${hardwareVer}.latest`, import.meta.url),
-    'utf8'
+    'utf8',
   );
 }
 

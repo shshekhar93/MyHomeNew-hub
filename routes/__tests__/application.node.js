@@ -9,7 +9,7 @@ describe('Applicatino routes tests', () => {
     setupAppRoutes(mockApp);
     expect(mockApp.get).toHaveBeenCalledWith(
       '/translations',
-      expect.any(Function)
+      expect.any(Function),
     );
   });
 });

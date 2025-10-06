@@ -39,10 +39,14 @@ function ConnectAppPage() {
         })}
       >
         <p className={css({ marginTop: 0 })}>
-          <b>{translate('connect-app.clientid')}</b>&nbsp;{clientId}
+          <b>{translate('connect-app.clientid')}</b>
+&nbsp;
+          {clientId}
         </p>
         <p className={css({ marginBottom: 0 })}>
-          <b>{translate('connect-app.secret')}</b>&nbsp;{clientSecret}
+          <b>{translate('connect-app.secret')}</b>
+&nbsp;
+          {clientSecret}
         </p>
       </div>
       <div

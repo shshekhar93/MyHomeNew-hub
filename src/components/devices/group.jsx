@@ -13,7 +13,7 @@ import { DeviceEntry } from './entry';
 function DeviceGroup({ name, devices }) {
   const someDevicesActive = useMemo(
     () => devices.some(({ isActive }) => isActive),
-    [devices]
+    [devices],
   );
 
   return (
@@ -29,7 +29,7 @@ function DeviceGroup({ name, devices }) {
         </StyledAccordionItemButton>
       </AccordionItemHeading>
       <AccordionItemPanel>
-        {devices.map((device) => (
+        {devices.map(device => (
           <DeviceEntry key={`${device.name}|${device.devId}`} device={device} />
         ))}
       </AccordionItemPanel>

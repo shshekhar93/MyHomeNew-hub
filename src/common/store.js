@@ -36,7 +36,7 @@ class Store {
   unsubscribe(key, handler) {
     key = pruneKey(key);
     this.#eventHandlers[key] = (this.#eventHandlers[key] || []).filter(
-      (f) => f !== handler
+      f => f !== handler,
     );
   }
 
@@ -44,7 +44,7 @@ class Store {
     key = pruneKey(key);
     const value = this.get(key);
     const handlers = this.#eventHandlers[key] || [];
-    handlers.forEach((f) => setTimeout(() => f(value, key), 0));
+    handlers.forEach(f => setTimeout(() => f(value, key), 0));
   }
 }
 

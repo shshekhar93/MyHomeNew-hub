@@ -24,7 +24,7 @@ function SetupDevice() {
 
   const devicesArr = useMemo(
     () => Object.values(devices || {}).map(({ name }) => name),
-    [devices]
+    [devices],
   );
 
   const deviceObj = useMemo(
@@ -34,7 +34,7 @@ function SetupDevice() {
       room: '',
       leads: [],
     }),
-    [selectedDevice]
+    [selectedDevice],
   );
 
   useEffect(() => {
@@ -67,50 +67,53 @@ function SetupDevice() {
       })}
     >
       <PageHeading>{translate('setup-device.heading')}</PageHeading>
-      {devicesArr.length === 0 ? (
-        <p>
-          {translate('setup-device.none-pending')}&nbsp;
-          <Link to="#" onClick={reload}>
-            {translate('setup-device.check-again')}
-          </Link>
-        </p>
-      ) : (
-        <>
-          <InputLabel>
-            <InputLabelText>
-              {translate('setup-device.select-label')}
-            </InputLabelText>
-            <Select
-              value={selectedDevice}
-              onChange={(e) => selectDevice(e.target.value)}
-            >
-              <option value="" disabled hidden>
-                {translate('setup-device.select-one')}
-              </option>
-              {devicesArr.map((device) => (
-                <option key={device} value={device}>
-                  {device}
-                </option>
-              ))}
-            </Select>
-          </InputLabel>
-          {selectedDevice && (
-            <div
-              className={css({
-                padding: '0.5rem 1rem',
-                marginBottom: '1.5rem',
-                border: `1px solid ${theme.border}`,
-              })}
-            >
-              <ManageDeviceInput
-                device={deviceObj}
-                isNew={true}
-                onSave={reload}
-              />
-            </div>
+      {devicesArr.length === 0
+        ? (
+            <p>
+              {translate('setup-device.none-pending')}
+&nbsp;
+              <Link to="#" onClick={reload}>
+                {translate('setup-device.check-again')}
+              </Link>
+            </p>
+          )
+        : (
+            <>
+              <InputLabel>
+                <InputLabelText>
+                  {translate('setup-device.select-label')}
+                </InputLabelText>
+                <Select
+                  value={selectedDevice}
+                  onChange={e => selectDevice(e.target.value)}
+                >
+                  <option value="" disabled hidden>
+                    {translate('setup-device.select-one')}
+                  </option>
+                  {devicesArr.map(device => (
+                    <option key={device} value={device}>
+                      {device}
+                    </option>
+                  ))}
+                </Select>
+              </InputLabel>
+              {selectedDevice && (
+                <div
+                  className={css({
+                    padding: '0.5rem 1rem',
+                    marginBottom: '1.5rem',
+                    border: `1px solid ${theme.border}`,
+                  })}
+                >
+                  <ManageDeviceInput
+                    device={deviceObj}
+                    isNew={true}
+                    onSave={reload}
+                  />
+                </div>
+              )}
+            </>
           )}
-        </>
-      )}
       <OTP />
     </div>
   );

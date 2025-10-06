@@ -7,10 +7,10 @@ import _omit from 'lodash/omit';
 const TEST_USER = 'foo';
 const TEST_USER_EMAIL = 'test@example.com';
 const TEST_PASSWORD = 'bar';
-const TEST_PASSWORD_HASH =
-  '$2b$08$jbvmkot8uaYypvFjakan7OgnGq.H3ub3Ww0LXnuYXB4MUbvwSz/7m';
-const INVALID_HASH =
-  '$2b$08$RjT7sW0WqrF.sSZ3pWrKk.HkWI.5WQ/jsYLu2KNVXEVVIracej4OG';
+const TEST_PASSWORD_HASH
+  = '$2b$08$jbvmkot8uaYypvFjakan7OgnGq.H3ub3Ww0LXnuYXB4MUbvwSz/7m';
+const INVALID_HASH
+  = '$2b$08$RjT7sW0WqrF.sSZ3pWrKk.HkWI.5WQ/jsYLu2KNVXEVVIracej4OG';
 
 const setupAuthRequest = (req) => {
   req.body.username = TEST_USER;
@@ -45,7 +45,8 @@ describe('Passport -- Authentication tests', () => {
           err: 'Invalid credentials.',
         });
         done();
-      } catch (err) {
+      }
+      catch (err) {
         done(err);
       }
     });
@@ -79,11 +80,12 @@ describe('Passport -- Authentication tests', () => {
         expect(UserModel.findOne).toHaveBeenCalledWith({ email: 'foo' });
         expect(req.login).toHaveBeenCalledWith(
           _omit(mockUser, ['password', 'toJSON']),
-          expect.any(Function)
+          expect.any(Function),
         );
         expect(res.status).not.toHaveBeenCalled();
         done(err);
-      } catch (err) {
+      }
+      catch (err) {
         done(err);
       }
     });
@@ -91,7 +93,7 @@ describe('Passport -- Authentication tests', () => {
     authMiddleware(req, res, next);
   });
 
-  it('Should not attempt to load user by username if found by email', (done) => {
+  it('Should not attempt to load user by username if found by email and login failed', (done) => {
     const mockUser = {
       _id: 'test',
       email: 'test@example.com',
@@ -119,7 +121,8 @@ describe('Passport -- Authentication tests', () => {
         expect(err).toBe(error);
         expect(res.status).not.toHaveBeenCalled();
         done();
-      } catch (err) {
+      }
+      catch (err) {
         done(err);
       }
     });
@@ -145,7 +148,8 @@ describe('Passport -- Authentication tests', () => {
           err: 'Invalid credentials.',
         });
         done();
-      } catch (err) {
+      }
+      catch (err) {
         done(err);
       }
     });
@@ -165,7 +169,8 @@ describe('Passport -- Authentication tests', () => {
         expect(UserModel.findOne).toHaveBeenCalledWith({ email: 'foo' });
         expect(err).toBe(dbError);
         done();
-      } catch (err) {
+      }
+      catch (err) {
         done(err);
       }
     });
@@ -194,7 +199,8 @@ describe('Passport -- Authorization tests', () => {
           err: 'UNAUTHORIZED',
         });
         done();
-      } catch (err) {
+      }
+      catch (err) {
         done(err);
       }
     });
@@ -213,7 +219,8 @@ describe('Passport -- Authorization tests', () => {
           err: 'UNAUTHORIZED',
         });
         done();
-      } catch (err) {
+      }
+      catch (err) {
         done(err);
       }
     });
@@ -253,10 +260,11 @@ describe('Passport -- serialize / deserialize tests', () => {
           expect(err).toBe(null);
           expect(serializedUser).toBe(TEST_USER_EMAIL);
           done();
-        } catch (err) {
+        }
+        catch (err) {
           done(err);
         }
-      }
+      },
     );
   });
 
@@ -273,7 +281,8 @@ describe('Passport -- serialize / deserialize tests', () => {
         expect(err).toBe(null);
         expect(user).toStrictEqual({ name: 'test' });
         done();
-      } catch (err) {
+      }
+      catch (err) {
         done(err);
       }
     });
@@ -287,7 +296,8 @@ describe('Passport -- serialize / deserialize tests', () => {
         expect(err).toBe(dbError);
         expect(user).toBe(undefined);
         done();
-      } catch (err) {
+      }
+      catch (err) {
         done(err);
       }
     });

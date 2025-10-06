@@ -24,13 +24,13 @@ describe('Device routes tests', () => {
     expect(mockApp.get).toHaveBeenCalledWith(
       '/devices/available',
       anyFn,
-      anyFn
+      anyFn,
     );
     expect(mockApp.get).toHaveBeenCalledWith('/devices', anyFn, anyFn);
     expect(mockApp.get).toHaveBeenCalledWith('/devices/:name', anyFn, anyFn);
     expect(mockApp.get).toHaveBeenCalledWith(
       '/v1/:name/get-firmware/:id',
-      anyFn
+      anyFn,
     );
     expect(mockApp.post).toHaveBeenCalledWith('/devices', anyFn, anyFn);
     expect(mockApp.post).toHaveBeenCalledWith('/devices/new', anyFn, anyFn);
@@ -38,7 +38,7 @@ describe('Device routes tests', () => {
     expect(mockApp.post).toHaveBeenCalledWith(
       '/devices/:name/update-firmware',
       anyFn,
-      anyFn
+      anyFn,
     );
     expect(mockApp.put).toHaveBeenCalledWith('/devices/:name', anyFn, anyFn);
     expect(mockApp.use).toHaveBeenCalledWith('/devices', anyFn, anyFn);

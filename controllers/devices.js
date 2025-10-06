@@ -66,7 +66,7 @@ export const queryDevice = catchAndRespond(async (req, res) => {
   res.json(await getDevState(device));
 });
 
-export const getDevState = async (device, retries = 2) => {
+export const getDevState = async (device) => {
   const resFields = {
     ..._omit(device, 'encryptionKey'),
     isActive: false,
@@ -83,7 +83,8 @@ export const getDevState = async (device, retries = 2) => {
         .map(transformer)
         .map(mapBrightness.bind(null, deviceState)),
     };
-  } catch (err) {
+  }
+  catch (err) {
     logError(err);
     return resFields;
   }
@@ -92,11 +93,11 @@ export const getDevState = async (device, retries = 2) => {
 export const getAllDevicesForUser = catchAndRespond(async (req, res) => {
   const devices = await DeviceModel.find({ user: req.user.email }).lean();
   res.json(
-    devices.map(transformer).map((device) => ({
+    devices.map(transformer).map(device => ({
       ..._omit(device, 'encryptionKey'),
       isActive: isDevOnline(device.name),
-      leads: device.leads.map((lead) => ({ ...lead, brightness: lead.state })),
-    }))
+      leads: device.leads.map(lead => ({ ...lead, brightness: lead.state })),
+    })),
   );
 });
 
@@ -118,7 +119,7 @@ export const updateDeviceState = async (user, devName, switchId, newState) => {
     },
     {
       'leads.$.state': newState,
-    }
+    },
   );
 };
 
@@ -160,16 +161,16 @@ export const updateExistingDevice = catchAndRespond(async (req, res) => {
     return res.status(404).json(
       errResp({
         err: 'Device not found',
-      })
+      }),
     );
   }
 
   // Overwrite reatined fields.
-  RETAINED_DEVICE_FIELDS.forEach((field) => (device[field] = existing[field]));
+  RETAINED_DEVICE_FIELDS.forEach(field => (device[field] = existing[field]));
   (existing.leads || []).forEach((existing) => {
     const lead = device.leads.find(({ devId }) => devId === existing.devId);
     if (lead) {
-      RETAINED_LEAD_FIELDS.forEach((field) => (lead[field] = existing[field]));
+      RETAINED_LEAD_FIELDS.forEach(field => (lead[field] = existing[field]));
     }
   });
 
@@ -217,7 +218,7 @@ export const triggerFirmwareUpdate = catchAndRespond(async (req, res) => {
     action: 'firmware-update',
     data: `/v1/${name}/get-firmware/${encrypt(
       `${firmwarePath}-1`,
-      device.encryptionKey
+      device.encryptionKey,
     )}`,
   });
   logInfo(`Firmware update response: ${JSON.stringify(updateResp)}`);

@@ -66,7 +66,7 @@ describe('Devices Controller tests', () => {
       const [req, res] = generateExpressRequestMocks();
       req.user = { _id: 'user-id' };
       DeviceSetupModel.find.mockReturnValueOnce(
-        injectLean(Promise.resolve(MOCK_PENDING_DEVICES))
+        injectLean(Promise.resolve(MOCK_PENDING_DEVICES)),
       );
 
       await getAvailableDevices(req, res);
@@ -99,7 +99,7 @@ describe('Devices Controller tests', () => {
       req.user = { _id: 'user-id', email: 'test@example.com' };
       req.body = { name: 'dev1', description: 'dev1 description' };
       DeviceSetupModel.findOne.mockReturnValueOnce(
-        Promise.resolve(MOCK_PENDING_DEVICES[0])
+        Promise.resolve(MOCK_PENDING_DEVICES[0]),
       );
 
       await saveNewDeviceForUser(req, res);
@@ -124,7 +124,7 @@ describe('Devices Controller tests', () => {
       const [req, res] = generateExpressRequestMocks();
       req.params = { name: 'dev1' };
       DeviceModel.find.mockReturnValueOnce(
-        injectLean(Promise.resolve(MOCK_DEVICES[0]))
+        injectLean(Promise.resolve(MOCK_DEVICES[0])),
       );
       requestToDevice.mockReturnValueOnce({
         lead0: 50,
@@ -140,7 +140,7 @@ describe('Devices Controller tests', () => {
             expect.objectContaining({ devId: 0, brightness: 50 }),
             expect.objectContaining({ devId: 1, brightness: 78 }),
           ],
-        })
+        }),
       );
     });
   });

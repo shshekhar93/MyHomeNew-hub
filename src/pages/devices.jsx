@@ -39,7 +39,7 @@ function DevicePage() {
       >
         {rooms.length === 0
           ? translate('devices-none-added')
-          : rooms.map((room) => (
+          : rooms.map(room => (
               <DeviceGroup key={room} name={room} devices={devices[room]} />
             ))}
       </Accordion>

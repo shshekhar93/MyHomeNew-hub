@@ -7,8 +7,10 @@ async function exists(url) {
   try {
     await stat(url);
     return true;
-  } catch (_) {}
-  return false;
+  }
+  catch (_) {
+    return false;
+  }
 }
 
 async function findFirst(arr, predicate) {
@@ -24,16 +26,16 @@ const translationsURL = memoize(
     const [lang, country] = locale.split(/[_-]/);
 
     return await findFirst(
-      [`${lang}-${country}.json`, `${lang}.json`, 'en.json'].map((file) =>
-        getTranslationFileURL(file)
+      [`${lang}-${country}.json`, `${lang}.json`, 'en.json'].map(file =>
+        getTranslationFileURL(file),
       ),
-      exists
+      exists,
     );
   },
   {
     length: 1,
     promise: true,
-  }
+  },
 );
 
 const serveTranslations = async (req, res) => {

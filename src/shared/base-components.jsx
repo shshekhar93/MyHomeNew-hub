@@ -9,8 +9,8 @@ import { useTheme } from '../common/theme';
  * @param {ComponentType} Component - The component to be wrapped
  * @return {ComponentType} - The new wrapped component.
  */
-/* eslint-disable-next-line react/display-name */
-const withTheme = (Component) => (props) => {
+
+const withTheme = Component => (props) => {
   const { theme } = useTheme();
   return <Component {...props} $theme={theme} />;
 };
@@ -62,7 +62,7 @@ const Button = withTheme(
     ':hover': {
       background: disabled ? '#969696' : $theme.accentDark,
     },
-  }))
+  })),
 );
 
 const StyledAccordionItem = withTheme(
@@ -74,7 +74,7 @@ const StyledAccordionItem = withTheme(
     ':last-child': {
       marginBottom: 0,
     },
-  }))
+  })),
 );
 
 const StyledAccordionItemButton = styled(AccordionItemButton, () => ({
@@ -85,7 +85,7 @@ const StyledAccordionItemButton = styled(AccordionItemButton, () => ({
   cursor: 'pointer',
 
   ':after': {
-    content: "''",
+    content: '\'\'',
     display: 'inline-block',
     width: '10px',
     height: '10px',

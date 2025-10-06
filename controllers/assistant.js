@@ -20,7 +20,8 @@ async function syncDevices(req, res) {
         devices: devices.map(deviceMapper).flat(),
       },
     });
-  } catch (err) {
+  }
+  catch (err) {
     logError(err);
     res.status(500).json({
       message: 'something went wrong, try again later',
@@ -39,7 +40,7 @@ function getDeviceType(dbType) {
 }
 
 function deviceMapper(device) {
-  return (device.leads || []).map((lead) => ({
+  return (device.leads || []).map(lead => ({
     id: `${device._id}-${lead.devId}`,
     type: `action.devices.types.${getDeviceType(lead.type)}`,
     traits: ['action.devices.traits.OnOff'],
@@ -61,9 +62,9 @@ function deviceMapper(device) {
 
 function devsToQueryResponseReducer(allDeviceStates) {
   return (resp, [id, devId = 0]) => {
-    const thisDev = allDeviceStates.find((dev) => dev._id.toString() === id);
-    const thisLead =
-      thisDev.leads.find((lead) => lead.devId === Number(devId)) || {};
+    const thisDev = allDeviceStates.find(dev => dev._id.toString() === id);
+    const thisLead
+      = thisDev.leads.find(lead => lead.devId === Number(devId)) || {};
 
     return {
       ...resp,
@@ -78,17 +79,17 @@ function devsToQueryResponseReducer(allDeviceStates) {
 async function queryStatus(req, res) {
   try {
     const devicesToQuery = (req?.body?.inputs?.[0]?.payload?.devices ?? []).map(
-      (dev) => dev?.id?.split('-') ?? []
+      dev => dev?.id?.split('-') ?? [],
     );
 
     const allDeviceStates = await Promise.all(
       devicesToQuery
-        .map((arr) => arr[0])
-        .map(async (devId) => getDevState(await DeviceModel.findById(devId)))
+        .map(arr => arr[0])
+        .map(async devId => getDevState(await DeviceModel.findById(devId))),
     );
     const devices = devicesToQuery.reduce(
       devsToQueryResponseReducer(allDeviceStates),
-      {}
+      {},
     );
 
     res.json({
@@ -97,7 +98,8 @@ async function queryStatus(req, res) {
         devices,
       },
     });
-  } catch (err) {
+  }
+  catch (err) {
     logError(err);
     res.status(500).json({
       message: 'Something went wrong, please try again later.',
@@ -149,7 +151,8 @@ async function execute(req, res) {
         ].filter(Boolean),
       },
     });
-  } catch (err) {
+  }
+  catch (err) {
     logError(err);
     res.status(400).json({});
   }
@@ -158,12 +161,12 @@ async function execute(req, res) {
 async function commandExecutor(currentUser, command) {
   const devices = command?.devices ?? [];
   const applicableCmd = (command?.execution ?? []).find(
-    ({ command }) => command === 'action.devices.commands.OnOff'
+    ({ command }) => command === 'action.devices.commands.OnOff',
   );
   const isOn = _get(applicableCmd, 'params.on');
 
   return Promise.all(
-    devices.map((dev) => executeDeviceCommand(currentUser, dev.id, isOn))
+    devices.map(dev => executeDeviceCommand(currentUser, dev.id, isOn)),
   );
 }
 
@@ -184,7 +187,7 @@ async function executeDeviceCommand(currentUser, id, isOn) {
       device.user,
       device.name,
       devLeadId,
-      isOn ? 100 : 0
+      isOn ? 100 : 0,
     );
 
     await DeviceModel.update(
@@ -194,7 +197,7 @@ async function executeDeviceCommand(currentUser, id, isOn) {
       },
       {
         'leads.$.state': isOn ? 100 : 0,
-      }
+      },
     ).exec();
 
     return {
@@ -202,7 +205,8 @@ async function executeDeviceCommand(currentUser, id, isOn) {
       id,
       isOn,
     };
-  } catch (err) {
+  }
+  catch (err) {
     logError(`Device ${id} state update failed`);
     logError(err);
     return { id, status: 'ERROR' };

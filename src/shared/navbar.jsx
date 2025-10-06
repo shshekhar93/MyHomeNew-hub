@@ -1,11 +1,11 @@
 import { useStyletron } from 'styletron-react';
 import { Link, useLocation } from 'react-router-dom';
-import { useTheme } from '../common/theme.js';
-import { useStoreUpdates, useLogout } from '../common/hooks.js';
-import { MenuIcon } from './menu-icon.js';
-import { useStore } from '../common/store.js';
+import { useTheme } from '../common/theme';
+import { useStoreUpdates, useLogout } from '../common/hooks';
+import { MenuIcon } from './menu-icon';
+import { useStore } from '../common/store';
 import { useCallback, useEffect } from 'react';
-import { useTranslations } from '../common/i18n.js';
+import { useTranslations } from '../common/i18n';
 
 function Navbar() {
   const { theme } = useTheme();

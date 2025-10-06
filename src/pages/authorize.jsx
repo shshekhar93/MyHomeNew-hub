@@ -1,9 +1,9 @@
 import { useStyletron } from 'styletron-react';
-import { useClientDetails } from '../common/hooks.js';
-import { useTranslations } from '../common/i18n.js';
-import { ErrorPage } from '../components/common/error.js';
-import { Button, PageHeading } from '../shared/base-components.js';
-import { LoadingSpinner } from '../shared/loading-spinner.js';
+import { useClientDetails } from '../common/hooks';
+import { useTranslations } from '../common/i18n';
+import { ErrorPage } from '../components/common/error';
+import { Button, PageHeading } from '../shared/base-components';
+import { LoadingSpinner } from '../shared/loading-spinner';
 
 function AuthorizePage() {
   const [css] = useStyletron();

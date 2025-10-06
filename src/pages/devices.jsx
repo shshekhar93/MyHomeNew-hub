@@ -1,10 +1,10 @@
 import { Accordion } from 'react-accessible-accordion';
 import { useStyletron } from 'styletron-react';
-import { useUserDevices } from '../common/hooks.js';
-import { useTranslations } from '../common/i18n.js';
-import { DeviceGroup } from '../components/devices/group.js';
-import { PageHeading } from '../shared/base-components.js';
-import { LoadingSpinner } from '../shared/loading-spinner.js';
+import { useUserDevices } from '../common/hooks';
+import { useTranslations } from '../common/i18n';
+import { DeviceGroup } from '../components/devices/group';
+import { PageHeading } from '../shared/base-components';
+import { LoadingSpinner } from '../shared/loading-spinner';
 
 function DevicePage() {
   const { loading, devices } = useUserDevices();

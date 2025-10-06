@@ -1,6 +1,6 @@
 import { AccordionItem, AccordionItemButton } from 'react-accessible-accordion';
 import { styled } from 'styletron-react';
-import { useTheme } from '../common/theme.js';
+import { useTheme } from '../common/theme';
 
 /**
  * Higher order component that provides the current theme to

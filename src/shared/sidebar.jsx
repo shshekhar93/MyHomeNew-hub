@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 import { useStyletron } from 'styletron-react';
 import { NavLink } from 'react-router-dom';
-import { useTheme } from '../common/theme.js';
-import { useStoreUpdates, useLogout } from '../common/hooks.js';
-import { useTranslations } from '../common/i18n.js';
+import { useTheme } from '../common/theme';
+import { useStoreUpdates, useLogout } from '../common/hooks';
+import { useTranslations } from '../common/i18n';
 
 function SideBar() {
   const translate = useTranslations();

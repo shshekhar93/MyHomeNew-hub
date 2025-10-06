@@ -1,5 +1,5 @@
 import { useStyletron } from 'styletron-react';
-import { LoadingSpinner } from '../shared/loading-spinner.js';
+import { LoadingSpinner } from '../shared/loading-spinner';
 
 function LoadingPage() {
   const [css] = useStyletron();

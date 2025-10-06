@@ -5,8 +5,8 @@ import {
 import {
   StyledAccordionItem,
   StyledAccordionItemButton,
-} from '../../shared/base-components.js';
-import { ManageDeviceInput } from './input.js';
+} from '../../shared/base-components.jsx';
+import { ManageDeviceInput } from './input';
 
 function ManageDeviceListItem({ device }) {
   return (

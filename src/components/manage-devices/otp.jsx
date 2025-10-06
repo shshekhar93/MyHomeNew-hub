@@ -1,10 +1,10 @@
 import { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useStyletron } from 'styletron-react';
-import { generateOTK } from '../../common/api.js';
-import { useTranslations } from '../../common/i18n.js';
-import { useTheme } from '../../common/theme.js';
-import { LoadingSpinner } from '../../shared/loading-spinner.js';
+import { generateOTK } from '../../common/api';
+import { useTranslations } from '../../common/i18n';
+import { useTheme } from '../../common/theme';
+import { LoadingSpinner } from '../../shared/loading-spinner';
 
 function OTP() {
   const [generating, setGenerating] = useState(false);

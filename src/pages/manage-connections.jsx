@@ -1,11 +1,11 @@
 import { useCallback } from 'react';
 import { useStyletron } from 'styletron-react';
-import { deleteAppConnection } from '../common/api.js';
-import { useClientConnections } from '../common/hooks.js';
-import { useTranslations } from '../common/i18n.js';
-import { useTheme } from '../common/theme.js';
-import { PageHeading } from '../shared/base-components.js';
-import { LoadingSpinner } from '../shared/loading-spinner.js';
+import { deleteAppConnection } from '../common/api';
+import { useClientConnections } from '../common/hooks';
+import { useTranslations } from '../common/i18n';
+import { useTheme } from '../common/theme';
+import { PageHeading } from '../shared/base-components';
+import { LoadingSpinner } from '../shared/loading-spinner';
 
 function ManageConnectionsPage() {
   const { theme } = useTheme();

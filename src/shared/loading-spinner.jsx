@@ -1,5 +1,5 @@
 import { useStyletron } from 'styletron-react';
-import { useTranslations } from '../common/i18n.js';
+import { useTranslations } from '../common/i18n';
 
 function LoadingSpinner({
   size = '10em',
@@ -36,7 +36,6 @@ function LoadingSpinner({
         animationDelay: '0s',
         animationDuration: '1.1s',
         animationTimingFunction: 'linear',
-        animationDelay: '0s',
         animationIterationCount: 'infinite',
 
         ':after': {

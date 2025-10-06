@@ -1,12 +1,12 @@
 import { useCallback, useState } from 'react';
 import { useStyletron } from 'styletron-react';
 import { useNavigate, Link } from 'react-router-dom';
-import _get from 'lodash/get.js';
-import { useTheme } from '../common/theme.js';
-import { Button, Input } from '../shared/base-components.js';
-import { registerUser } from '../common/api.js';
-import { serializeForm } from '../common/helper.js';
-import { useTranslations } from '../common/i18n.js';
+import _get from 'lodash/get';
+import { useTheme } from '../common/theme';
+import { Button, Input } from '../shared/base-components';
+import { registerUser } from '../common/api';
+import { serializeForm } from '../common/helper';
+import { useTranslations } from '../common/i18n';
 
 function SignupPage() {
   const translate = useTranslations();

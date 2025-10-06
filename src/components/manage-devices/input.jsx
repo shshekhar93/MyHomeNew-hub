@@ -1,18 +1,18 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useStyletron } from 'styletron-react';
-import _cloneDeep from 'lodash/cloneDeep.js';
-import _set from 'lodash/set.js';
+import _cloneDeep from 'lodash/cloneDeep';
+import _set from 'lodash/set';
 import {
   Button,
   Input,
   InputLabel,
   InputLabelText,
   Select,
-} from '../../shared/base-components.js';
+} from '../../shared/base-components';
 import { Link } from 'react-router-dom';
-import { saveDeviceForUser, updateDevice } from '../../common/api.js';
-import { LoadingSpinner } from '../../shared/loading-spinner.js';
-import { useTranslations } from '../../common/i18n.js';
+import { saveDeviceForUser, updateDevice } from '../../common/api';
+import { LoadingSpinner } from '../../shared/loading-spinner';
+import { useTranslations } from '../../common/i18n';
 
 function ManageDeviceInput({ device, isNew, onSave }) {
   const [localDevice, setLocalDevice] = useState(() => _cloneDeep(device));

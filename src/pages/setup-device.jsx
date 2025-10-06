@@ -1,18 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useStyletron } from 'styletron-react';
-import { usePendingDevices } from '../common/hooks.js';
-import { useTranslations } from '../common/i18n.js';
-import { useTheme } from '../common/theme.js';
-import { ManageDeviceInput } from '../components/manage-devices/input.js';
-import { OTP } from '../components/manage-devices/otp.js';
+import { usePendingDevices } from '../common/hooks';
+import { useTranslations } from '../common/i18n';
+import { useTheme } from '../common/theme';
+import { ManageDeviceInput } from '../components/manage-devices/input';
+import { OTP } from '../components/manage-devices/otp';
 import {
   InputLabel,
   InputLabelText,
   PageHeading,
   Select,
-} from '../shared/base-components.js';
-import { LoadingSpinner } from '../shared/loading-spinner.js';
+} from '../shared/base-components';
+import { LoadingSpinner } from '../shared/loading-spinner';
 
 function SetupDevice() {
   const [loading, devices, reload] = usePendingDevices();

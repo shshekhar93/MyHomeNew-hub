@@ -5,30 +5,16 @@
   "description": "Smart home hub for Home Applyed devices.",
   "main": "index.js",
   "scripts": {
-    "start": "node .",
-    "dev": "mode=development node .",
+    "start": "NODE_ENV=production node .",
+    "dev": "NODE_ENV=development concurrently \"node .\" \"vite\"",
     "test": "jest",
     "lint": "eslint --fix ./ && prettier --write ./",
-    "build": "webpack --config ./webpack.config.cjs",
+    "build": "vite build",
     "prepare": "husky install"
   },
   "babel": {
     "presets": [
-      "@babel/preset-env",
-      [
-        "@babel/preset-react",
-        {
-          "runtime": "automatic"
-        }
-      ]
-    ],
-    "plugins": [
-      [
-        "@babel/plugin-transform-runtime",
-        {
-          "regenerator": true
-        }
-      ]
+      "@babel/preset-env"
     ]
   },
   "repository": {
@@ -76,15 +62,15 @@
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",
-    "@babel/plugin-transform-runtime": "^7.16.10",
     "@babel/preset-env": "^7.3.1",
-    "@babel/preset-react": "^7.0.0",
     "@types/jest": "^29.4.0",
     "@types/react-router-dom": "^5.3.3",
     "@types/styletron-engine-atomic": "^1.1.1",
     "@types/styletron-react": "^5.0.3",
     "@types/styletron-standard": "^2.0.2",
+    "@vitejs/plugin-react-swc": "^4.1.0",
     "babel-loader": "^8.2.3",
+    "concurrently": "^9.2.1",
     "eslint": "^8.9.0",
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^8.4.0",
@@ -98,13 +84,11 @@
     "react-router-dom": "^6.2.1",
     "styletron-engine-atomic": "^1.4.8",
     "styletron-react": "^6.0.2",
-    "webpack": "^5.67.0",
-    "webpack-cli": "^4.9.2",
-    "webpack-dev-middleware": "^5.3.0",
+    "vite": "^7.1.9",
     "whatwg-fetch": "^3.0.0"
   },
   "lint-staged": {
-    "*.js": "eslint --cache --fix",
+    "*.{js,jsx}": "eslint --cache --fix",
     "*.{js,css,md}": "prettier --write"
   }
 }

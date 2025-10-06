@@ -1,17 +1,17 @@
 import { useStyletron } from 'styletron-react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useStore } from '../common/store.js';
-import SigninPage from './signin.js';
-import { Navbar } from '../shared/navbar.js';
-import { SideBar } from '../shared/sidebar.js';
-import SignupPage from './signup.js';
-import ManageDevicesPage from './manage-devices.js';
-import DevicePage from './devices.js';
-import SetupDevice from './setup-device.js';
-import ConnectAppPage from './connect-app.js';
-import ManageConnectionsPage from './manage-connections.js';
-import { getReturnURI } from '../common/helper.js';
-import AuthorizePage from './authorize.js';
+import { useStore } from '../common/store';
+import SigninPage from './signin';
+import { Navbar } from '../shared/navbar';
+import { SideBar } from '../shared/sidebar';
+import SignupPage from './signup';
+import ManageDevicesPage from './manage-devices';
+import DevicePage from './devices';
+import SetupDevice from './setup-device';
+import ConnectAppPage from './connect-app';
+import ManageConnectionsPage from './manage-connections';
+import { getReturnURI } from '../common/helper';
+import AuthorizePage from './authorize';
 
 const FULL_WIDTH_PAGE = ['/authorize'];
 

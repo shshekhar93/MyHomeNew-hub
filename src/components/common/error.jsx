@@ -1,6 +1,6 @@
 import { useStyletron } from 'styletron-react';
-import { useTranslations } from '../../common/i18n.js';
-import { useTheme } from '../../common/theme.js';
+import { useTranslations } from '../../common/i18n';
+import { useTheme } from '../../common/theme';
 
 const DEFAULT_TITLE = {
   SERVER_ERROR: 'errors.server-error.title',

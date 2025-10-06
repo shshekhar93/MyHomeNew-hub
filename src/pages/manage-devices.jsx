@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 import { Accordion } from 'react-accessible-accordion';
 import { useStyletron } from 'styletron-react';
-import _take from 'lodash/take.js';
-import { useUserDevices } from '../common/hooks.js';
-import { ManageDeviceListItem } from '../components/manage-devices/list-item.js';
-import { PageHeading } from '../shared/base-components.js';
-import { LoadingSpinner } from '../shared/loading-spinner.js';
-import { useTranslations } from '../common/i18n.js';
+import _take from 'lodash/take';
+import { useUserDevices } from '../common/hooks';
+import { ManageDeviceListItem } from '../components/manage-devices/list-item';
+import { PageHeading } from '../shared/base-components';
+import { LoadingSpinner } from '../shared/loading-spinner';
+import { useTranslations } from '../common/i18n';
 
 function ManageDevicesPage() {
   const { loading, origDevices } = useUserDevices();

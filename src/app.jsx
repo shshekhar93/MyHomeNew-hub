@@ -1,16 +1,16 @@
 import { BrowserRouter } from 'react-router-dom';
 import { Provider as StyletronProvider } from 'styletron-react';
 import { Client as Styletron } from 'styletron-engine-atomic';
-import { ThemeProvider } from './common/theme.js';
-import { PageRoot } from './pages/page-root.js';
-import Store, { StoreContext } from './common/store.js';
+import { ThemeProvider } from './common/theme';
+import { PageRoot } from './pages/page-root';
+import Store, { StoreContext } from './common/store';
 import {
   useLoadUserDetails,
   useLoadTranslations,
   useInitialized,
-} from './common/hooks.js';
-import LoadingPage from './pages/loading.js';
-import { I18nProvider } from './common/i18n.js';
+} from './common/hooks';
+import LoadingPage from './pages/loading';
+import { I18nProvider } from './common/i18n';
 
 const engine = new Styletron();
 

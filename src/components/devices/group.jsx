@@ -6,9 +6,9 @@ import {
 import {
   StyledAccordionItem,
   StyledAccordionItemButton,
-} from '../../shared/base-components.js';
-import { StatusIndicator } from '../common/status-indicator.js';
-import { DeviceEntry } from './entry.js';
+} from '../../shared/base-components';
+import { StatusIndicator } from '../common/status-indicator';
+import { DeviceEntry } from './entry';
 
 function DeviceGroup({ name, devices }) {
   const someDevicesActive = useMemo(

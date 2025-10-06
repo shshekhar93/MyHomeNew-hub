@@ -1,11 +1,11 @@
 import { useCallback, useState } from 'react';
 import { useStyletron } from 'styletron-react';
-import { updateDeviceState } from '../../common/api.js';
-import { useStore } from '../../common/store.js';
-import { useTheme } from '../../common/theme.js';
-import { LoadingSpinner } from '../../shared/loading-spinner.js';
-import { StatusIndicator } from '../common/status-indicator.js';
-import Switch from '../common/switch.js';
+import { updateDeviceState } from '../../common/api';
+import { useStore } from '../../common/store';
+import { useTheme } from '../../common/theme';
+import { LoadingSpinner } from '../../shared/loading-spinner';
+import { StatusIndicator } from '../common/status-indicator';
+import Switch from '../common/switch';
 
 function DeviceEntry({ device }) {
   const { name, label, devId, isActive, state } = device;

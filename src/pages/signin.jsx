@@ -2,11 +2,11 @@ import { useCallback, useState } from 'react';
 import { useStyletron } from 'styletron-react';
 import { Link } from 'react-router-dom';
 
-import { useStore } from '../common/store.js';
-import { useTheme } from '../common/theme.js';
-import { Button, Input } from '../shared/base-components.js';
-import { getCurrentUserDetails, login } from '../common/api.js';
-import { useTranslations } from '../common/i18n.js';
+import { useStore } from '../common/store';
+import { useTheme } from '../common/theme';
+import { Button, Input } from '../shared/base-components';
+import { getCurrentUserDetails, login } from '../common/api';
+import { useTranslations } from '../common/i18n';
 
 function SigninPage() {
   const translate = useTranslations();

@@ -14,7 +14,7 @@ import { I18nProvider } from './common/i18n';
 
 const engine = new Styletron();
 
-const store = (window.store = new Store());
+const store = new Store();
 
 function App() {
   useLoadUserDetails(store);

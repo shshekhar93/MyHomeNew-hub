@@ -1,6 +1,8 @@
 import { AccordionItem, AccordionItemButton } from 'react-accessible-accordion';
 import { styled } from 'styletron-react';
-import { useTheme } from '../common/theme';
+import { type ThemeT, useTheme } from '../common/theme';
+import { ComponentProps, ComponentType, ElementType } from 'react';
+import { StyletronComponent } from 'styletron-react';
 
 /**
  * Higher order component that provides the current theme to
@@ -10,20 +12,25 @@ import { useTheme } from '../common/theme';
  * @return {ComponentType} - The new wrapped component.
  */
 
-const withTheme = Component => (props) => {
-  const { theme } = useTheme();
-  return <Component {...props} $theme={theme} />;
+const withTheme = <T,>(Component: ComponentType<T & { $theme: ThemeT }>) => {
+  return (props: T) => {
+    const { theme } = useTheme();
+    return <Component {...props} $theme={theme} />;
+  };
 };
 
 const PageHeading = styled('h1', {
   marginTop: 0,
 });
 
-const createInputStyles = ({ $theme, hasError }) => ({
+const createInputStyles = ({ $theme, hasError }: {
+  $theme: ThemeT;
+  hasError?: boolean;
+}) => ({
   width: '100%',
   padding: '0.5rem 0.75rem',
   fontSize: '1rem',
-  outline: 0,
+  outline: '0',
   border: `1px solid ${hasError ? $theme.error : $theme.border}`,
   borderRadius: '5px',
 
@@ -32,8 +39,8 @@ const createInputStyles = ({ $theme, hasError }) => ({
     boxShadow: '0 0 0 0.2rem rgb(0 50 50 / 25%)',
   },
 });
-const Input = withTheme(styled('input', createInputStyles));
-const Select = withTheme(styled('select', createInputStyles));
+const Input = withTheme(styled('input', createInputStyles)) as StyletronComponent<ElementType<unknown, 'input'>, ComponentProps<'input'> & { hasError?: boolean }>;
+const Select = withTheme(styled('select', createInputStyles)) as StyletronComponent<ElementType<unknown, 'select'>, ComponentProps<'select'>>;
 
 const InputLabel = styled('label', {
   display: 'block',
@@ -49,7 +56,11 @@ const InputLabelText = styled('p', {
 });
 
 const Button = withTheme(
-  styled('button', ({ $size, $theme, disabled }) => ({
+  styled('button', ({ $size, $theme, disabled }: {
+    $size?: 'default' | 'expand';
+    $theme: ThemeT;
+    disabled?: boolean;
+  }) => ({
     width: $size === 'expand' ? '100%' : undefined,
     padding: '0.75rem',
     fontSize: '1rem',
@@ -63,10 +74,10 @@ const Button = withTheme(
       background: disabled ? '#969696' : $theme.accentDark,
     },
   })),
-);
+) as StyletronComponent<ElementType<unknown, 'button'>, ComponentProps<'button'> & { $size?: 'default' | 'expand' }>;
 
 const StyledAccordionItem = withTheme(
-  styled(AccordionItem, ({ $theme }) => ({
+  styled(AccordionItem, ({ $theme }: { $theme: ThemeT }) => ({
     border: `1px solid ${$theme.border}`,
     padding: '0.5rem 0.75rem',
     marginBottom: '1rem',

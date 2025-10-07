@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { ChangeEventHandler, useCallback, useState } from 'react';
 import { useStyletron } from 'styletron-react';
 import { updateDeviceState } from '../../common/api';
 import { useStore } from '../../common/store';
@@ -6,8 +6,13 @@ import { useTheme } from '../../common/theme';
 import { LoadingSpinner } from '../../shared/loading-spinner';
 import { StatusIndicator } from '../common/status-indicator';
 import Switch from '../common/switch';
+import { MappedDeviceT } from '../../../types/device';
 
-function DeviceEntry({ device }) {
+export type DeviceEntryProps = {
+  device: MappedDeviceT;
+};
+
+function DeviceEntry({ device }: DeviceEntryProps) {
   const { name, label, devId, isActive, state } = device;
   const [css] = useStyletron();
   const { theme } = useTheme();
@@ -15,7 +20,7 @@ function DeviceEntry({ device }) {
 
   const [updating, setUpdating] = useState(false);
 
-  const onChange = useCallback(
+  const onChange = useCallback<ChangeEventHandler<HTMLInputElement>>(
     async (e) => {
       const newState = e.target.checked ? 100 : 0;
 
@@ -56,7 +61,7 @@ function DeviceEntry({ device }) {
             <LoadingSpinner size="24px" border="4px" />
           )
         : (
-            <Switch checked={state > 0} onChange={onChange} />
+            <Switch checked={+state > 0} onChange={onChange} />
           )}
     </div>
   );

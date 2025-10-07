@@ -6,9 +6,14 @@ import {
   StyledAccordionItem,
   StyledAccordionItemButton,
 } from '../../shared/base-components.jsx';
-import { ManageDeviceInput } from './input';
+import { ManageDeviceInput } from './input.js';
+import { DeviceT } from '../../../types/device.js';
 
-function ManageDeviceListItem({ device }) {
+export type ManageDeviceListItemProps = {
+  device: DeviceT;
+};
+
+function ManageDeviceListItem({ device }: ManageDeviceListItemProps) {
   return (
     <StyledAccordionItem uuid={device.name}>
       <AccordionItemHeading>

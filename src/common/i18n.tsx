@@ -1,10 +1,11 @@
-import { createContext, useCallback, useContext } from 'react';
+import { createContext, PropsWithChildren, useCallback, useContext } from 'react';
 import { useStoreUpdates } from './hooks.js';
 
-const I18nContext = createContext();
+export type Translations = Record<string, string>;
+const I18nContext = createContext<Translations>({});
 
-const I18nProvider = ({ children }) => {
-  const [translations] = useStoreUpdates(['translations']);
+const I18nProvider = ({ children }: PropsWithChildren) => {
+  const [translations] = useStoreUpdates<[Translations]>(['translations']);
   return (
     <I18nContext.Provider value={translations}>{children}</I18nContext.Provider>
   );
@@ -13,14 +14,14 @@ const I18nProvider = ({ children }) => {
 const useTranslations = () => {
   const translations = useContext(I18nContext);
   return useCallback(
-    (id, values = {}) => {
+    (id: string, values: Record<string, string> = {}) => {
       const translation = translations && translations[id];
 
       if (!translation) {
         return `☃${id}☃`;
       }
 
-      const placeholders = translation.match(/{.+?}/g) || [];
+      const placeholders = Array.from(translation.match(/{.+?}/g) || []);
       return placeholders.reduce(
         (str, placeholder) =>
           str.replace(

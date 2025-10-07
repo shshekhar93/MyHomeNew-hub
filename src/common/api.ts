@@ -1,5 +1,8 @@
 'use strict';
 
+import { OAuthClient } from '../../types/client';
+import { DeviceT, PendingDeviceT } from '../../types/device';
+
 export const UNAUTHORIZED = new Error('UNAUTHORIZED');
 export const SERVER_ERROR = new Error('SERVER_ERROR');
 
@@ -9,7 +12,7 @@ const PAYLOAD_HEADERS = {
 };
 const NO_PAYLOAD_METHODS = ['GET'];
 
-const makeHTTPRequest = async (method, url, body = {}, headers = {}) => {
+const makeHTTPRequest = async <T = unknown>(method: string, url: string, body: unknown = {}, headers: Record<string, string> = {}): Promise<T> => {
   const sendPayload = !NO_PAYLOAD_METHODS.includes(method);
   const resp = await fetch(url, {
     method,
@@ -32,10 +35,10 @@ const makeHTTPRequest = async (method, url, body = {}, headers = {}) => {
   throw SERVER_ERROR;
 };
 
-const makeGetRequest = makeHTTPRequest.bind(null, 'GET');
-const makePostRequest = makeHTTPRequest.bind(null, 'POST');
+const makeGetRequest = <T>(url: string, body?: unknown, headers?: Record<string, string>) => makeHTTPRequest<T>('GET', url, body, headers);
+const makePostRequest = <T>(url: string, body?: unknown, headers?: Record<string, string>) => makeHTTPRequest<T>('POST', url, body, headers);
 
-export const login = (username, password) => {
+export const login = (username: string, password: string) => {
   return makePostRequest('/login', {
     username,
     password,
@@ -46,7 +49,7 @@ export const logout = () => {
   return makeGetRequest('/logout');
 };
 
-export const fetchTranslations = (locale) => {
+export const fetchTranslations = (locale: string) => {
   return makeGetRequest(`/translations?locale=${locale}`);
 };
 
@@ -55,46 +58,49 @@ export const getCurrentUserDetails = () => {
 };
 
 export const getExistingDevices = () => {
-  return makeGetRequest('/devices');
+  return makeGetRequest<DeviceT[]>('/devices');
 };
 
 export const getKnownDeviceList = () => {
-  return makeGetRequest('/devices/available');
+  return makeGetRequest<PendingDeviceT[]>('/devices/available');
 };
 
-export const saveDeviceForUser = (body) => {
+export const saveDeviceForUser = (body: unknown) => {
   return makePostRequest('/devices', body);
 };
 
-export const updateDeviceState = (device, switchId, newState) => {
+export const updateDeviceState = (device: string, switchId: number, newState: number) => {
   return makePostRequest(`/devices/${device}`, {
     switchId,
     newState,
   });
 };
 
-export const updateDevice = (device) => {
+export const updateDevice = (device: DeviceT) => {
   const { name } = device;
   return makeHTTPRequest('PUT', `/devices/${name}`, device);
 };
 
-export function registerUser(user) {
-  return makePostRequest('/user/register', user);
+export function registerUser(user: unknown) {
+  return makePostRequest<{
+    hubClientId: string;
+    hubClientSecret: string;
+  }>('/user/register', user);
 }
 
 export function generateOTK() {
-  return makePostRequest('/devices/new');
+  return makePostRequest<{ otk: string }>('/devices/new');
 }
 
-export function createClientCreds(req) {
-  return makePostRequest('/create-client', req);
+export function createClientCreds(req: unknown) {
+  return makePostRequest<OAuthClient>('/create-client', req);
 }
 
 export function getAllAppConnections() {
-  return makeGetRequest('/existing-clients');
+  return makeGetRequest<OAuthClient[]>('/existing-clients');
 }
 
-export function deleteAppConnection(id) {
+export function deleteAppConnection(id: string) {
   return makePostRequest('/delete-client', { id });
 }
 
@@ -105,10 +111,10 @@ export function deleteAppConnection(id) {
  * @param {string} redirectUri Redirect URI provided by client.
  * @return {Object}
  */
-export function getClient(id, responseType, redirectUri) {
+export function getClient(id: string, responseType: string, redirectUri: string) {
   responseType = encodeURIComponent(responseType);
   redirectUri = encodeURIComponent(redirectUri);
-  return makeGetRequest(
+  return makeGetRequest<{ client: OAuthClient }>(
     `/client/${id}?responseType=${responseType}&redirectUri=${redirectUri}`,
   );
 }

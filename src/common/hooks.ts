@@ -13,21 +13,22 @@ import {
   fetchTranslations,
 } from './api.js';
 import { deviceMapper } from './mappers.js';
-import { useStore } from './store.js';
+import Store, { useStore } from './store.js';
 import { useLocation } from 'react-router-dom';
 import {
   AUTH_PAGE_OTHER_PARAMS,
   AUTH_PAGE_REQUIRED_PARAMS,
 } from './constants.js';
+import { DeviceT, MappedDeviceT, PendingDeviceT } from '../../types/device.js';
+import { OAuthClient } from '../../types/client.js';
 
-function useLoadTranslations(store) {
+function useLoadTranslations(store: Store) {
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
     const locale
       = query.get('locale')
         || window.localStorage.getItem('locale')
-        || window.navigator.language
-        || window.navigator.userLanguage;
+        || window.navigator.language;
 
     (async () => {
       try {
@@ -43,7 +44,7 @@ function useLoadTranslations(store) {
   return useStoreUpdates(['translations'], store);
 }
 
-function useLoadUserDetails(store) {
+function useLoadUserDetails(store: Store) {
   useEffect(() => {
     (async () => {
       try {
@@ -61,8 +62,8 @@ function useLoadUserDetails(store) {
   return useStoreUpdates(['user'], store);
 }
 
-function useInitialized(store) {
-  return useStoreUpdates(['user-loaded', 'translations-loaded'], store).every(
+function useInitialized(store: Store) {
+  return useStoreUpdates<[boolean | undefined, boolean | undefined]>(['user-loaded', 'translations-loaded'], store).every(
     Boolean,
   );
 }
@@ -89,7 +90,7 @@ function useUserDevices() {
     }
   }, []);
 
-  const [loading, origDevices, devices] = useStoreUpdates(
+  const [loading, origDevices, devices] = useStoreUpdates<[boolean | undefined, DeviceT[] | undefined, Record<string, MappedDeviceT[]>]>(
     ['loading-devices', 'orig-devices', 'devices'],
     store,
     reloadDevices,
@@ -103,7 +104,7 @@ function useUserDevices() {
   };
 }
 
-function usePendingDevices() {
+function usePendingDevices(): [boolean | undefined, PendingDeviceT[] | undefined, () => Promise<void>] {
   const store = useStore();
 
   const reloadPendingDevices = async () => {
@@ -117,7 +118,7 @@ function usePendingDevices() {
     ['loading-devices', 'pending-devices'],
     store,
     reloadPendingDevices,
-  ).concat(reloadPendingDevices);
+  ).concat(reloadPendingDevices) as [boolean | undefined, PendingDeviceT[] | undefined, () => Promise<void>];
 }
 
 function useConnectApp() {
@@ -142,14 +143,19 @@ function useConnectApp() {
     store.set('loading-credentials', false);
   };
 
-  return useStoreUpdates(
+  return useStoreUpdates<[
+    boolean | undefined,
+    string | undefined,
+    string | undefined,
+    string | undefined,
+  ]>(
     ['loading-credentials', 'clientId', 'clientSecret', 'QRCodeData'],
     store,
     getClientCreds,
   );
 }
 
-function useClientConnections() {
+function useClientConnections(): [boolean | undefined, OAuthClient[] | undefined, () => Promise<void>] {
   const store = useStore();
 
   const getExistingClients = async () => {
@@ -172,7 +178,7 @@ function useClientConnections() {
     ['loading-clients', 'client-connections'],
     store,
     getExistingClients,
-  ).concat(getExistingClients);
+  ).concat(getExistingClients) as [boolean | undefined, OAuthClient[] | undefined, () => Promise<void>];
 }
 
 function useClientDetails() {
@@ -185,11 +191,12 @@ function useClientDetails() {
 
       /* Extract query params */
       const queryParams = new URLSearchParams(search);
-      const query = {};
+      const query: Record<string, string> = {};
       for (const param of AUTH_PAGE_REQUIRED_PARAMS) {
         const val = queryParams.get(param);
         if (!val) {
           const err = new Error('Missing required param');
+          // @ts-expect-error - Refactor to use custom Error
           err.code = `MISSING_${param.toUpperCase()}`;
           throw err;
         }
@@ -198,7 +205,7 @@ function useClientDetails() {
 
       for (const param of AUTH_PAGE_OTHER_PARAMS) {
         if (queryParams.has(param)) {
-          query[param] = queryParams.get(param);
+          query[param] = queryParams.get(param)!;
         }
       }
       store.set('client-params', query);
@@ -215,14 +222,19 @@ function useClientDetails() {
       store.set('client-details', client);
     }
     catch (e) {
-      store.set('client-details-error', e.code || 'Invalid client');
+      store.set('client-details-error', (e as Error & { code?: string }).code || 'Invalid client');
     }
     finally {
       store.set('client-details-loading', false);
     }
   };
 
-  return useStoreUpdates(
+  return useStoreUpdates<[
+    boolean | undefined,
+    string | undefined,
+    OAuthClient | undefined,
+    Record<string, string> | undefined,
+  ]>(
     [
       'client-details-loading',
       'client-details-error',
@@ -241,7 +253,7 @@ function useClientDetails() {
  * @param {Function} initFn - Initializer function that will be called on mount.
  * @return {Array<any>} - Value of the keys in store.
  */
-function useStoreUpdates(keys, store, initFn) {
+function useStoreUpdates<T = unknown[]>(keys: string[], store?: Store, initFn?: () => void): T {
   const [, rerender] = useState(0);
 
   if (!store) {
@@ -256,7 +268,7 @@ function useStoreUpdates(keys, store, initFn) {
     return () => keys.forEach(key => store.unsubscribe(key, handler));
   }, []);
 
-  return keys.map(key => store.get(key));
+  return keys.map(key => store.get(key)) as T;
 }
 
 function useLogout() {

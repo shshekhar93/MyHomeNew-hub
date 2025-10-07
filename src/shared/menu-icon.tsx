@@ -1,7 +1,12 @@
 import { useMemo } from 'react';
 import { useStyletron } from 'styletron-react';
 
-function MenuIcon({ isOpen, onClick }) {
+export type MenuIconProps = {
+  isOpen: boolean;
+  onClick: () => void;
+};
+
+function MenuIcon({ isOpen, onClick }: MenuIconProps) {
   const [css] = useStyletron();
 
   const spanStyles = useMemo(() => {
@@ -27,7 +32,7 @@ export { MenuIcon };
 const ContainerStyles = {
   width: '32px',
   height: '24px',
-  position: 'relative',
+  position: 'relative' as const,
   transform: 'rotate(0deg)',
   transition: '.3s ease-in-out',
   cursor: 'pointer',
@@ -35,19 +40,19 @@ const ContainerStyles = {
 
 const SpanCommonStyles = {
   display: 'block',
-  position: 'absolute',
+  position: 'absolute' as const,
   height: '5px',
   width: '100%',
   background: '#ffffff',
   borderRadius: '5px',
-  opacity: 1,
-  left: 0,
+  opacity: '1',
+  left: '0',
   transform: 'rotate(0deg)',
   transition: '.3s ease-in-out',
 };
 
 const SpanIndividualStyles = [
-  { top: 0 },
+  { top: '0px' },
   { top: '10px' },
   { top: '10px' },
   { top: '19px' },

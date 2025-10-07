@@ -12,7 +12,13 @@ const DEFAULT_MESSAGE = {
   NOT_FOUND: 'errors.not-found.message',
 };
 
-function ErrorPage({ type = 'SERVER_ERROR', title, message }) {
+export type ErrorPageProps = {
+  type?: keyof typeof DEFAULT_TITLE;
+  title?: string;
+  message?: string;
+};
+
+function ErrorPage({ type = 'SERVER_ERROR', title, message }: ErrorPageProps) {
   const [css] = useStyletron();
   const { theme } = useTheme();
   const translate = useTranslations();

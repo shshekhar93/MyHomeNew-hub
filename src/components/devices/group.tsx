@@ -9,8 +9,14 @@ import {
 } from '../../shared/base-components';
 import { StatusIndicator } from '../common/status-indicator';
 import { DeviceEntry } from './entry';
+import { MappedDeviceT } from '../../../types/device';
 
-function DeviceGroup({ name, devices }) {
+export type DeviceGroupProps = {
+  name: string;
+  devices: MappedDeviceT[];
+};
+
+function DeviceGroup({ name, devices }: DeviceGroupProps) {
   const someDevicesActive = useMemo(
     () => devices.some(({ isActive }) => isActive),
     [devices],

@@ -1,6 +1,13 @@
+import { ChangeEventHandler } from 'react';
 import { useStyletron } from 'styletron-react';
 
-export default function Switch(props) {
+export type SwitchProps = {
+  name?: string;
+  checked: boolean;
+  onChange: ChangeEventHandler<HTMLInputElement>;
+};
+
+export default function Switch(props: SwitchProps) {
   const [css] = useStyletron();
 
   return (

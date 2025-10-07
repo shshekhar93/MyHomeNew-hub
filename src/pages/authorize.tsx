@@ -41,9 +41,9 @@ function AuthorizePage() {
       })}
     >
       <PageHeading>
-        {translate('authorize.heading', { client: client.name })}
+        {translate('authorize.heading', { client: client!.name })}
       </PageHeading>
-      <p>{translate('authorize.instructions', { client: client.name })}</p>
+      <p>{translate('authorize.instructions', { client: client!.name })}</p>
       <form action="/authorize" method="POST">
         <input type="hidden" name="grant_type" value="code" />
         {Object.entries(params).map(([name, value]) => (

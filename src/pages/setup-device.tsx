@@ -13,6 +13,7 @@ import {
   Select,
 } from '../shared/base-components';
 import { LoadingSpinner } from '../shared/loading-spinner';
+import { DeviceT } from '../../types/device';
 
 function SetupDevice() {
   const [loading, devices, reload] = usePendingDevices();
@@ -71,7 +72,7 @@ function SetupDevice() {
         ? (
             <p>
               {translate('setup-device.none-pending')}
-&nbsp;
+            &nbsp;
               <Link to="#" onClick={reload}>
                 {translate('setup-device.check-again')}
               </Link>
@@ -106,7 +107,7 @@ function SetupDevice() {
                   })}
                 >
                   <ManageDeviceInput
-                    device={deviceObj}
+                    device={deviceObj as unknown as DeviceT} // populate deviceObj with default values
                     isNew={true}
                     onSave={reload}
                   />

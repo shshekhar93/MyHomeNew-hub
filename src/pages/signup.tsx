@@ -12,7 +12,7 @@ function SignupPage() {
   const translate = useTranslations();
   const [css] = useStyletron();
   const { theme } = useTheme();
-  const [state, setState] = useState({});
+  const [state, setState] = useState<Record<string, string>>({});
   const navigate = useNavigate();
 
   const onChange = useCallback((e) => {
@@ -42,10 +42,11 @@ function SignupPage() {
       }
 
       try {
-        const result = registerUser(serializeForm(e.target));
+        const result = await registerUser(serializeForm(e.target));
         if (result.hubClientId && result.hubClientSecret) {
           return setState({
             ...state,
+            // @ts-expect-error - define state more explicitly
             error: false,
             clientId: result.hubClientId,
             clientSecret: result.hubClientSecret,
@@ -53,6 +54,7 @@ function SignupPage() {
         }
       }
       catch (_) {
+        // @ts-expect-error - define state more explicitly
         setState({ ...state, error: true });
       }
     },

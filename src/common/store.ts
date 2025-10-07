@@ -1,21 +1,23 @@
 import { createContext, useContext } from 'react';
-import _get from 'lodash/get.js';
-import _set from 'lodash/set.js';
+import _get from 'lodash/get';
+import _set from 'lodash/set';
+
+export type StoreSubscriptionHandler = (value: unknown, key: string) => void;
 
 class Store {
   #dataStore;
-  #eventHandlers;
+  #eventHandlers: Record<string, StoreSubscriptionHandler[]>;
 
   constructor() {
     this.#dataStore = Object.create(null);
     this.#eventHandlers = Object.create(null);
   }
 
-  get(key) {
+  get(key: string) {
     return _get(this.#dataStore, key);
   }
 
-  set(key, value) {
+  set(key: string, value: unknown) {
     _set(this.#dataStore, key, value);
     this.#fireEvents(key);
   }
@@ -25,7 +27,7 @@ class Store {
    * @param {string} key
    * @param {Function} handler
    */
-  subscribe(key, handler) {
+  subscribe(key: string, handler: StoreSubscriptionHandler) {
     key = pruneKey(key);
     if (this.#eventHandlers[key] === undefined) {
       this.#eventHandlers[key] = [];
@@ -33,14 +35,14 @@ class Store {
     this.#eventHandlers[key].push(handler);
   }
 
-  unsubscribe(key, handler) {
+  unsubscribe(key: string, handler: StoreSubscriptionHandler) {
     key = pruneKey(key);
     this.#eventHandlers[key] = (this.#eventHandlers[key] || []).filter(
       f => f !== handler,
     );
   }
 
-  #fireEvents(key) {
+  #fireEvents(key: string) {
     key = pruneKey(key);
     const value = this.get(key);
     const handlers = this.#eventHandlers[key] || [];
@@ -48,14 +50,14 @@ class Store {
   }
 }
 
-function pruneKey(key) {
+function pruneKey(key: string) {
   if (key.includes('.')) {
     return key.split('.')[0];
   }
   return key;
 }
 
-const StoreContext = createContext();
+const StoreContext = createContext<Store>(new Store());
 /**
  *
  * @return {Store} - returns store object.

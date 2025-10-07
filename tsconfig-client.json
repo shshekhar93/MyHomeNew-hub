@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "es2019",
+    "allowJs": true,
+    "jsx": "react-jsx",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "noEmit": true,
+    "skipLibCheck": true,
+    // "lib": [
+    //   "DOM.Iterable"
+    // ]
+  },
+  "include": [
+    "src/**/*"
+  ]
+}

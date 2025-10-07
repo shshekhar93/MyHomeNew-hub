@@ -25,7 +25,7 @@ function Navbar() {
     store.set('menu-state', !store.get('menu-state'));
   }, [store]);
 
-  const [menuOpen] = useStoreUpdates(['menu-state']);
+  const [menuOpen] = useStoreUpdates<[boolean]>(['menu-state']);
 
   return (
     <nav

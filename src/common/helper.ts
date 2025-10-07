@@ -1,8 +1,8 @@
 'use strict';
 
-export function serializeForm(form) {
+export function serializeForm(form: HTMLFormElement) {
   const formData = new FormData(form);
-  const jsonData = {};
+  const jsonData: Record<string, File | string> = {};
   for (const entry of formData.entries()) {
     jsonData[entry[0]] = entry[1];
   }

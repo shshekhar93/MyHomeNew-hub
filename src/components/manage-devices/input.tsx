@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { ChangeEventHandler, FormEventHandler, MouseEventHandler, useCallback, useEffect, useState } from 'react';
 import { useStyletron } from 'styletron-react';
 import _cloneDeep from 'lodash/cloneDeep';
 import _set from 'lodash/set';
@@ -13,10 +13,17 @@ import { Link } from 'react-router-dom';
 import { saveDeviceForUser, updateDevice } from '../../common/api';
 import { LoadingSpinner } from '../../shared/loading-spinner';
 import { useTranslations } from '../../common/i18n';
+import { DeviceT } from '../../../types/device';
 
-function ManageDeviceInput({ device, isNew, onSave }) {
-  const [localDevice, setLocalDevice] = useState(() => _cloneDeep(device));
-  const [remainingLeads, setRemaininLeads] = useState([]);
+export type ManageDeviceInputProps = {
+  device: DeviceT;
+  isNew?: boolean;
+  onSave?: () => void;
+};
+
+function ManageDeviceInput({ device, isNew = false, onSave }: ManageDeviceInputProps) {
+  const [localDevice, setLocalDevice] = useState<DeviceT>(() => _cloneDeep(device));
+  const [remainingLeads, setRemaininLeads] = useState<number[]>([]);
   const [isDirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
   const translate = useTranslations();
@@ -27,7 +34,7 @@ function ManageDeviceInput({ device, isNew, onSave }) {
 
     const alreadyConfigured = leads.map(lead => lead.devId);
     const remainingLeads = Array(4)
-      .fill()
+      .fill(0)
       .map((_, id) => id)
       .filter(id => !alreadyConfigured.includes(id));
 
@@ -35,13 +42,17 @@ function ManageDeviceInput({ device, isNew, onSave }) {
       const devId = remainingLeads.shift();
       setLocalDevice(device => ({
         ...device,
-        leads: device.leads.concat({
-          devId,
-          label: '',
-          type: '',
-          state: '0',
-          brightness: '0',
-        }),
+        leads: [
+          ...device.leads,
+          {
+            devId: devId!,
+            label: '',
+            type: '',
+            state: 0,
+            brightness: 0,
+            hasPwm: false,
+          },
+        ],
       }));
     }
     setRemaininLeads(remainingLeads);
@@ -55,19 +66,23 @@ function ManageDeviceInput({ device, isNew, onSave }) {
     const devId = remainingLeads.shift();
     setLocalDevice(device => ({
       ...device,
-      leads: device.leads.concat({
-        devId,
-        label: '',
-        type: '',
-        state: '0',
-        brightness: '0',
-      }),
+      leads: [
+        ...device.leads,
+        {
+          devId: devId!,
+          label: '',
+          type: '',
+          state: 0,
+          brightness: 0,
+          hasPwm: false,
+        },
+      ],
     }));
     setRemaininLeads([...remainingLeads]);
   }, [remainingLeads]);
 
-  const removeLead = useCallback((e) => {
-    const devId = +e.target.getAttribute('data-devid');
+  const removeLead = useCallback<MouseEventHandler<HTMLSpanElement>>((e) => {
+    const devId = +(e.target as HTMLElement).getAttribute('data-devid')!;
     setLocalDevice(localDevice => ({
       ...localDevice,
       leads: localDevice.leads.filter(lead => lead.devId !== devId),
@@ -77,18 +92,16 @@ function ManageDeviceInput({ device, isNew, onSave }) {
     );
   }, []);
 
-  const onChange = useCallback((e) => {
-    const { name, value, checked, type } = e.target;
+  const onChange = useCallback<ChangeEventHandler<HTMLInputElement | HTMLSelectElement>>((e) => {
+    const { name, value, type } = e.target;
     setDirty(true);
-    setLocalDevice(device =>
-      Object.assign(
-        {},
-        _set(device, name, type === 'checkbox' ? checked : value),
-      ),
-    );
+    setLocalDevice(device => ({
+      ...device,
+      [name]: type === 'checkbox' ? e.target.checked : value,
+    }));
   }, []);
 
-  const onSubmit = useCallback(
+  const onSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
     async (e) => {
       e.preventDefault();
 

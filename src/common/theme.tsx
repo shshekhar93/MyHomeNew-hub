@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from 'react';
+import { createContext, PropsWithChildren, useCallback, useContext, useState } from 'react';
 
 const THEME_PERSIST_KEY = 'selected-theme';
 
@@ -31,6 +31,8 @@ const THEMES = {
     highlightColor: '#4a4a4a',
     border: '#424e57',
     borderFocus: '#1d2830',
+    accent: '#1d4d70',
+    accentDark: '#173d58',
     navbar: '#1d2830',
     navbarColor: '#ffffff',
     link: '#88abdb',
@@ -39,18 +41,21 @@ const THEMES = {
   },
 };
 
-const THEME_NAMES = Object.keys(THEMES);
+export type ThemeNameT = keyof typeof THEMES;
+export type ThemeT = typeof THEMES[ThemeNameT];
 
-const ThemeContext = React.createContext({
+const THEME_NAMES = Object.keys(THEMES) as ThemeNameT[];
+
+const ThemeContext = createContext({
   theme: THEMES.LIGHT,
-  onThemeChange: () => {},
+  onThemeChange: (_: ThemeNameT) => { },
 });
 
-let selectedTheme = null;
+let selectedTheme: ThemeNameT | null = null;
 
-function ThemeProvider({ children }) {
+function ThemeProvider({ children }: PropsWithChildren) {
   const [theme, setTheme] = useState(() => getSelectedTheme());
-  const onThemeChange = useCallback((themeName) => {
+  const onThemeChange = useCallback((themeName: ThemeNameT) => {
     updateTheme(themeName);
     setTheme(getSelectedTheme());
   }, []);
@@ -71,7 +76,7 @@ function useTheme() {
   return useContext(ThemeContext);
 }
 
-function updateTheme(themeName) {
+function updateTheme(themeName: ThemeNameT) {
   if (!THEME_NAMES.includes(themeName)) {
     throw new Error('IVALID_THEME_SELECTED');
   }
@@ -81,7 +86,7 @@ function updateTheme(themeName) {
 
 function getSelectedTheme() {
   if (!selectedTheme) {
-    const themeName = window.localStorage.getItem(THEME_PERSIST_KEY);
+    const themeName = window.localStorage.getItem(THEME_PERSIST_KEY) as ThemeNameT;
     selectedTheme = themeName || 'LIGHT';
   }
 

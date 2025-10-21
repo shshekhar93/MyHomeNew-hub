@@ -6,7 +6,7 @@ import { useTheme } from '../../common/theme';
 import { LoadingSpinner } from '../../shared/loading-spinner';
 import { StatusIndicator } from '../common/status-indicator';
 import Switch from '../common/switch';
-import { MappedDeviceT } from '../../../types/device';
+import type { MappedDeviceT } from '../../../types/device';
 
 export type DeviceEntryProps = {
   device: MappedDeviceT;

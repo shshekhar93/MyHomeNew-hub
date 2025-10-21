@@ -1,5 +1,5 @@
 // Mock logger to avoid unnecessary output on terminal
-jest.mock('./libs/logger.js', () => ({
+jest.mock('./libs/logger.ts', () => ({
   logger: jest.fn(),
   logInfo: jest.fn(),
   logError: jest.fn(),
@@ -17,4 +17,4 @@ jest.mock('nconf', () => {
   return nconf;
 });
 
-jest.mock('./libs/esm-utils.js');
+jest.mock('./libs/esm-utils.ts');

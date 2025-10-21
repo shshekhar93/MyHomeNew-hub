@@ -1,0 +1,106 @@
+import { server as WebsocketServer } from 'websocket';
+import _get from 'lodash/get.js';
+import EventEmitter from 'events';
+
+import { authenticateDevice, authenticateHub } from './auth.js';
+import { onConnect as onDeviceConnect } from './device.js';
+import { onConnect as onHubConnect } from './hub.js';
+import { logError } from '../../libs/logger.js';
+import { createProxyMiddleware } from './helpers.js';
+import type { Server } from 'http';
+
+const PROTOCOLS = {
+  'myhomenew-device': {
+    authenticate: authenticateDevice,
+    orchestrate: onDeviceConnect,
+  },
+  myhomenew: {
+    authenticate: authenticateHub,
+    orchestrate: onHubConnect,
+  },
+  'homeapplyed-device': {
+    authenticate: authenticateDevice,
+    orchestrate: onDeviceConnect,
+  },
+  homeapplyed: {
+    authenticate: authenticateHub,
+    orchestrate: onHubConnect,
+  },
+};
+
+const emitter = new EventEmitter();
+const proxy = createProxyMiddleware(emitter);
+
+const isDevOnline = (name: string) => {
+  return emitter.listenerCount(name) > 0;
+};
+
+export type DeviceRequestT = {
+  action: string;
+  data?: string;
+};
+
+const requestToDevice = <T = Record<string, unknown>>(name: string, obj: DeviceRequestT): Promise<T> => {
+  return new Promise((resolve, reject) => {
+    emitter.emit(name, {
+      ...obj,
+      cb: (err: Error, resp: T) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(resp);
+      },
+    });
+  });
+};
+
+const start = (httpServer: Server) => {
+  const wsServer = new WebsocketServer({
+    httpServer,
+    autoAcceptConnections: false,
+  });
+
+  wsServer.on('request', async function (request) {
+    const protocol = request.requestedProtocols[0];
+    const flow = protocol && PROTOCOLS[protocol as keyof typeof PROTOCOLS];
+    if (!flow) {
+      logError(`Unknown protocol requested: ${protocol}`);
+      return request.reject(404);
+    }
+
+    const auth = _get(request, 'httpRequest.headers.authorization', '');
+    const [username, password] = auth.split(':');
+    if (!username || !password) {
+      logError('Either client id or secret missing in WS Req');
+      return request.reject(401);
+    }
+
+    const { authenticate, orchestrate } = flow;
+
+    const result = await authenticate(username, password);
+    if (!result) {
+      logError(`Failed to authenticate: ${username} using ${protocol}`);
+      return request.reject(401);
+    }
+
+    const connection = request.accept(protocol, request.origin);
+    connection.on('error', (err) => {
+      logError(
+        `Connection error for ${username} using ${protocol}:\n${err.stack}`,
+      );
+    });
+
+    // @ts-expect-error - This was a bad idea, but fixing it requires cleanup that cannot be part of this PR
+    orchestrate(connection, emitter, ...result).catch((err) => {
+      logError('device setup sequence failed');
+      logError(err);
+      connection.close();
+      const [device] = result || [];
+      if (device?.name) {
+        emitter.removeAllListeners(device.name);
+      }
+    });
+  });
+};
+
+export { isDevOnline, requestToDevice, proxy, start };

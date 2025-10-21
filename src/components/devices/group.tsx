@@ -9,7 +9,7 @@ import {
 } from '../../shared/base-components';
 import { StatusIndicator } from '../common/status-indicator';
 import { DeviceEntry } from './entry';
-import { MappedDeviceT } from '../../../types/device';
+import type { MappedDeviceT } from '../../../types/device';
 
 export type DeviceGroupProps = {
   name: string;

@@ -1,4 +1,4 @@
-import { DeviceT } from '../../types/device';
+import type { DeviceT } from '../../types/device';
 
 function deviceMapper(serviceDevice: DeviceT) {
   const { name, room, leads, isActive } = serviceDevice;

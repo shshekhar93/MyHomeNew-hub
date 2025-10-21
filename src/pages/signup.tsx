@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { ChangeEvent, FormEvent, useCallback, useState } from 'react';
 import { useStyletron } from 'styletron-react';
 import { useNavigate, Link } from 'react-router-dom';
 import _get from 'lodash/get';
@@ -15,7 +15,7 @@ function SignupPage() {
   const [state, setState] = useState<Record<string, string>>({});
   const navigate = useNavigate();
 
-  const onChange = useCallback((e) => {
+  const onChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setState(old => ({
       ...old,
@@ -23,7 +23,7 @@ function SignupPage() {
     }));
   }, []);
 
-  const checkUserName = useCallback(async (e) => {
+  const checkUserName = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
     const username = e.target.value;
 
     const resp = await fetch(`/user/check-user-name?username=${username}`);
@@ -35,14 +35,14 @@ function SignupPage() {
   }, []);
 
   const onSubmit = useCallback(
-    async (e) => {
+    async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       if (state.usernameError) {
         return;
       }
 
       try {
-        const result = await registerUser(serializeForm(e.target));
+        const result = await registerUser(serializeForm(e.target as HTMLFormElement));
         if (result.hubClientId && result.hubClientSecret) {
           return setState({
             ...state,

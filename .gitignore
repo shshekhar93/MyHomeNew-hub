@@ -10,6 +10,7 @@ config/config.json
 ### Eclipse ###
 
 dist/
+dist-server/
 .metadata
 bin/
 tmp/

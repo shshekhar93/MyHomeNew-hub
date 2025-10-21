@@ -13,7 +13,7 @@ import { Link } from 'react-router-dom';
 import { saveDeviceForUser, updateDevice } from '../../common/api';
 import { LoadingSpinner } from '../../shared/loading-spinner';
 import { useTranslations } from '../../common/i18n';
-import { DeviceT } from '../../../types/device';
+import type { DeviceT } from '../../../types/device';
 
 export type ManageDeviceInputProps = {
   device: DeviceT;

@@ -19,8 +19,8 @@ import {
   AUTH_PAGE_OTHER_PARAMS,
   AUTH_PAGE_REQUIRED_PARAMS,
 } from './constants.js';
-import { DeviceT, MappedDeviceT, PendingDeviceT } from '../../types/device.js';
-import { OAuthClient } from '../../types/client.js';
+import type { DeviceT, MappedDeviceT, PendingDeviceT } from '../../types/device.js';
+import type { OAuthClient } from '../../types/client.js';
 
 function useLoadTranslations(store: Store) {
   useEffect(() => {

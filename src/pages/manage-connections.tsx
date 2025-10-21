@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { MouseEvent, useCallback } from 'react';
 import { useStyletron } from 'styletron-react';
 import { deleteAppConnection } from '../common/api';
 import { useClientConnections } from '../common/hooks';
@@ -13,8 +13,11 @@ function ManageConnectionsPage() {
   const [css] = useStyletron();
   const [loading, connections = [], reloadConnections] = useClientConnections();
 
-  const deleteClient = useCallback(async (e) => {
-    const clientID = e.target.getAttribute('data-clientid');
+  const deleteClient = useCallback(async (e: MouseEvent<HTMLDivElement>) => {
+    const clientID = (e.target as HTMLDivElement).getAttribute('data-clientid');
+    if (!clientID) {
+      return;
+    }
     await deleteAppConnection(clientID);
     await reloadConnections();
   }, []);

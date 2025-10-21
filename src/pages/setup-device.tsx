@@ -13,7 +13,7 @@ import {
   Select,
 } from '../shared/base-components';
 import { LoadingSpinner } from '../shared/loading-spinner';
-import { DeviceT } from '../../types/device';
+import type { DeviceT } from '../../types/device';
 
 function SetupDevice() {
   const [loading, devices, reload] = usePendingDevices();

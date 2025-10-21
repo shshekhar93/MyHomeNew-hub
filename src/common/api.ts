@@ -1,7 +1,7 @@
 'use strict';
 
-import { OAuthClient } from '../../types/client';
-import { DeviceT, PendingDeviceT } from '../../types/device';
+import type { OAuthClient } from '../../types/client';
+import type { DeviceT, PendingDeviceT } from '../../types/device';
 
 export const UNAUTHORIZED = new Error('UNAUTHORIZED');
 export const SERVER_ERROR = new Error('SERVER_ERROR');

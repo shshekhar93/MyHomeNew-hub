@@ -7,7 +7,7 @@ import stylistic from '@stylistic/eslint-plugin';
 import pluginJest from 'eslint-plugin-jest';
 
 export default defineConfig([
-  globalIgnores(['node_modules/', 'dist/', 'coverage/']),
+  globalIgnores(['node_modules/', 'dist/', 'dist-server/', 'coverage/']),
   {
     files: [
       '**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',

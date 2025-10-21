@@ -2,7 +2,7 @@ import { AccordionItem, AccordionItemButton } from 'react-accessible-accordion';
 import { styled } from 'styletron-react';
 import { type ThemeT, useTheme } from '../common/theme';
 import { ComponentProps, ComponentType, ElementType } from 'react';
-import { StyletronComponent } from 'styletron-react';
+import type { StyletronComponent } from 'styletron-react';
 
 /**
  * Higher order component that provides the current theme to

@@ -7,7 +7,7 @@ import {
   StyledAccordionItemButton,
 } from '../../shared/base-components.jsx';
 import { ManageDeviceInput } from './input.js';
-import { DeviceT } from '../../../types/device.js';
+import type { DeviceT } from '../../../types/device.js';
 
 export type ManageDeviceListItemProps = {
   device: DeviceT;

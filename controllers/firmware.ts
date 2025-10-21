@@ -1,0 +1,42 @@
+'use strict';
+
+import crypto from 'crypto';
+import { readFile } from 'fs/promises';
+
+import DeviceModel from '../models/devices.js';
+import { decrypt } from '../libs/crypto.js';
+import { catchAndRespond } from '../libs/helpers.js';
+import { getFileURL } from '../libs/esm-utils.js';
+
+const firmwareController = catchAndRespond(async (req, res) => {
+  const { name, id } = req.params;
+
+  if (!name || !id) {
+    throw new Error('MISSING_PARAMS');
+  }
+
+  const { encryptionKey } = (await DeviceModel.findOne({ name }).lean()) || {};
+  if (!encryptionKey) {
+    throw new Error('DEV_NOT_FOUND');
+  }
+
+  const decryptedTxt = decrypt(id, encryptionKey, 'utf8' as const);
+  const [filePath, frameNum] = decryptedTxt.split('-');
+
+  if (!filePath || isNaN(parseInt(frameNum!))) {
+    throw new Error('INVALID_ID_IN_REQ');
+  }
+
+  const fullURL = getFileURL(filePath);
+  const buffer = await readFile(fullURL);
+  const md5Hash = crypto.createHash('md5').update(buffer).digest('hex');
+
+  res.setHeader('Content-Type', 'application/octet-stream');
+  res.setHeader('Content-Disposition', 'attachment; filename=firmware.bin');
+  res.setHeader('Content-Length', buffer.length);
+  res.setHeader('x-MD5', md5Hash);
+
+  res.end(buffer);
+});
+
+export default firmwareController;

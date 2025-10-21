@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { ChangeEvent, FormEvent, useCallback, useState } from 'react';
 import { useStyletron } from 'styletron-react';
 import { Link } from 'react-router-dom';
 
@@ -17,16 +17,16 @@ function SigninPage() {
   const { theme } = useTheme();
   const store = useStore();
 
-  const onUsernameChange = useCallback((e) => {
+  const onUsernameChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setUsername(e.target.value);
   }, []);
 
-  const onPasswordChange = useCallback((e) => {
+  const onPasswordChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
   }, []);
 
   const onSubmit = useCallback(
-    async (e) => {
+    async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       setError(false);
 

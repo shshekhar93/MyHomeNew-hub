@@ -1,7 +1,7 @@
 'use strict';
 
 import type { OAuthClient } from '../../types/client';
-import type { DeviceT, PendingDeviceT } from '../../types/device';
+import type { DeviceAuthorizationT, DeviceT, PendingDeviceT } from '../../types/device';
 
 export const UNAUTHORIZED = new Error('UNAUTHORIZED');
 export const SERVER_ERROR = new Error('SERVER_ERROR');
@@ -102,6 +102,27 @@ export function getAllAppConnections() {
 
 export function deleteAppConnection(id: string) {
   return makePostRequest('/delete-client', { id });
+}
+
+export function getDeviceAuthorizations() {
+  return makeGetRequest<DeviceAuthorizationT[]>('/devices/authorizations');
+}
+
+export function authorizeUserForDevice(
+  deviceId: string,
+  userEmail: string,
+  role: string,
+) {
+  return makePostRequest<{ success: boolean }>(`/devices/${deviceId}/authorize/${userEmail}`, {
+    role
+  });
+}
+
+export function revokeUserAuthorizationForDevice(
+  deviceId: string,
+  userEmail: string,
+) {
+  return makePostRequest<{ success: boolean }>(`/devices/${deviceId}/deauthorize/${userEmail}`);
 }
 
 /**

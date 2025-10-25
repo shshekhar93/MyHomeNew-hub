@@ -30,7 +30,7 @@ function SideBar() {
   });
 
   const classNameCreator = useCallback(
-    ({ isActive }) => {
+    ({ isActive }: { isActive: boolean }) => {
       return `${navLinkClassName} ${isActive ? activeNavLinkClassName : ''}`;
     },
     [navLinkClassName, activeNavLinkClassName],
@@ -81,6 +81,11 @@ function SideBar() {
       <li>
         <NavLink to="/manage-connections" className={classNameCreator}>
           {translate('links.manage-connections')}
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/family-sharing" className={classNameCreator}>
+          {translate('links.family-sharing')}
         </NavLink>
       </li>
       <li>

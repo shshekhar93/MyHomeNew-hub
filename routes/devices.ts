@@ -13,6 +13,9 @@ import {
   generateOTK,
   triggerFirmwareUpdate,
   updateExistingDevice,
+  revokeUserAuthorizationForDevice,
+  authorizeUserForDevice,
+  getDeviceAuthorizations,
 } from '../controllers/devices.js';
 
 const setupDevicesRoutes = (app: Application) => {
@@ -30,10 +33,14 @@ const setupDevicesRoutes = (app: Application) => {
   app.get('/devices', authorize, getAllDevicesForUser);
 
   app.post('/devices/new', authorize, generateOTK);
+  app.get('/devices/authorizations', authorize, getDeviceAuthorizations);
 
   app.post('/devices/:name', authorize, switchDeviceState);
   app.get('/devices/:name', authorize, getDeviceConfig);
   app.put('/devices/:name', authorize, updateExistingDevice);
+
+  app.post('/devices/:name/authorize/:userEmail', authorize, authorizeUserForDevice);
+  app.post('/devices/:name/deauthorize/:userEmail', authorize, revokeUserAuthorizationForDevice);
 
   app.post('/devices/:name/update-firmware', authorize, triggerFirmwareUpdate);
   app.get('/v1/:name/get-firmware/:id', streamFirmware);

@@ -1,4 +1,7 @@
+import type { UserT } from "./user.js";
+
 export type DeviceT = {
+  _id: string;
   name: string;
   label: string;
   user: string;
@@ -26,3 +29,9 @@ export type PendingDeviceT = {
 
 export type MappedDeviceT = Pick<DeviceT, 'name' | 'room' | 'isActive'>
   & Pick<DeviceInteractionUnitT, 'label' | 'state' | 'devId' | 'type'>;
+
+export type DeviceAuthorizationT = {
+  deviceId: string;
+  role: string;
+  user: UserT;
+};

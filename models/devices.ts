@@ -25,6 +25,7 @@ const DeviceInteractionUnitSchema = new Schema(
 );
 
 export type DeviceModelT = {
+  _id: string;
   name: string;
   label: string;
   user: string;

@@ -217,7 +217,7 @@ async function executeDeviceCommand(currentUser: UserT & BaseMongooseMixin, id: 
     await updateDeviceState(
       device.user,
       device.name,
-      devLeadId,
+      parseInt(devLeadId),
       isOn ? 100 : 0,
     );
 

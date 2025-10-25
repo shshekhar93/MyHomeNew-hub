@@ -5,7 +5,7 @@
   "description": "Smart home hub for Home Applyed devices.",
   "scripts": {
     "start": "NODE_ENV=production node dist-server/index.js",
-    "dev": "NODE_ENV=development concurrently \"tsx .\" \"vite\"",
+    "dev": "NODE_ENV=development concurrently \"tsx --watch .\" \"vite\"",
     "test": "echo 'Disabling tests for typescript migration'",
     "lint": "eslint --fix . && tsc -p tsconfig-client.json && tsc -p tsconfig.json --noEmit && echo 'lint done'",
     "clean": "rm -rf dist dist-server",

@@ -95,10 +95,14 @@ function ManageDeviceInput({ device, isNew = false, onSave }: ManageDeviceInputP
   const onChange = useCallback<ChangeEventHandler<HTMLInputElement | HTMLSelectElement>>((e) => {
     const { name, value, type } = e.target;
     setDirty(true);
-    setLocalDevice(device => ({
-      ...device,
-      [name]: type === 'checkbox' ? e.target.checked : value,
-    }));
+    setLocalDevice(device => {
+      const updateDevice = {
+        ...device,
+        leads: device.leads.map(lead => ({ ...lead })),
+      };
+      _set(updateDevice, name, type === 'checkbox' ? e.target.checked : value);
+      return updateDevice;
+    });
   }, []);
 
   const onSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
@@ -255,16 +259,16 @@ function ManageDeviceInput({ device, isNew = false, onSave }: ManageDeviceInputP
         >
           {saving
             ? (
-                <LoadingSpinner
-                  size="1rem"
-                  border="3px"
-                  color="#ffffff"
-                  borderColor="#7c7c7c"
-                />
-              )
+              <LoadingSpinner
+                size="1rem"
+                border="3px"
+                color="#ffffff"
+                borderColor="#7c7c7c"
+              />
+            )
             : (
-                translate('manage-devices.cta')
-              )}
+              translate('manage-devices.cta')
+            )}
         </Button>
       </form>
     </div>

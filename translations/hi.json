@@ -11,14 +11,13 @@
   "links.setup-device": "नया उपकरण जोड़ें",
   "links.connect-app": "नया ऐप जोड़ें",
   "links.manage-connections": "जुड़े हुए ऐप्स",
-
+  "links.family-sharing": "पारिवारिक साझा उपकरण",
   "__GROUP2__": "pages/signin.js",
   "username-placeholder": "ईमेल अथवा उपयोगकर्ता-नाम ",
   "password-placeholder": "पासवर्ड",
   "login-cta": "लॉग इन करें",
   "loginpage-signup-cta": "नया अकाउंट बनाये",
   "login-error": "गलत उपयोगकर्ता-नाम अथवा गलत पासवर्ड।",
-
   "__GROUP3__": "pages/signup.js",
   "signup-name": "पूरा नाम",
   "signup-email": "ईमेल",
@@ -33,11 +32,9 @@
   "signup-hubcreds-secret": "क्लाइंट सीक्रेट:",
   "signup=success-cta": "ठीक है",
   "signup-error": "हम आपको रजिस्टर नहीं कर पाए! कृपया दुबारा प्रयास करें।",
-
   "__GROUP4__": "pages/devices.js",
   "devices-heading": "सारे उपकरण",
   "devices-none-added": "आपने अभी तक कोई उपकरण नहीं जोड़ा है।",
-
   "__GROUP5__": "pages/manage-devices.js",
   "manage-devices-heading": "जुड़े हुए उपकरण",
   "manage-devices.device-name": "उपकरण का नाम",
@@ -51,7 +48,6 @@
   "manage-devices.switch-name": "स्विच का नाम",
   "manage-devices.add-switch": "+ एक और स्विच जोड़े",
   "manage-devices.cta": "सेभ करें",
-
   "__GROUP6__": "pages/setup-device.js",
   "setup-device.heading": "नया उपकरण जोड़ें",
   "setup-device.none-pending": "जोड़ने के लिए कोई नया उपकरण उपलब्ध नहीं है!",
@@ -61,18 +57,15 @@
   "setup-device.otp-instruction": "अपने उपकरण को इस अकाउंट से जोड़ने के लिए उपकरण के सेटअप पेज पर अपना उपयोगकर्ता-नाम और नीचे लिखा पासवर्ड दर्ज़ करें।",
   "setup-device.otp-cta": "नए उपकरण के लिए अस्थायी पासवर्ड (OTP) बनायें।",
   "setup-device.otp-cta-suffix": "",
-
   "__GROUP7__": "pages/connect-app.js",
   "connect-app.heading": "नया ऐप जोड़ें",
   "connect-app.instructions": "ऐप मे यह QR कोड स्कैन करें, अथवा नीचे लिखे क्लाइंट आईडी और सीक्रेट को दर्ज़ करें।",
   "connect-app.clientid": "क्लाइंट आईडी:",
   "connect-app.secret": "क्लाइंट सीक्रेट:",
-
   "__GROUP8__": "pages/manage-connections.js",
   "manage-connections.heading": "जुड़े हुए ऐप्स",
   "manage-connections.connected": "नीचे लिखे ऐप्स आपके आकउंट से जुड़े हुए हैं। ",
   "manage-connections.none-connected": "अब तक आपने अपने अकाउंट से कोई ऐप नै जोड़ा है।",
-
   "__GROUP9__": "pages/authorize.js",
   "authorize.heading": "{client} को अपना अकाउंट नियंत्रित करने की अनुमति दें। ",
   "authorize.instructions": "अनुमति प्राप्त करने के बाद, {client} आपके Home Applyed अकाउंट से जुड़े उपकरणों को देख तथा नियंत्रित कर पायेगा।",

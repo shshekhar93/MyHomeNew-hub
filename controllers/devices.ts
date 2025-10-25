@@ -19,6 +19,9 @@ import { DeviceSchema } from '../validations/schemas.js';
 import { getFirmwareFile } from '../libs/esm-utils.js';
 import type { BaseMongooseMixin } from '../types/mongoose-mixins.ts';
 import type { Request, Response } from 'express';
+import { AuthorizationRole, DeviceAuthorizationModel } from '../models/device-authorizations.js';
+import UserModel from '../models/users.js';
+import { isUserAuthorizedForDevice, UserAuthorizationType } from './authorization.js';
 
 const transformer = <T extends object | null | undefined>(ret: T) => schemaTransformer(null, ret);
 
@@ -116,7 +119,7 @@ export const getAllDevicesForUser = catchAndRespond(async (req: Request, res: Re
   );
 });
 
-export const updateDeviceState = async (user: string, devName: string, switchId: string, newState: number) => {
+export const updateDeviceState = async (user: string, devName: string, switchId: number, newState: number) => {
   const device = await DeviceModel.findOne({ name: devName, user });
   if (!device) {
     throw new Error('UNAUTHORIZED');
@@ -143,7 +146,8 @@ export const switchDeviceState = catchAndRespond(async (req: Request, res: Respo
   const userEmail = req.user?.email;
   const { switchId, newState } = req.body;
 
-  if (!userEmail || !name || !switchId || typeof newState !== 'number') {
+  console.log('switchDeviceState called', userEmail, name, switchId, newState);
+  if (!userEmail || !name || typeof switchId !== 'number' || typeof newState !== 'number') {
     return res.status(400).json(errResp({ err: 'INVALID_REQUEST' }));
   }
 
@@ -257,4 +261,98 @@ export const triggerFirmwareUpdate = catchAndRespond(async (req: Request, res: R
   });
   logInfo(`Firmware update response: ${JSON.stringify(updateResp)}`);
   res.json({ succes: true });
+});
+
+export const getDeviceAuthorizations = catchAndRespond(async (req: Request, res: Response) => {
+  const userDevices = await DeviceModel.find({ user: req.user!.email }).lean();
+  const userDeviceIds = userDevices.map(({ _id }) => _id)
+  const authorizations = await DeviceAuthorizationModel.find({ deviceId: { $in: userDeviceIds } }).lean();
+  const userIds = authorizations.map(auth => auth.userId);
+  const users = await UserModel.find({ _id: { $in: userIds } }).lean();
+  const authorizedUsers = users.reduce((all, { _id, email, name }) => ({
+    ...all,
+    [_id]: { _id, email, name }
+  }), {} as Record<string, { _id: string; email: string; name: string }>);
+
+  const response = authorizations.map(auth => ({
+    deviceId: auth.deviceId,
+    role: auth.role,
+    user: authorizedUsers[auth.userId] ?? null,
+  }));
+
+  res.json(response);
+});
+
+export const authorizeUserForDevice = catchAndRespond(async (req: Request, res: Response) => {
+  const deviceId = req.params.name as string;
+  const userEmail = req.params.userEmail as string;
+  const role = req.body.role as AuthorizationRole;
+  if (!deviceId || !userEmail || !role) {
+    throw new Error('MISSING_DEVICE_ID_OR_USER_ID_OR_ROLE_IN_BODY');
+  }
+
+  if (!Object.values(AuthorizationRole).includes(role)) {
+    throw new Error('INVALID_ROLE_SPECIFIED');
+  }
+
+  const requesterAuthorization = await isUserAuthorizedForDevice({
+    userId: req.user!._id,
+    deviceId,
+  });
+  if (!requesterAuthorization.authorized || requesterAuthorization.authorizationType !== UserAuthorizationType.OWNER) {
+    throw new Error('UNAUTHORIZED');
+  }
+
+  // Is the requested user already authorized?
+  const requesteeAuthorization = await isUserAuthorizedForDevice({
+    userEmail,
+    deviceId,
+  });
+
+  if (requesteeAuthorization.authorized) {
+    throw new Error(`USER_ALREADY_AUTHORIZED:${requesteeAuthorization.authorizationType.toUpperCase()}`);
+  }
+
+  if (requesteeAuthorization.authorizationType === UserAuthorizationType.UNKNOWN_DEVICE) {
+    throw new Error('DEVICE_NOT_FOUND');
+  }
+
+  if (!requesteeAuthorization.user) {
+    throw new Error('USER_NOT_FOUND');
+  }
+
+  await DeviceAuthorizationModel.create({
+    deviceId,
+    userId: requesteeAuthorization.user._id,
+    role,
+  });
+
+  res.json({ success: true });
+});
+
+export const revokeUserAuthorizationForDevice = catchAndRespond(async (req: Request, res: Response) => {
+  const deviceId = req.params.name as string;
+  const userEmail = req.params.userEmail as string;
+  if (!deviceId || !userEmail) {
+    throw new Error('MISSING_DEVICE_ID_OR_USER_ID_IN_BODY');
+  }
+
+  const { authorized, authorizationType } = await isUserAuthorizedForDevice({
+    userId: req.user!._id,
+    deviceId,
+  });
+
+  if (!authorized || authorizationType !== UserAuthorizationType.OWNER) {
+    throw new Error('UNAUTHORIZED');
+  }
+
+  const user = await UserModel.findOne({ email: userEmail }).lean();
+  if (!user) {
+    throw new Error('USER_NOT_FOUND');
+  }
+
+  const userId = user._id;
+  await DeviceAuthorizationModel.deleteOne({ deviceId, userId });
+
+  res.json({ success: true });
 });

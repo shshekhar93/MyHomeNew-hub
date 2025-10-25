@@ -11,14 +11,13 @@
   "links.setup-device": "Setup new device",
   "links.connect-app": "Connect app",
   "links.manage-connections": "Manage connected apps",
-
+  "links.family-sharing": "Family sharing",
   "__GROUP2__": "pages/signin.js",
   "username-placeholder": "Email or username",
   "password-placeholder": "Password",
   "login-cta": "Login",
   "loginpage-signup-cta": "Create an account",
   "login-error": "Invalid username or password.",
-
   "__GROUP3__": "pages/signup.js",
   "signup-name": "Full name",
   "signup-email": "Email address",
@@ -33,11 +32,9 @@
   "signup-hubcreds-secret": "Client secret:",
   "signup=success-cta": "Done",
   "signup-error": "Registration failed! Please try again.",
-
   "__GROUP4__": "pages/devices.js",
   "devices-heading": "All Devices",
   "devices-none-added": "No devices added yet.",
-
   "__GROUP5__": "pages/manage-devices.js",
   "manage-devices-heading": "Manage devices",
   "manage-devices.device-name": "Device name",
@@ -51,7 +48,6 @@
   "manage-devices.switch-name": "Switch name",
   "manage-devices.add-switch": "+ Configure another switch",
   "manage-devices.cta": "Save",
-
   "__GROUP6__": "pages/setup-device.js",
   "setup-device.heading": "Setup Devices",
   "setup-device.none-pending": "No devices pending setup!",
@@ -61,21 +57,29 @@
   "setup-device.otp-instruction": "Here's your temporary password, enter your username and OTP on your device to connect it to your account.",
   "setup-device.otp-cta": "Generate One Time Password (OTP)",
   "setup-device.otp-cta-suffix": " to setup a new device.",
-
   "__GROUP7__": "pages/connect-app.js",
   "connect-app.heading": "Connect App",
   "connect-app.instructions": "Scan the QR code, or enter the following credentials in the app to connect.",
   "connect-app.clientid": "Client ID:",
   "connect-app.secret": "Client secret:",
-
   "__GROUP8__": "pages/manage-connections.js",
   "manage-connections.heading": "Manage connections",
   "manage-connections.connected": "You have the following clients connected to your account.",
   "manage-connections.none-connected": "You don't have any clients connected to your account yet.",
-
   "__GROUP9__": "pages/authorize.js",
   "authorize.heading": "Authorize {client} to access your account",
   "authorize.instructions": "Once authorized, {client} will be able to discover and control the devices that you add to your Home Applyed account.",
   "authorize.cta": "Authorize",
-  "authoize.error_invalid_request": "We received an invalid request."
+  "authoize.error_invalid_request": "We received an invalid request.",
+  "__GROUP10__": "pages/family-sharing.js",
+  "family-sharing.heading": "Family Sharing",
+  "family-sharing.no-devices": "No devices available for sharing.",
+  "family-sharing.no-authorizations": "You're not sharing any devices.",
+  "family-sharing.share-new-device": "Share another device",
+  "family-sharing.select-device": "Select device to share",
+  "family-sharing.user-email": "Family member's email",
+  "family-sharing.select-role": "Select role",
+  "family-sharing.role-operator": "Operator",
+  "family-sharing.role-administrator": "Administrator",
+  "family-sharing.share-device": "Share"
 }

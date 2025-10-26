@@ -210,12 +210,8 @@ async function executeDeviceCommand(currentUser: UserT & BaseMongooseMixin, id: 
       throw new Error('Device does not exist');
     }
 
-    if (!device.user || device.user !== currentUser?.email) {
-      throw new Error(`Unauthorized access to ${id} by ${currentUser._id}`);
-    }
-
     await updateDeviceState(
-      device.user,
+      currentUser._id,
       device.name,
       parseInt(devLeadId),
       isOn ? 100 : 0,

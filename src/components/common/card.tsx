@@ -1,6 +1,6 @@
-import React from "react";
-import { useStyletron } from "styletron-react";
-import { useTheme } from "../../common/theme";
+import React from 'react';
+import { useStyletron } from 'styletron-react';
+import { useTheme } from '../../common/theme';
 
 export type CardProps = {
   title: React.ReactNode;
@@ -16,7 +16,8 @@ export function Card({ title, children }: React.PropsWithChildren<CardProps>) {
       padding: '1rem',
       borderRadius: '0.5rem',
       marginBottom: '1rem',
-    })}>
+    })}
+    >
       <h4 className={css({ marginTop: 0 })}>{title}</h4>
       <div>{children}</div>
     </div>

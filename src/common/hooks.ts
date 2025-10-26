@@ -68,7 +68,7 @@ function useInitialized(store: Store) {
   );
 }
 
-function useUserDevices() {
+function useUserDevices(includeOwnDevicesOnly: boolean = false) {
   const store = useStore();
 
   const reloadDevices = useCallback(async () => {
@@ -76,7 +76,7 @@ function useUserDevices() {
       store.set('loading-devices', true);
       store.set('orig-devices', null);
       store.set('devices', null);
-      const allDevices = await getExistingDevices();
+      const allDevices = await getExistingDevices(includeOwnDevicesOnly);
       const mappedDevices = allDevices.flatMap(deviceMapper);
       const groupedDevices = _groupBy(mappedDevices, 'room');
       store.set('loading-devices', false);

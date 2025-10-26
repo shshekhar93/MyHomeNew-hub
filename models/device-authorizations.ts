@@ -11,7 +11,7 @@ export type DeviceAuthorizationT = {
   userId: string; // _id from user model
   authorizationDate: Date;
   expiresAt: Date | null;
-  role: AuthorizationRole
+  role: AuthorizationRole;
 };
 
 export const DeviceAuthorizationSchema = new Schema({
@@ -24,5 +24,5 @@ export const DeviceAuthorizationSchema = new Schema({
 
 export const DeviceAuthorizationModel = mongoose.model<DeviceAuthorizationT>(
   'DeviceAuthorization',
-  DeviceAuthorizationSchema
+  DeviceAuthorizationSchema,
 );

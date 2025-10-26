@@ -1,4 +1,4 @@
-import type { UserT } from "./user.js";
+import type { UserT } from './user.js';
 
 export type DeviceT = {
   _id: string;

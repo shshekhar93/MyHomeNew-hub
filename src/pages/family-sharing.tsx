@@ -36,18 +36,9 @@ export function FamilySharingPage() {
     })();
   }, [submitting]);
 
-  const [sharedDevices, privateDevices] = useMemo(() => {
-    const shared: DeviceT[] = [];
-    const priv: DeviceT[] = [];
-    devices.forEach((device) => {
-      const isShared = authorizations.some(auth => auth.deviceId === device._id);
-      if (isShared) {
-        shared.push(device);
-      } else {
-        priv.push(device);
-      }
-    });
-    return [shared, priv];
+  const sharedDevices = useMemo(() => {
+    return devices.filter(({_id}) => 
+      authorizations.some(auth => auth.deviceId === _id))
   }, [devices, authorizations])
 
   const onShare = async (e: FormEvent<HTMLFormElement>) => {
@@ -95,6 +86,9 @@ export function FamilySharingPage() {
         <Card key={device._id} title={`${device.label} (${device.name})`}>
           <ul className={css({
             listStyle: 'none',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem',
           })}>
             {authorizations
               .filter(auth => auth.deviceId === device._id)
@@ -144,7 +138,7 @@ export function FamilySharingPage() {
               },
             }}>
             <option value="">{translate('family-sharing.select-device')}</option>
-            {privateDevices.map((device) => (
+            {devices.map((device) => (
               <option key={device._id} value={device._id}>{device.label} ({device.name})</option>
             ))}
           </Select>

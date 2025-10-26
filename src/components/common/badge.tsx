@@ -10,19 +10,19 @@ export type BadgeProps = {
 
 const Colors = {
   positive: {
-    background: 'green',
-    color: 'lightgreen',
+    background: '#126c00',
+    color: '#b2ffb2',
   },
   information: {
-    background: 'blue',
-    color: 'lightblue',
+    background: '#484898',
+    color: '#c8f8f8',
   },
   warning: {
-    background: 'orange',
+    background: '#ffa500',
     color: '#805000',
   },
   negative: {
-    background: 'red',
+    background: '#e50000',
     color: '#ffcece',
   }
 };
@@ -39,6 +39,7 @@ export function Badge({
       padding: '2px 0.5rem 4px',
       borderRadius: '10px',
       margin: '0 0.5rem',
+      fontSize: '0.875rem',
       ...Colors[type],
       ...$style, // Overrides
     })}>

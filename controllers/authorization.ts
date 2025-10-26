@@ -1,12 +1,13 @@
-import { DeviceAuthorizationModel } from "../models/device-authorizations.js";
-import DeviceModel from "../models/devices.js";
-import UserModel, { type UserT } from "../models/users.js";
+import { DeviceAuthorizationModel } from '../models/device-authorizations.js';
+import DeviceModel, { type DeviceModelT } from '../models/devices.js';
+import UserModel, { type UserT } from '../models/users.js';
 
-export type IsUserAuthorizedForDeviceParamsT = {
-  deviceId: string;
-} & (
-    | { userId: string; userEmail?: never }
-    | { userId?: never; userEmail: string }
+export type IsUserAuthorizedForDeviceParamsT = (
+  | { deviceId: string; deviceName?: never }
+  | { deviceId?: never; deviceName: string }
+) & (
+  | { userId: string; userEmail?: never }
+  | { userId?: never; userEmail: string }
   );
 
 export enum UserAuthorizationType {
@@ -19,28 +20,35 @@ export enum UserAuthorizationType {
 export type IsUserAuthorizedForDeviceReturnT = {
   authorized: boolean;
   authorizationType: UserAuthorizationType;
+  device: DeviceModelT | null;
   user: UserT | null;
 };
 
 export async function isUserAuthorizedForDevice({
   userId = '',
   userEmail = '',
-  deviceId
+  deviceId,
+  deviceName,
 }: IsUserAuthorizedForDeviceParamsT): Promise<IsUserAuthorizedForDeviceReturnT> {
-  if (!deviceId || (!userId && !userEmail)) {
+  if ((!deviceId && !deviceName) || (!userId && !userEmail)) {
     return {
       authorized: false,
       authorizationType: UserAuthorizationType.UNKNOWN_DEVICE,
       user: null,
+      device: null,
     };
   }
-  const device = await DeviceModel.findById(deviceId).lean();
+
+  const device = await DeviceModel.findOne(
+    deviceId ? { _id: deviceId } : { name: deviceName },
+  ).lean();
 
   if (!device) {
     return {
       authorized: false,
       authorizationType: UserAuthorizationType.UNKNOWN_DEVICE,
       user: null,
+      device: null,
     };
   }
 
@@ -49,6 +57,7 @@ export async function isUserAuthorizedForDevice({
     return {
       authorized: false,
       authorizationType: UserAuthorizationType.UNAUTHORIZED,
+      device: device,
       user: null,
     };
   }
@@ -59,12 +68,13 @@ export async function isUserAuthorizedForDevice({
       authorized: true,
       authorizationType: UserAuthorizationType.OWNER,
       user,
+      device,
     };
   }
 
   // Check if the user has an authorization entry for the device
   const authorization = await DeviceAuthorizationModel.findOne({
-    deviceId,
+    deviceId: device._id,
     userId: user._id,
   }).lean();
 
@@ -72,5 +82,6 @@ export async function isUserAuthorizedForDevice({
     authorized: !!authorization,
     authorizationType: authorization ? UserAuthorizationType.AUTHORIZED_USER : UserAuthorizationType.UNAUTHORIZED,
     user,
+    device,
   };
 }

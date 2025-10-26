@@ -57,8 +57,8 @@ export const getCurrentUserDetails = () => {
   return makeGetRequest('/user/@me');
 };
 
-export const getExistingDevices = () => {
-  return makeGetRequest<DeviceT[]>('/devices');
+export const getExistingDevices = (includeOwnDevicesOnly: boolean = false) => {
+  return makeGetRequest<DeviceT[]>(`/devices?includeOwnDevicesOnly=${includeOwnDevicesOnly}`);
 };
 
 export const getKnownDeviceList = () => {
@@ -114,7 +114,7 @@ export function authorizeUserForDevice(
   role: string,
 ) {
   return makePostRequest<{ success: boolean }>(`/devices/${deviceId}/authorize/${userEmail}`, {
-    role
+    role,
   });
 }
 

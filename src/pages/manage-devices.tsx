@@ -9,7 +9,7 @@ import { LoadingSpinner } from '../shared/loading-spinner';
 import { useTranslations } from '../common/i18n';
 
 function ManageDevicesPage() {
-  const { loading, origDevices } = useUserDevices();
+  const { loading, origDevices } = useUserDevices(true);
   const translate = useTranslations();
   const [css] = useStyletron();
 
@@ -42,6 +42,7 @@ function ManageDevicesPage() {
           maxWidth: '750px',
         })}
       >
+        {(origDevices || []).length === 0 && <p>{translate('devices-none-added')}</p>}
         {(origDevices || []).map(device => (
           <ManageDeviceListItem key={device.name} device={device} />
         ))}

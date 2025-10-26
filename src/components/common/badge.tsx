@@ -1,5 +1,5 @@
-import React from "react";
-import { StyleObject, useStyletron } from "styletron-react";
+import React from 'react';
+import { StyleObject, useStyletron } from 'styletron-react';
 
 export type BadgeTypes = 'positive' | 'information' | 'warning' | 'negative';
 
@@ -24,13 +24,13 @@ const Colors = {
   negative: {
     background: '#e50000',
     color: '#ffcece',
-  }
+  },
 };
 
 export function Badge({
   type,
   $style,
-  children
+  children,
 }: React.PropsWithChildren<BadgeProps>) {
   const [css] = useStyletron();
   return (
@@ -42,8 +42,9 @@ export function Badge({
       fontSize: '0.875rem',
       ...Colors[type],
       ...$style, // Overrides
-    })}>
+    })}
+    >
       {children}
     </div>
-  )
+  );
 }

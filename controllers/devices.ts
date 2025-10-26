@@ -65,16 +65,16 @@ function mapBrightness(devConfig: Record<string, number>, lead: DeviceInteractio
 }
 
 export const queryDevice = catchAndRespond(async (req: Request, res: Response) => {
-  const device = await DeviceModel.findOne({
-    name: req.params.name,
-  }).lean();
+  const {
+    authorized,
+    device,
+  } = await isUserAuthorizedForDevice({
+    userId: req.user!._id,
+    deviceName: req.params.name!,
+  });
 
-  if (!device) {
+  if (!authorized || !device) {
     return res.status(404).json(errResp({ err: 'Device not found' }));
-  }
-
-  if (device.user !== req.user!.email) {
-    return res.status(403).json(errResp({ err: 'UNAUTHORIZED' }));
   }
 
   res.json(await getDevState(device));
@@ -109,9 +109,22 @@ export const getDevState = async (device: DeviceModelT & BaseMongooseMixin): Pro
 };
 
 export const getAllDevicesForUser = catchAndRespond(async (req: Request, res: Response) => {
+  const includeOwnDevicesOnly = req.query.includeOwnDevicesOnly;
+
   const devices = await DeviceModel.find({ user: req.user!.email }).lean();
+  let allDevices = [...devices];
+  if (includeOwnDevicesOnly !== 'true') {
+    const authorizations = await DeviceAuthorizationModel.find({
+      userId: req.user!._id,
+    }).lean();
+    const authorizedDeviceIds = authorizations.map(({ deviceId }) => deviceId);
+
+    const authorizedDevices = await DeviceModel.find({ _id: { $in: authorizedDeviceIds } }).lean();
+    allDevices = [...allDevices, ...authorizedDevices];
+  }
+
   res.json(
-    devices.map(transformer).map(device => ({
+    allDevices.map(transformer).map(device => ({
       ..._omit(device, 'encryptionKey'),
       isActive: isDevOnline(device.name),
       leads: device.leads.map(lead => ({ ...lead, brightness: lead.state })),
@@ -119,20 +132,25 @@ export const getAllDevicesForUser = catchAndRespond(async (req: Request, res: Re
   );
 });
 
-export const updateDeviceState = async (user: string, devName: string, switchId: number, newState: number) => {
-  const device = await DeviceModel.findOne({ name: devName, user });
-  if (!device) {
+export const updateDeviceState = async (userId: string, deviceName: string, switchId: number, newState: number) => {
+  const { authorized, device } = await isUserAuthorizedForDevice({
+    userId,
+    deviceName,
+  });
+
+  if (!authorized || !device) {
+    console.log({ authorized, device, userId });
     throw new Error('UNAUTHORIZED');
   }
 
-  await requestToDevice(devName, {
+  await requestToDevice(deviceName, {
     action: 'set-state',
     data: `${switchId}=${newState}`,
   });
 
   await DeviceModel.updateOne(
     {
-      name: devName,
+      name: deviceName,
       'leads.devId': switchId,
     },
     {
@@ -143,15 +161,14 @@ export const updateDeviceState = async (user: string, devName: string, switchId:
 
 export const switchDeviceState = catchAndRespond(async (req: Request, res: Response) => {
   const { name } = req.params;
-  const userEmail = req.user?.email;
+  const userId = req.user?._id;
   const { switchId, newState } = req.body;
 
-  console.log('switchDeviceState called', userEmail, name, switchId, newState);
-  if (!userEmail || !name || typeof switchId !== 'number' || typeof newState !== 'number') {
+  if (!userId || !name || typeof switchId !== 'number' || typeof newState !== 'number') {
     return res.status(400).json(errResp({ err: 'INVALID_REQUEST' }));
   }
 
-  await updateDeviceState(_get(req, 'user.email')!, name, switchId, newState);
+  await updateDeviceState(userId, name, switchId, newState);
   res.json({
     success: true,
   });
@@ -180,8 +197,12 @@ export const updateExistingDevice = catchAndRespond(async (req: Request, res: Re
     });
   }
 
-  const existing = await DeviceModel.findOne({ name });
-  if (!existing) {
+  const { authorized, device: existing, authorizationType } = await isUserAuthorizedForDevice({
+    userId: req.user!._id,
+    deviceName: name!,
+  });
+
+  if (!authorized || !existing || authorizationType !== 'owner') {
     return res.status(404).json(
       errResp({
         err: 'Device not found',
@@ -265,13 +286,13 @@ export const triggerFirmwareUpdate = catchAndRespond(async (req: Request, res: R
 
 export const getDeviceAuthorizations = catchAndRespond(async (req: Request, res: Response) => {
   const userDevices = await DeviceModel.find({ user: req.user!.email }).lean();
-  const userDeviceIds = userDevices.map(({ _id }) => _id)
+  const userDeviceIds = userDevices.map(({ _id }) => _id);
   const authorizations = await DeviceAuthorizationModel.find({ deviceId: { $in: userDeviceIds } }).lean();
   const userIds = authorizations.map(auth => auth.userId);
   const users = await UserModel.find({ _id: { $in: userIds } }).lean();
   const authorizedUsers = users.reduce((all, { _id, email, name }) => ({
     ...all,
-    [_id]: { _id, email, name }
+    [_id]: { _id, email, name },
   }), {} as Record<string, { _id: string; email: string; name: string }>);
 
   const response = authorizations.map(auth => ({

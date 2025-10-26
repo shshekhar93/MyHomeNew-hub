@@ -10,7 +10,8 @@
     "lint": "eslint --fix . && tsc -p tsconfig-client.json && tsc -p tsconfig.json --noEmit && echo 'lint done'",
     "clean": "rm -rf dist dist-server",
     "build": "vite build && tsc",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "mock-devices": "tsx test/mock-device"
   },
   "babel": {
     "presets": [
@@ -78,6 +79,7 @@
     "@types/nconf": "^0.10.7",
     "@types/passport": "^1.0.17",
     "@types/passport-local": "^1.0.38",
+    "@types/qrcode": "^1.5.6",
     "@types/react-dom": "^19.2.1",
     "@types/react-router-dom": "^5.3.3",
     "@types/semver": "^7.7.1",

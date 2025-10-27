@@ -13,6 +13,7 @@ import ManageConnectionsPage from './manage-connections';
 import { getReturnURI } from '../common/helper';
 import AuthorizePage from './authorize';
 import { FamilySharingPage } from './family-sharing';
+import { DeviceConsole } from './device-console';
 
 const FULL_WIDTH_PAGE = ['/authorize'];
 
@@ -68,6 +69,7 @@ function PageRoot() {
                     element={<ManageConnectionsPage />}
                   />
                   <Route path="/family-sharing" element={<FamilySharingPage />} />
+                  <Route path="/console" element={<DeviceConsole />} />
                   <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
               </div>

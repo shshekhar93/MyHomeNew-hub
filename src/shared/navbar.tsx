@@ -62,7 +62,26 @@ function Navbar() {
         </Link>
       </div>
       {user && (
-        <div>
+        <div className={css({
+          display: 'flex',
+          gap: '1rem',
+        })}
+        >
+          <Link
+            to="/console"
+            className={css({
+              display: 'none',
+              color: theme.navbarColor,
+              ':hover': {
+                color: theme.navbarColor,
+              },
+              '@media only screen and (min-width: 600px)': {
+                display: 'block',
+              },
+            })}
+          >
+            {translate('links.device-console')}
+          </Link>
           <Link
             to="#"
             onClick={logout}

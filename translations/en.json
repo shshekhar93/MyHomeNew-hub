@@ -12,6 +12,7 @@
   "links.connect-app": "Connect app",
   "links.manage-connections": "Manage connected apps",
   "links.family-sharing": "Family sharing",
+  "links.device-console": "Device console",
   "__GROUP2__": "pages/signin.js",
   "username-placeholder": "Email or username",
   "password-placeholder": "Password",
@@ -81,5 +82,9 @@
   "family-sharing.select-role": "Select role",
   "family-sharing.role-operator": "Operator",
   "family-sharing.role-administrator": "Administrator",
-  "family-sharing.share-device": "Share"
+  "family-sharing.share-device": "Share",
+  "__GROUP11__": "pages/device-console.tsx",
+  "device-console.heading": "Device console",
+  "device-console.description": "Direct communication with connected devices. The JSON payload provided here is sent as is to the device, and its response is displayed.",
+  "device-console.warning": "This is an advanced feature for debugging issues. Sending incorrect request can irreperably brick your HomeApplyed device."
 }

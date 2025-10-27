@@ -40,6 +40,7 @@ const createInputStyles = ({ $theme, hasError }: {
   },
 });
 const Input = withTheme(styled('input', createInputStyles)) as StyletronComponent<ElementType<unknown, 'input'>, ComponentProps<'input'> & { hasError?: boolean }>;
+const Textarea = withTheme(styled('textarea', createInputStyles)) as StyletronComponent<ElementType<unknown, 'textarea'>, ComponentProps<'textarea'> & { hasError?: boolean }>;
 const Select = withTheme(styled('select', createInputStyles)) as StyletronComponent<ElementType<unknown, 'select'>, ComponentProps<'select'>>;
 
 const InputLabel = styled('label', {
@@ -110,6 +111,7 @@ const StyledAccordionItemButton = styled(AccordionItemButton, () => ({
 export {
   PageHeading,
   Input,
+  Textarea,
   Select,
   InputLabel,
   InputLabelText,

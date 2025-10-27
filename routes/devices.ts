@@ -16,6 +16,7 @@ import {
   revokeUserAuthorizationForDevice,
   authorizeUserForDevice,
   getDeviceAuthorizations,
+  directDeviceCommunication,
 } from '../controllers/devices.js';
 
 const setupDevicesRoutes = (app: Application) => {
@@ -38,6 +39,7 @@ const setupDevicesRoutes = (app: Application) => {
   app.post('/devices/:name', authorize, switchDeviceState);
   app.get('/devices/:name', authorize, getDeviceConfig);
   app.put('/devices/:name', authorize, updateExistingDevice);
+  app.post('/devices/:name/direct', authorize, directDeviceCommunication);
 
   app.post('/devices/:name/authorize/:userEmail', authorize, authorizeUserForDevice);
   app.post('/devices/:name/deauthorize/:userEmail', authorize, revokeUserAuthorizationForDevice);

@@ -39,7 +39,8 @@ function SideBar() {
   return (
     <ul
       className={css({
-        display: menuOpen ? 'block' : 'none',
+        display: menuOpen ? 'flex' : 'none',
+        flexDirection: 'column',
         position: 'absolute',
         top: 0,
         left: 0,
@@ -53,7 +54,7 @@ function SideBar() {
 
         '@media only screen and (min-width: 600px)': {
           position: 'static',
-          display: 'block',
+          display: 'flex',
           minWidth: '250px',
         },
       })}
@@ -86,6 +87,18 @@ function SideBar() {
       <li>
         <NavLink to="/family-sharing" className={classNameCreator}>
           {translate('links.family-sharing')}
+        </NavLink>
+      </li>
+      <li>
+        <NavLink
+          to="/console"
+          className={`${navLinkClassName} ${css({
+            '@media only screen and (min-width: 600px)': {
+              display: 'none',
+            },
+          })}`}
+        >
+          {translate('links.device-console')}
         </NavLink>
       </li>
       <li>

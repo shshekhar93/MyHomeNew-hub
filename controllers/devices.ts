@@ -108,6 +108,26 @@ export const getDevState = async (device: DeviceModelT & BaseMongooseMixin): Pro
   }
 };
 
+export const directDeviceCommunication = catchAndRespond(async (req: Request, res: Response) => {
+  const deviceName = req.params.name;
+
+  if (!deviceName) {
+    throw new Error('Invalid request');
+  }
+
+  const { authorized, device } = await isUserAuthorizedForDevice({
+    userId: req.user!._id,
+    deviceName: deviceName,
+  });
+
+  if (!authorized || !device) {
+    throw new Error('Device not found');
+  }
+
+  const response = await requestToDevice(deviceName, req.body);
+  res.json(response);
+});
+
 export const getAllDevicesForUser = catchAndRespond(async (req: Request, res: Response) => {
   const includeOwnDevicesOnly = req.query.includeOwnDevicesOnly;
 

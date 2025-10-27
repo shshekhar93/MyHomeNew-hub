@@ -125,6 +125,10 @@ export function revokeUserAuthorizationForDevice(
   return makePostRequest<{ success: boolean }>(`/devices/${deviceId}/deauthorize/${userEmail}`);
 }
 
+export function directDeviceCommunication(deviceName: string, request: unknown) {
+  return makePostRequest<Record<string, unknown>>(`/devices/${deviceName}/direct`, request);
+}
+
 /**
  *
  * @param {string} id Client id of the oauth client to fetch

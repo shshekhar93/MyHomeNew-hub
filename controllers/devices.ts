@@ -22,6 +22,7 @@ import type { Request, Response } from 'express';
 import { AuthorizationRole, DeviceAuthorizationModel } from '../models/device-authorizations.js';
 import UserModel from '../models/users.js';
 import { isUserAuthorizedForDevice, UserAuthorizationType } from './authorization.js';
+import { deviceStateUpdate } from '../libs/device-events.js';
 
 const transformer = <T extends object | null | undefined>(ret: T) => schemaTransformer(null, ret);
 
@@ -177,6 +178,12 @@ export const updateDeviceState = async (userId: string, deviceName: string, swit
       'leads.$.state': newState,
     },
   );
+
+  deviceStateUpdate({
+    deviceId: device._id,
+    interactionUnitId: switchId,
+    newState,
+  });
 };
 
 export const switchDeviceState = catchAndRespond(async (req: Request, res: Response) => {

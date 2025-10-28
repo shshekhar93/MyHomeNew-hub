@@ -8,6 +8,7 @@ import DeviceSetupModel, { type DeviceSetupT } from '../../models/device-setup.j
 import type { DeviceModelT } from '../../models/devices.js';
 import { sendMessageToDevice, type DeviceRequestCbT, type DeviceRequestT } from './helpers.js';
 import type { BaseMongooseMixin } from '../../types/mongoose-mixins.js';
+import { deviceConnectionStatus } from '../../libs/device-events.js';
 
 function confirmSessionKeyToDevice(conn: WebsocketConnection, sessionKey: string) {
   const request = {
@@ -102,7 +103,7 @@ async function onConnect(connection: WebsocketConnection, emitter: EventEmitter,
   emitter.on(device.name, onRequest);
 
   // We must receive periodic pings.
-  connection.socket.setTimeout(45000, () => {
+  connection.socket.setTimeout(30000, () => {
     connection.close();
   });
 
@@ -110,9 +111,18 @@ async function onConnect(connection: WebsocketConnection, emitter: EventEmitter,
   connection.on('close', () => {
     logInfo(`${device.name} disconnected!`);
     emitter.removeListener(device.name, onRequest);
+
+    deviceConnectionStatus({
+      deviceId: device._id!,
+      online: false,
+    });
   });
 
   logInfo(`${device.name} connected!`);
+  deviceConnectionStatus({
+    deviceId: device._id!,
+    online: true,
+  });
 }
 
 export {
